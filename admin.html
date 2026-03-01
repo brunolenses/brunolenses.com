@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B Lenses — Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #f7f4ef;
+            --bg-warm: #ede6dc;
+            --accent: #4f5b3a;
+            --accent-light: #4f5b3a20;
+            --text: #2c2c2c;
+            --text-muted: #6b6560;
+            --border: #d8cfc4;
+            --white: #fff;
+            --radius: 16px;
+            --radius-sm: 12px;
+            --shadow: 0 0 0 1px rgba(14, 63, 126, .04), 0 1px 1px -.5px rgba(42, 51, 69, .04), 0 3px 3px -1.5px rgba(42, 51, 70, .04), 0 6px 6px -3px rgba(42, 51, 70, .04);
+            --transition: .3s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        html {
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            color: var(--text);
+            background: var(--bg);
+            min-height: 100vh;
+        }
+
+        /* LOGIN */
+        .login-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 48px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .login-card h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
+
+        .login-card p {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+        }
+
+        .login-card input {
+            width: 100%;
+            padding: 14px 20px;
+            border: 1px solid var(--border);
+            border-radius: 9999px;
+            font-size: 14px;
+            font-family: inherit;
+            background: var(--bg);
+            outline: none;
+            transition: border var(--transition);
+            margin-bottom: 16px;
+        }
+
+        .login-card input:focus {
+            border-color: var(--accent);
+        }
+
+        .login-error {
+            color: #a65d57;
+            font-size: 13px;
+            margin-bottom: 12px;
+            display: none;
+        }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: inherit;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition);
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        .btn-primary:hover {
+            background: #3d4a2c;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            background: var(--bg-warm);
+            border-color: var(--text);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 16px;
+            transition: all var(--transition);
+            cursor: pointer;
+        }
+
+        .btn-icon:hover {
+            background: var(--bg-warm);
+            color: var(--text);
+        }
+
+        .btn-icon.danger:hover {
+            background: #a65d57;
+            color: #fff;
+            border-color: #a65d57;
+        }
+
+        /* LAYOUT */
+        .admin {
+            display: none;
+        }
+
+        .admin-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(247, 244, 239, .85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 32px;
+        }
+
+        .admin-header-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .admin-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 400;
+        }
+
+        .admin-logo span {
+            font-size: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            background: var(--accent);
+            color: var(--bg);
+            padding: 3px 10px;
+            border-radius: 9999px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .admin-body {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 32px;
+            padding-bottom: 120px;
+        }
+
+        /* UPLOAD ZONE */
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 48px;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition);
+            background: var(--white);
+            margin-bottom: 32px;
+        }
+
+        .upload-zone:hover,
+        .upload-zone.dragover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        .upload-zone-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: .5;
+        }
+
+        .upload-zone h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
+
+        .upload-zone p {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .upload-zone input {
+            display: none;
+        }
+
+        /* GRID */
+        .grid-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .grid-controls h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 400;
+        }
+
+        .photo-count {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .admin-card {
+            position: relative;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            cursor: grab;
+            transition: box-shadow var(--transition), transform var(--transition);
+        }
+
+        .admin-card:hover {
+            box-shadow: var(--shadow);
+        }
+
+        .admin-card.dragging {
+            opacity: .5;
+            transform: scale(.97);
+        }
+
+        .admin-card.drag-over {
+            border-color: var(--accent);
+            border-style: dashed;
+        }
+
+        /* IMAGE FRAME */
+        .admin-card-frame {
+            position: relative;
+            overflow: hidden;
+            cursor: grab;
+        }
+
+        .admin-card-frame:active {
+            cursor: grabbing;
+        }
+
+        .admin-card-frame.ratio-wide {
+            aspect-ratio: 2/1;
+        }
+
+        .admin-card-frame.ratio-square {
+            aspect-ratio: 1;
+        }
+
+        .admin-card-frame.ratio-portrait {
+            aspect-ratio: 3/4;
+        }
+
+        .admin-card-frame.ratio-landscape {
+            aspect-ratio: 4/3;
+        }
+
+        .admin-card-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: var(--bg-warm);
+            pointer-events: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .reposition-hint {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, .6);
+            color: #fff;
+            font-size: 11px;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity .2s;
+            white-space: nowrap;
+        }
+
+        .admin-card-frame:hover .reposition-hint {
+            opacity: 1;
+        }
+
+        .admin-card-frame:active .reposition-hint {
+            opacity: 0;
+        }
+
+        /* TOOLBAR */
+        .admin-card-toolbar {
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .ratio-selector {
+            display: flex;
+            gap: 4px;
+        }
+
+        .ratio-btn {
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 500;
+            font-family: inherit;
+            border: 1px solid var(--border);
+            border-radius: 9999px;
+            background: var(--bg);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+
+        .ratio-btn.active {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+        }
+
+        .ratio-btn:hover:not(.active) {
+            background: var(--bg-warm);
+            color: var(--text);
+        }
+
+        .admin-card-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 64px 32px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: .4;
+        }
+
+        .empty-state h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 400;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        /* SAVE BAR */
+        .save-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 60;
+            background: var(--text);
+            color: var(--bg);
+            padding: 16px 32px;
+            transform: translateY(100%);
+            transition: transform .4s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        .save-bar.visible {
+            transform: translateY(0);
+        }
+
+        .save-bar-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .save-bar-text {
+            font-size: 14px;
+            opacity: .8;
+        }
+
+        .save-bar .btn-save {
+            background: var(--bg);
+            color: var(--text);
+            padding: 12px 32px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+
+        .save-bar .btn-save:hover {
+            background: var(--bg-warm);
+            transform: translateY(-1px);
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            background: var(--text);
+            color: var(--bg);
+            padding: 14px 24px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            z-index: 200;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all .3s ease-out;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.save-toast {
+            bottom: 100px;
+        }
+
+        /* SECTIONS */
+        .admin-section {
+            margin-top: 48px;
+            padding-top: 48px;
+            border-top: 1px solid var(--border);
+        }
+
+        .admin-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 20px;
+        }
+
+        /* HERO VIDEO */
+        .hero-video-section {
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .hero-video-preview {
+            width: 400px;
+            max-width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: var(--radius-sm);
+            background: var(--bg-warm);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        .hero-video-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hero-video-info {
+            padding-top: 8px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .hero-video-info p {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        /* ABOUT */
+        .about-upload {
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+        }
+
+        .about-preview {
+            width: 200px;
+            height: 267px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-warm);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        .about-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .about-upload-info {
+            padding-top: 8px;
+        }
+
+        .about-upload-info p {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        /* LOADING */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(247, 244, 239, .9);
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .loading-overlay.hidden {
+            display: none;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width:768px) {
+            .admin-body {
+                padding: 20px;
+                padding-bottom: 120px;
+            }
+
+            .admin-header {
+                padding: 12px 20px;
+            }
+
+            .admin-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .upload-zone {
+                padding: 32px 20px;
+            }
+
+            .login-card {
+                padding: 32px 24px;
+            }
+
+            .about-upload {
+                flex-direction: column;
+            }
+
+            .save-bar {
+                padding: 12px 20px;
+            }
+        }
+
+        @media (max-width:480px) {
+            .admin-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- LOGIN -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <h1>B Lenses</h1>
+            <p>Painel administrativo</p>
+            <input type="password" id="loginPassword" placeholder="Senha de acesso" autofocus>
+            <p class="login-error" id="loginError">Senha incorreta</p>
+            <button class="btn btn-primary btn-full" id="loginBtn">Entrar</button>
+        </div>
+    </div>
+
+    <!-- ADMIN -->
+    <div class="admin" id="adminPanel">
+        <header class="admin-header">
+            <div class="admin-header-inner">
+                <div class="admin-logo">B Lenses <span>Admin</span></div>
+                <div class="admin-actions">
+                    <a href="index.html" class="btn btn-outline btn-sm" target="_blank">👁 Ver site</a>
+                    <button class="btn btn-outline btn-sm" id="logoutBtn">Sair</button>
+                </div>
+            </div>
+        </header>
+        <div class="admin-body">
+            <div class="upload-zone" id="uploadZone">
+                <div class="upload-zone-icon">📸</div>
+                <h3>Arraste fotos aqui</h3>
+                <p>ou clique para selecionar · JPG, PNG, WebP</p>
+                <input type="file" id="fileInput" accept="image/*" multiple>
+            </div>
+            <div class="grid-controls">
+                <h2>Portfólio</h2>
+                <span class="photo-count" id="photoCount">0 fotos</span>
+            </div>
+            <div class="admin-grid" id="adminGrid">
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-state-icon">🖼</div>
+                    <h3>Nenhuma foto ainda</h3>
+                    <p>Faça upload das suas melhores fotos de casamento</p>
+                </div>
+            </div>
+
+            <!-- Hero Video -->
+            <div class="admin-section">
+                <h2>Vídeo de capa (Hero)</h2>
+                <div class="hero-video-section">
+                    <div class="hero-video-preview" id="heroVideoPreview"><span>Sem vídeo</span></div>
+                    <div class="hero-video-info">
+                        <p>Vídeo que aparece como background na seção principal do site. MP4 recomendado, até ~30MB.</p>
+                        <input type="file" id="heroVideoInput" accept="video/mp4,video/webm" style="display:none">
+                        <button class="btn btn-outline btn-sm" id="heroVideoUploadBtn">Escolher vídeo</button>
+                        <button class="btn btn-sm btn-icon danger" id="heroVideoRemoveBtn"
+                            style="display:none;margin-left:8px" title="Remover">✕</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Photo -->
+            <div class="admin-section">
+                <h2>Foto do "Sobre o artista"</h2>
+                <div class="about-upload">
+                    <div class="about-preview" id="aboutPreview"><span>Sem foto</span></div>
+                    <div class="about-upload-info">
+                        <p>Foto retrato que aparece na seção "Sobre o artista" do site. Proporção 3:4 recomendada.</p>
+                        <input type="file" id="aboutFileInput" accept="image/*" style="display:none">
+                        <button class="btn btn-outline btn-sm" id="aboutUploadBtn">Escolher foto</button>
+                        <button class="btn btn-sm btn-icon danger" id="aboutRemoveBtn"
+                            style="display:none;margin-left:8px" title="Remover">✕</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-overlay hidden" id="loadingOverlay">
+        <div class="spinner"></div>
+        <span style="font-size:14px;color:var(--text-muted)">Carregando...</span>
+    </div>
+
+    <!-- Save Bar -->
+    <div class="save-bar" id="saveBar">
+        <div class="save-bar-inner">
+            <span class="save-bar-text">Você tem alterações não salvas</span>
+            <button class="btn-save" id="saveBtn">💾 Salvar alterações</button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+    // ============================================
+    // SUPABASE CONFIG
+    // ============================================
+    const SUPABASE_URL = 'https://pqeqccbtqrmsvivnisuc.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0';
+    const BUCKET = 'portfolio';
+    const CATEGORY = 'wedding';
+    const ADMIN_PASSWORD = 'blenses2026';
+
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let portfolioItems = [];
+    let hasUnsavedChanges = false;
+
+    // ============================================
+    // HELPERS
+    // ============================================
+    function storageUrl(path) {
+      return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${path}`;
+    }
+
+    function showLoading() { document.getElementById('loadingOverlay').classList.remove('hidden'); }
+    function hideLoading() { document.getElementById('loadingOverlay').classList.add('hidden'); }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `toast show${hasUnsavedChanges ? ' save-toast' : ''}`;
+      clearTimeout(t._t);
+      t._t = setTimeout(() => { t.className = 'toast'; }, 3000);
+    }
+
+    function markUnsaved() {
+      hasUnsavedChanges = true;
+      document.getElementById('saveBar').classList.add('visible');
+    }
+
+    function markSaved() {
+      hasUnsavedChanges = false;
+      document.getElementById('saveBar').classList.remove('visible');
+    }
+
+    // ============================================
+    // IMAGE COMPRESSION
+    // ============================================
+    function compressImage(file, maxSize) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let w = img.width, h = img.height;
+            if (w > maxSize || h > maxSize) {
+              if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+              else { w = Math.round(w * maxSize / h); h = maxSize; }
+            }
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            canvas.toBlob((blob) => resolve(blob), 'image/webp', 0.85);
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // ============================================
+    // LOGIN
+    // ============================================
+    function initLogin() {
+      const loginScreen = document.getElementById('loginScreen');
+      const adminPanel = document.getElementById('adminPanel');
+      const loginBtn = document.getElementById('loginBtn');
+      const pw = document.getElementById('loginPassword');
+      const err = document.getElementById('loginError');
+
+      if (sessionStorage.getItem('blenses_admin') === 'true') {
+        loginScreen.style.display = 'none';
+        adminPanel.style.display = 'block';
+        loadAll();
+        return;
+      }
+
+      function attemptLogin() {
+        if (pw.value === ADMIN_PASSWORD) {
+          sessionStorage.setItem('blenses_admin', 'true');
+          loginScreen.style.display = 'none';
+          adminPanel.style.display = 'block';
+          loadAll();
+        } else {
+          err.style.display = 'block';
+          pw.value = ''; pw.focus();
+        }
+      }
+
+      loginBtn.addEventListener('click', attemptLogin);
+      pw.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptLogin(); err.style.display = 'none'; });
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        if (hasUnsavedChanges && !confirm('Alterações não salvas. Sair?')) return;
+        sessionStorage.removeItem('blenses_admin');
+        location.reload();
+      });
+    }
+
+    // ============================================
+    // LOAD ALL DATA
+    // ============================================
+    async function loadAll() {
+      showLoading();
+      await loadPortfolio();
+      await loadHeroVideo();
+      await loadAboutPhoto();
+      hideLoading();
+    }
+
+    // ============================================
+    // PORTFOLIO — LOAD
+    // ============================================
+    async function loadPortfolio() {
+      const { data } = await sb.from('portfolio_items')
+        .select('*')
+        .eq('category', CATEGORY)
+        .eq('item_type', 'portfolio')
+        .order('sort_order');
+      portfolioItems = data || [];
+      renderGrid();
+    }
+
+    // ============================================
+    // PORTFOLIO — UPLOAD
+    // ============================================
+    function initUpload() {
+      const zone = document.getElementById('uploadZone');
+      const input = document.getElementById('fileInput');
+      zone.addEventListener('click', () => input.click());
+      zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+      zone.addEventListener('drop', (e) => { e.preventDefault(); zone.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
+      input.addEventListener('change', () => { handleFiles(input.files); input.value = ''; });
+    }
+
+    async function handleFiles(files) {
+      const imgs = [...files].filter(f => f.type.startsWith('image/'));
+      if (!imgs.length) return;
+
+      showLoading();
+      showToast(`Subindo ${imgs.length} foto${imgs.length > 1 ? 's' : ''}...`);
+
+      const maxOrder = portfolioItems.length ? Math.max(...portfolioItems.map(i => i.sort_order)) : -1;
+
+      for (let i = 0; i < imgs.length; i++) {
+        const blob = await compressImage(imgs[i], 1600);
+        const fileName = `${CATEGORY}/${Date.now()}_${i}.webp`;
+
+        const { error: uploadErr } = await sb.storage.from(BUCKET).upload(fileName, blob, { contentType: 'image/webp', upsert: true });
+        if (uploadErr) { console.error(uploadErr); continue; }
+
+        const { data, error: insertErr } = await sb.from('portfolio_items').insert({
+          category: CATEGORY,
+          file_path: fileName,
+          ratio: 'landscape',
+          pos_x: 50, pos_y: 50,
+          sort_order: maxOrder + 1 + i,
+          item_type: 'portfolio'
+        }).select().single();
+
+        if (!insertErr && data) portfolioItems.push(data);
+      }
+
+      renderGrid();
+      hideLoading();
+      showToast(`${imgs.length} foto${imgs.length > 1 ? 's adicionadas' : ' adicionada'} ✓`);
+    }
+
+    // ============================================
+    // PORTFOLIO — RENDER
+    // ============================================
+    function renderGrid() {
+      const grid = document.getElementById('adminGrid');
+      const count = document.getElementById('photoCount');
+      const empty = document.getElementById('emptyState');
+
+      if (!portfolioItems.length) {
+        grid.innerHTML = '';
+        grid.appendChild(empty);
+        empty.style.display = 'block';
+        count.textContent = '0 fotos';
+        return;
+      }
+
+      empty.style.display = 'none';
+      count.textContent = `${portfolioItems.length} foto${portfolioItems.length !== 1 ? 's' : ''}`;
+      grid.innerHTML = '';
+
+      for (const item of portfolioItems) {
+        const card = document.createElement('div');
+        card.className = 'admin-card';
+        card.dataset.id = item.id;
+        card.draggable = true;
+
+        const url = storageUrl(item.file_path);
+        card.innerHTML = `
+          <div class="admin-card-frame ratio-${item.ratio}" data-id="${item.id}">
+            <img src="${url}" class="admin-card-image" alt="" style="object-position:${item.pos_x}% ${item.pos_y}%">
+            <div class="reposition-hint">↕ Arraste para enquadrar</div>
+          </div>
+          <div class="admin-card-toolbar">
+            <div class="ratio-selector">
+              <button class="ratio-btn ${item.ratio==='wide'?'active':''}" data-ratio="wide">2:1</button>
+              <button class="ratio-btn ${item.ratio==='landscape'?'active':''}" data-ratio="landscape">4:3</button>
+              <button class="ratio-btn ${item.ratio==='square'?'active':''}" data-ratio="square">1:1</button>
+              <button class="ratio-btn ${item.ratio==='portrait'?'active':''}" data-ratio="portrait">3:4</button>
+            </div>
+            <div class="admin-card-actions">
+              <button class="btn-icon danger" data-action="delete" title="Remover">✕</button>
+            </div>
+          </div>
+        `;
+
+        // Image repositioning
+        const frame = card.querySelector('.admin-card-frame');
+        const img = card.querySelector('.admin-card-image');
+        let dragging = false, startX, startY, startPX, startPY;
+
+        frame.addEventListener('mousedown', (e) => {
+          e.preventDefault(); dragging = true;
+          startX = e.clientX; startY = e.clientY;
+          startPX = item.pos_x; startPY = item.pos_y;
+          frame.style.cursor = 'grabbing'; card.draggable = false;
+        });
+        frame.addEventListener('touchstart', (e) => {
+          dragging = true;
+          startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+          startPX = item.pos_x; startPY = item.pos_y; card.draggable = false;
+        }, { passive: true });
+
+        const onMove = (cx, cy) => {
+          if (!dragging) return;
+          const dx = cx - startX, dy = cy - startY;
+          const fw = frame.offsetWidth, fh = frame.offsetHeight;
+          item.pos_x = Math.round(Math.max(0, Math.min(100, startPX - (dx/fw)*100*0.4)) * 10) / 10;
+          item.pos_y = Math.round(Math.max(0, Math.min(100, startPY - (dy/fh)*100*0.4)) * 10) / 10;
+          img.style.objectPosition = `${item.pos_x}% ${item.pos_y}%`;
+        };
+        document.addEventListener('mousemove', (e) => onMove(e.clientX, e.clientY));
+        document.addEventListener('touchmove', (e) => { if (dragging) onMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+        const onEnd = () => {
+          if (!dragging) return; dragging = false;
+          frame.style.cursor = ''; card.draggable = true;
+          if (item.pos_x !== startPX || item.pos_y !== startPY) markUnsaved();
+        };
+        document.addEventListener('mouseup', onEnd);
+        document.addEventListener('touchend', onEnd);
+
+        // Ratio buttons
+        card.querySelectorAll('.ratio-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            item.ratio = btn.dataset.ratio;
+            frame.className = `admin-card-frame ratio-${item.ratio}`;
+            card.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            markUnsaved();
+          });
+        });
+
+        // Delete
+        card.querySelector('[data-action="delete"]').addEventListener('click', async () => {
+          if (!confirm('Remover esta foto?')) return;
+          showLoading();
+          await sb.storage.from(BUCKET).remove([item.file_path]);
+          await sb.from('portfolio_items').delete().eq('id', item.id);
+          portfolioItems = portfolioItems.filter(i => i.id !== item.id);
+          renderGrid();
+          hideLoading();
+          showToast('Foto removida ✓');
+        });
+
+        // Drag reorder
+        card.addEventListener('dragstart', (e) => { card.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', item.id); });
+        card.addEventListener('dragend', () => { card.classList.remove('dragging'); document.querySelectorAll('.admin-card').forEach(c => c.classList.remove('drag-over')); });
+        card.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; card.classList.add('drag-over'); });
+        card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+        card.addEventListener('drop', (e) => {
+          e.preventDefault(); card.classList.remove('drag-over');
+          const draggedId = e.dataTransfer.getData('text/plain');
+          if (draggedId === item.id) return;
+          const fromIdx = portfolioItems.findIndex(i => i.id === draggedId);
+          const toIdx = portfolioItems.findIndex(i => i.id === item.id);
+          const [moved] = portfolioItems.splice(fromIdx, 1);
+          portfolioItems.splice(toIdx, 0, moved);
+          portfolioItems.forEach((p, idx) => p.sort_order = idx);
+          markUnsaved();
+          renderGrid();
+        });
+
+        grid.appendChild(card);
+      }
+    }
+
+    // ============================================
+    // SAVE — batch update all items
+    // ============================================
+    function initSaveButton() {
+      document.getElementById('saveBtn').addEventListener('click', async () => {
+        showLoading();
+        for (const item of portfolioItems) {
+          await sb.from('portfolio_items').update({
+            ratio: item.ratio,
+            pos_x: item.pos_x,
+            pos_y: item.pos_y,
+            sort_order: item.sort_order
+          }).eq('id', item.id);
+        }
+        markSaved();
+        hideLoading();
+        showToast('✅ Alterações salvas com sucesso!');
+      });
+
+      window.addEventListener('beforeunload', (e) => {
+        if (hasUnsavedChanges) { e.preventDefault(); e.returnValue = ''; }
+      });
+    }
+
+    // ============================================
+    // HERO VIDEO
+    // ============================================
+    function initHeroVideoUpload() {
+      const btn = document.getElementById('heroVideoUploadBtn');
+      const input = document.getElementById('heroVideoInput');
+      const removeBtn = document.getElementById('heroVideoRemoveBtn');
+
+      btn.addEventListener('click', () => input.click());
+
+      input.addEventListener('change', async () => {
+        if (!input.files.length) return;
+        const file = input.files[0];
+        if (file.size > 50 * 1024 * 1024) { showToast('⚠️ Vídeo muito grande (max ~30MB)'); return; }
+
+        showLoading();
+        showToast('Subindo vídeo...');
+        const fileName = `${CATEGORY}/hero_video.mp4`;
+
+        // Remove old entry if exists
+        const { data: old } = await sb.from('portfolio_items').select('id').eq('category', CATEGORY).eq('item_type', 'hero_video');
+        if (old && old.length) {
+          await sb.storage.from(BUCKET).remove([fileName]);
+          await sb.from('portfolio_items').delete().eq('id', old[0].id);
+        }
+
+        const { error: upErr } = await sb.storage.from(BUCKET).upload(fileName, file, { contentType: file.type, upsert: true });
+        if (upErr) { hideLoading(); showToast('Erro no upload'); console.error(upErr); return; }
+
+        await sb.from('portfolio_items').insert({ category: CATEGORY, file_path: fileName, item_type: 'hero_video', sort_order: 0 });
+        await loadHeroVideo();
+        hideLoading();
+        showToast('Vídeo de capa atualizado ✓');
+        input.value = '';
+      });
+
+      removeBtn.addEventListener('click', async () => {
+        showLoading();
+        const { data } = await sb.from('portfolio_items').select('id').eq('category', CATEGORY).eq('item_type', 'hero_video');
+        if (data && data.length) {
+          await sb.storage.from(BUCKET).remove([`${CATEGORY}/hero_video.mp4`]);
+          await sb.from('portfolio_items').delete().eq('id', data[0].id);
+        }
+        await loadHeroVideo();
+        hideLoading();
+        showToast('Vídeo removido ✓');
+      });
+    }
+
+    async function loadHeroVideo() {
+      const preview = document.getElementById('heroVideoPreview');
+      const removeBtn = document.getElementById('heroVideoRemoveBtn');
+      const { data } = await sb.from('portfolio_items').select('file_path').eq('category', CATEGORY).eq('item_type', 'hero_video').limit(1);
+
+      if (data && data.length) {
+        const url = storageUrl(data[0].file_path) + '?t=' + Date.now();
+        preview.innerHTML = `<video src="${url}" autoplay muted loop playsinline></video>`;
+        removeBtn.style.display = 'inline-flex';
+      } else {
+        preview.innerHTML = '<span>Sem vídeo</span>';
+        removeBtn.style.display = 'none';
+      }
+    }
+
+    // ============================================
+    // ABOUT PHOTO
+    // ============================================
+    function initAboutUpload() {
+      const btn = document.getElementById('aboutUploadBtn');
+      const input = document.getElementById('aboutFileInput');
+      const removeBtn = document.getElementById('aboutRemoveBtn');
+
+      btn.addEventListener('click', () => input.click());
+
+      input.addEventListener('change', async () => {
+        if (!input.files.length) return;
+        showLoading();
+        const blob = await compressImage(input.files[0], 1200);
+        const fileName = `${CATEGORY}/about_photo.webp`;
+
+        const { data: old } = await sb.from('portfolio_items').select('id').eq('category', CATEGORY).eq('item_type', 'about_photo');
+        if (old && old.length) {
+          await sb.storage.from(BUCKET).remove([fileName]);
+          await sb.from('portfolio_items').delete().eq('id', old[0].id);
+        }
+
+        await sb.storage.from(BUCKET).upload(fileName, blob, { contentType: 'image/webp', upsert: true });
+        await sb.from('portfolio_items').insert({ category: CATEGORY, file_path: fileName, item_type: 'about_photo', sort_order: 0 });
+        await loadAboutPhoto();
+        hideLoading();
+        showToast('Foto do "Sobre" atualizada ✓');
+        input.value = '';
+      });
+
+      removeBtn.addEventListener('click', async () => {
+        showLoading();
+        const { data } = await sb.from('portfolio_items').select('id').eq('category', CATEGORY).eq('item_type', 'about_photo');
+        if (data && data.length) {
+          await sb.storage.from(BUCKET).remove([`${CATEGORY}/about_photo.webp`]);
+          await sb.from('portfolio_items').delete().eq('id', data[0].id);
+        }
+        await loadAboutPhoto();
+        hideLoading();
+        showToast('Foto removida ✓');
+      });
+    }
+
+    async function loadAboutPhoto() {
+      const preview = document.getElementById('aboutPreview');
+      const removeBtn = document.getElementById('aboutRemoveBtn');
+      const { data } = await sb.from('portfolio_items').select('file_path').eq('category', CATEGORY).eq('item_type', 'about_photo').limit(1);
+
+      if (data && data.length) {
+        const url = storageUrl(data[0].file_path) + '?t=' + Date.now();
+        preview.innerHTML = `<img src="${url}" alt="About">`;
+        removeBtn.style.display = 'inline-flex';
+      } else {
+        preview.innerHTML = '<span>Sem foto</span>';
+        removeBtn.style.display = 'none';
+      }
+    }
+
+    // ============================================
+    // INIT
+    // ============================================
+    document.addEventListener('DOMContentLoaded', () => {
+      initUpload();
+      initAboutUpload();
+      initHeroVideoUpload();
+      initSaveButton();
+      initLogin();
+    });
+    </script>
+</body>
+
+</html>
