@@ -652,6 +652,76 @@
             }
         }
 
+        /* CONFIG FIELDS */
+        .config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .config-field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .config-field.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .config-field label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .config-hint {
+            font-weight: 400;
+            color: var(--text-muted);
+            margin-left: 4px;
+        }
+
+        .config-input,
+        .config-textarea,
+        .config-select {
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-family: inherit;
+            background: var(--white);
+            color: var(--text);
+            outline: none;
+            transition: border var(--transition);
+            width: 100%;
+        }
+
+        .config-input:focus,
+        .config-textarea:focus,
+        .config-select:focus {
+            border-color: var(--accent);
+        }
+
+        .config-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .config-select {
+            cursor: pointer;
+            appearance: auto;
+        }
+
+        .font-preview {
+            margin-top: 12px;
+            padding: 16px 20px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            line-height: 1.4;
+        }
+
         /* RESPONSIVE */
         @media (max-width:768px) {
             .admin-body {
@@ -763,6 +833,91 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Fonts -->
+            <div class="admin-section">
+                <h2>Tipografia</h2>
+                <p style="font-size:14px;color:var(--text-muted);margin-bottom:20px">Escolha as fontes do site. A
+                    preview aparece ao lado.</p>
+                <div class="config-grid">
+                    <div class="config-field">
+                        <label>Fonte dos títulos</label>
+                        <select id="cfgFontHeading" class="config-select">
+                            <option value="Playfair Display">Playfair Display</option>
+                            <option value="Cormorant Garamond">Cormorant Garamond</option>
+                            <option value="Libre Baskerville">Libre Baskerville</option>
+                            <option value="Bodoni Moda">Bodoni Moda</option>
+                            <option value="EB Garamond">EB Garamond</option>
+                            <option value="Lora">Lora</option>
+                            <option value="Merriweather">Merriweather</option>
+                            <option value="Cinzel">Cinzel</option>
+                            <option value="Spectral">Spectral</option>
+                            <option value="DM Serif Display">DM Serif Display</option>
+                            <option value="Italiana">Italiana</option>
+                            <option value="Cormorant">Cormorant</option>
+                        </select>
+                        <div class="font-preview" id="previewHeading" style="font-size:28px;">Seu amor merece arte.
+                        </div>
+                    </div>
+                    <div class="config-field">
+                        <label>Fonte do corpo</label>
+                        <select id="cfgFontBody" class="config-select">
+                            <option value="DM Sans">DM Sans</option>
+                            <option value="Inter">Inter</option>
+                            <option value="Outfit">Outfit</option>
+                            <option value="Poppins">Poppins</option>
+                            <option value="Lato">Lato</option>
+                            <option value="Open Sans">Open Sans</option>
+                            <option value="Raleway">Raleway</option>
+                            <option value="Source Sans 3">Source Sans 3</option>
+                            <option value="Work Sans">Work Sans</option>
+                            <option value="Nunito">Nunito</option>
+                            <option value="Jost">Jost</option>
+                            <option value="Montserrat">Montserrat</option>
+                        </select>
+                        <div class="font-preview" id="previewBody" style="font-size:16px;">Não faço apenas fotos e
+                            vídeos. Eu crio arte.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Text Editor -->
+            <div class="admin-section">
+                <h2>Textos do site</h2>
+                <p style="font-size:14px;color:var(--text-muted);margin-bottom:20px">Edite os textos que aparecem na
+                    página principal.</p>
+                <div class="config-grid">
+                    <div class="config-field">
+                        <label>Badge do Hero <span class="config-hint">ex: Wedding Photography & Film</span></label>
+                        <input type="text" id="cfgHeroBadge" class="config-input"
+                            placeholder="Wedding Photography & Film">
+                    </div>
+                    <div class="config-field">
+                        <label>Título linha 1 <span class="config-hint">texto grande</span></label>
+                        <input type="text" id="cfgHeroLine1" class="config-input" placeholder="Seu amor">
+                    </div>
+                    <div class="config-field">
+                        <label>Título linha 2 <span class="config-hint">texto maior, itálico</span></label>
+                        <input type="text" id="cfgHeroLine2" class="config-input" placeholder="merece arte.">
+                    </div>
+                    <div class="config-field full-width">
+                        <label>Descrição do Hero</label>
+                        <textarea id="cfgHeroDesc" class="config-textarea" rows="3"
+                            placeholder="Não faço apenas fotos e vídeos..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WhatsApp -->
+            <div class="admin-section">
+                <h2>WhatsApp</h2>
+                <div class="config-grid">
+                    <div class="config-field">
+                        <label>Número (com DDD, sem espaços) <span class="config-hint">ex: 5515997730671</span></label>
+                        <input type="text" id="cfgWhatsapp" class="config-input" placeholder="5515997730671">
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -784,219 +939,220 @@
     <div class="toast" id="toast"></div>
 
     <script>
-    // ============================================
-    // SUPABASE CONFIG
-    // ============================================
-    const SUPABASE_URL = 'https://pqeqccbtqrmsvivnisuc.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0';
-    const BUCKET = 'portfolio';
-    const CATEGORY = 'wedding';
-    const ADMIN_PASSWORD = 'blenses2026';
+        // ============================================
+        // SUPABASE CONFIG
+        // ============================================
+        const SUPABASE_URL = 'https://pqeqccbtqrmsvivnisuc.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0';
+        const BUCKET = 'portfolio';
+        const CATEGORY = 'wedding';
+        const ADMIN_PASSWORD = 'blenses2026';
 
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let portfolioItems = [];
-    let hasUnsavedChanges = false;
+        let portfolioItems = [];
+        let hasUnsavedChanges = false;
 
-    // ============================================
-    // HELPERS
-    // ============================================
-    function storageUrl(path) {
-      return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${path}`;
-    }
-
-    function showLoading() { document.getElementById('loadingOverlay').classList.remove('hidden'); }
-    function hideLoading() { document.getElementById('loadingOverlay').classList.add('hidden'); }
-
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.className = `toast show${hasUnsavedChanges ? ' save-toast' : ''}`;
-      clearTimeout(t._t);
-      t._t = setTimeout(() => { t.className = 'toast'; }, 3000);
-    }
-
-    function markUnsaved() {
-      hasUnsavedChanges = true;
-      document.getElementById('saveBar').classList.add('visible');
-    }
-
-    function markSaved() {
-      hasUnsavedChanges = false;
-      document.getElementById('saveBar').classList.remove('visible');
-    }
-
-    // ============================================
-    // IMAGE COMPRESSION
-    // ============================================
-    function compressImage(file, maxSize) {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            let w = img.width, h = img.height;
-            if (w > maxSize || h > maxSize) {
-              if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
-              else { w = Math.round(w * maxSize / h); h = maxSize; }
-            }
-            canvas.width = w; canvas.height = h;
-            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-            canvas.toBlob((blob) => resolve(blob), 'image/webp', 0.85);
-          };
-          img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    // ============================================
-    // LOGIN
-    // ============================================
-    function initLogin() {
-      const loginScreen = document.getElementById('loginScreen');
-      const adminPanel = document.getElementById('adminPanel');
-      const loginBtn = document.getElementById('loginBtn');
-      const pw = document.getElementById('loginPassword');
-      const err = document.getElementById('loginError');
-
-      if (sessionStorage.getItem('blenses_admin') === 'true') {
-        loginScreen.style.display = 'none';
-        adminPanel.style.display = 'block';
-        loadAll();
-        return;
-      }
-
-      function attemptLogin() {
-        if (pw.value === ADMIN_PASSWORD) {
-          sessionStorage.setItem('blenses_admin', 'true');
-          loginScreen.style.display = 'none';
-          adminPanel.style.display = 'block';
-          loadAll();
-        } else {
-          err.style.display = 'block';
-          pw.value = ''; pw.focus();
+        // ============================================
+        // HELPERS
+        // ============================================
+        function storageUrl(path) {
+            return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${path}`;
         }
-      }
 
-      loginBtn.addEventListener('click', attemptLogin);
-      pw.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptLogin(); err.style.display = 'none'; });
-      document.getElementById('logoutBtn').addEventListener('click', () => {
-        if (hasUnsavedChanges && !confirm('Alterações não salvas. Sair?')) return;
-        sessionStorage.removeItem('blenses_admin');
-        location.reload();
-      });
-    }
+        function showLoading() { document.getElementById('loadingOverlay').classList.remove('hidden'); }
+        function hideLoading() { document.getElementById('loadingOverlay').classList.add('hidden'); }
 
-    // ============================================
-    // LOAD ALL DATA
-    // ============================================
-    async function loadAll() {
-      showLoading();
-      await loadPortfolio();
-      await loadHeroVideo();
-      await loadAboutPhoto();
-      hideLoading();
-    }
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = `toast show${hasUnsavedChanges ? ' save-toast' : ''}`;
+            clearTimeout(t._t);
+            t._t = setTimeout(() => { t.className = 'toast'; }, 3000);
+        }
 
-    // ============================================
-    // PORTFOLIO — LOAD
-    // ============================================
-    async function loadPortfolio() {
-      const { data } = await sb.from('portfolio_items')
-        .select('*')
-        .eq('category', CATEGORY)
-        .eq('item_type', 'portfolio')
-        .order('sort_order');
-      portfolioItems = data || [];
-      renderGrid();
-    }
+        function markUnsaved() {
+            hasUnsavedChanges = true;
+            document.getElementById('saveBar').classList.add('visible');
+        }
 
-    // ============================================
-    // PORTFOLIO — UPLOAD
-    // ============================================
-    function initUpload() {
-      const zone = document.getElementById('uploadZone');
-      const input = document.getElementById('fileInput');
-      zone.addEventListener('click', () => input.click());
-      zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
-      zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
-      zone.addEventListener('drop', (e) => { e.preventDefault(); zone.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
-      input.addEventListener('change', () => { handleFiles(input.files); input.value = ''; });
-    }
+        function markSaved() {
+            hasUnsavedChanges = false;
+            document.getElementById('saveBar').classList.remove('visible');
+        }
 
-    async function handleFiles(files) {
-      const imgs = [...files].filter(f => f.type.startsWith('image/'));
-      if (!imgs.length) return;
+        // ============================================
+        // IMAGE COMPRESSION
+        // ============================================
+        function compressImage(file, maxSize) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let w = img.width, h = img.height;
+                        if (w > maxSize || h > maxSize) {
+                            if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+                            else { w = Math.round(w * maxSize / h); h = maxSize; }
+                        }
+                        canvas.width = w; canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        canvas.toBlob((blob) => resolve(blob), 'image/webp', 0.85);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
 
-      showLoading();
-      showToast(`Subindo ${imgs.length} foto${imgs.length > 1 ? 's' : ''}...`);
+        // ============================================
+        // LOGIN
+        // ============================================
+        function initLogin() {
+            const loginScreen = document.getElementById('loginScreen');
+            const adminPanel = document.getElementById('adminPanel');
+            const loginBtn = document.getElementById('loginBtn');
+            const pw = document.getElementById('loginPassword');
+            const err = document.getElementById('loginError');
 
-      const maxOrder = portfolioItems.length ? Math.max(...portfolioItems.map(i => i.sort_order)) : -1;
+            if (sessionStorage.getItem('blenses_admin') === 'true') {
+                loginScreen.style.display = 'none';
+                adminPanel.style.display = 'block';
+                loadAll();
+                return;
+            }
 
-      for (let i = 0; i < imgs.length; i++) {
-        const blob = await compressImage(imgs[i], 1600);
-        const fileName = `${CATEGORY}/${Date.now()}_${i}.webp`;
+            function attemptLogin() {
+                if (pw.value === ADMIN_PASSWORD) {
+                    sessionStorage.setItem('blenses_admin', 'true');
+                    loginScreen.style.display = 'none';
+                    adminPanel.style.display = 'block';
+                    loadAll();
+                } else {
+                    err.style.display = 'block';
+                    pw.value = ''; pw.focus();
+                }
+            }
 
-        const { error: uploadErr } = await sb.storage.from(BUCKET).upload(fileName, blob, { contentType: 'image/webp', upsert: true });
-        if (uploadErr) { console.error(uploadErr); continue; }
+            loginBtn.addEventListener('click', attemptLogin);
+            pw.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptLogin(); err.style.display = 'none'; });
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                if (hasUnsavedChanges && !confirm('Alterações não salvas. Sair?')) return;
+                sessionStorage.removeItem('blenses_admin');
+                location.reload();
+            });
+        }
 
-        const { data, error: insertErr } = await sb.from('portfolio_items').insert({
-          category: CATEGORY,
-          file_path: fileName,
-          ratio: 'landscape',
-          pos_x: 50, pos_y: 50,
-          sort_order: maxOrder + 1 + i,
-          item_type: 'portfolio'
-        }).select().single();
+        // ============================================
+        // LOAD ALL DATA
+        // ============================================
+        async function loadAll() {
+            showLoading();
+            await loadPortfolio();
+            await loadHeroVideo();
+            await loadAboutPhoto();
+            await loadSiteConfig();
+            hideLoading();
+        }
 
-        if (!insertErr && data) portfolioItems.push(data);
-      }
+        // ============================================
+        // PORTFOLIO — LOAD
+        // ============================================
+        async function loadPortfolio() {
+            const { data } = await sb.from('portfolio_items')
+                .select('*')
+                .eq('category', CATEGORY)
+                .eq('item_type', 'portfolio')
+                .order('sort_order');
+            portfolioItems = data || [];
+            renderGrid();
+        }
 
-      renderGrid();
-      hideLoading();
-      showToast(`${imgs.length} foto${imgs.length > 1 ? 's adicionadas' : ' adicionada'} ✓`);
-    }
+        // ============================================
+        // PORTFOLIO — UPLOAD
+        // ============================================
+        function initUpload() {
+            const zone = document.getElementById('uploadZone');
+            const input = document.getElementById('fileInput');
+            zone.addEventListener('click', () => input.click());
+            zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
+            zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+            zone.addEventListener('drop', (e) => { e.preventDefault(); zone.classList.remove('dragover'); handleFiles(e.dataTransfer.files); });
+            input.addEventListener('change', () => { handleFiles(input.files); input.value = ''; });
+        }
 
-    // ============================================
-    // PORTFOLIO — RENDER
-    // ============================================
-    function renderGrid() {
-      const grid = document.getElementById('adminGrid');
-      const count = document.getElementById('photoCount');
-      const empty = document.getElementById('emptyState');
+        async function handleFiles(files) {
+            const imgs = [...files].filter(f => f.type.startsWith('image/'));
+            if (!imgs.length) return;
 
-      if (!portfolioItems.length) {
-        grid.innerHTML = '';
-        grid.appendChild(empty);
-        empty.style.display = 'block';
-        count.textContent = '0 fotos';
-        return;
-      }
+            showLoading();
+            showToast(`Subindo ${imgs.length} foto${imgs.length > 1 ? 's' : ''}...`);
 
-      empty.style.display = 'none';
-      count.textContent = `${portfolioItems.length} foto${portfolioItems.length !== 1 ? 's' : ''}`;
-      grid.innerHTML = '';
+            const maxOrder = portfolioItems.length ? Math.max(...portfolioItems.map(i => i.sort_order)) : -1;
 
-      for (const item of portfolioItems) {
-        const card = document.createElement('div');
-        card.className = 'admin-card';
-        card.dataset.id = item.id;
-        card.draggable = true;
+            for (let i = 0; i < imgs.length; i++) {
+                const blob = await compressImage(imgs[i], 1600);
+                const fileName = `${CATEGORY}/${Date.now()}_${i}.webp`;
 
-        const url = storageUrl(item.file_path);
-        card.innerHTML = `
+                const { error: uploadErr } = await sb.storage.from(BUCKET).upload(fileName, blob, { contentType: 'image/webp', upsert: true });
+                if (uploadErr) { console.error(uploadErr); continue; }
+
+                const { data, error: insertErr } = await sb.from('portfolio_items').insert({
+                    category: CATEGORY,
+                    file_path: fileName,
+                    ratio: 'landscape',
+                    pos_x: 50, pos_y: 50,
+                    sort_order: maxOrder + 1 + i,
+                    item_type: 'portfolio'
+                }).select().single();
+
+                if (!insertErr && data) portfolioItems.push(data);
+            }
+
+            renderGrid();
+            hideLoading();
+            showToast(`${imgs.length} foto${imgs.length > 1 ? 's adicionadas' : ' adicionada'} ✓`);
+        }
+
+        // ============================================
+        // PORTFOLIO — RENDER
+        // ============================================
+        function renderGrid() {
+            const grid = document.getElementById('adminGrid');
+            const count = document.getElementById('photoCount');
+            const empty = document.getElementById('emptyState');
+
+            if (!portfolioItems.length) {
+                grid.innerHTML = '';
+                grid.appendChild(empty);
+                empty.style.display = 'block';
+                count.textContent = '0 fotos';
+                return;
+            }
+
+            empty.style.display = 'none';
+            count.textContent = `${portfolioItems.length} foto${portfolioItems.length !== 1 ? 's' : ''}`;
+            grid.innerHTML = '';
+
+            for (const item of portfolioItems) {
+                const card = document.createElement('div');
+                card.className = 'admin-card';
+                card.dataset.id = item.id;
+                card.draggable = true;
+
+                const url = storageUrl(item.file_path);
+                card.innerHTML = `
           <div class="admin-card-frame ratio-${item.ratio}" data-id="${item.id}">
             <img src="${url}" class="admin-card-image" alt="" style="object-position:${item.pos_x}% ${item.pos_y}%">
             <div class="reposition-hint">↕ Arraste para enquadrar</div>
           </div>
           <div class="admin-card-toolbar">
             <div class="ratio-selector">
-              <button class="ratio-btn ${item.ratio==='wide'?'active':''}" data-ratio="wide">2:1</button>
-              <button class="ratio-btn ${item.ratio==='landscape'?'active':''}" data-ratio="landscape">4:3</button>
-              <button class="ratio-btn ${item.ratio==='square'?'active':''}" data-ratio="square">1:1</button>
-              <button class="ratio-btn ${item.ratio==='portrait'?'active':''}" data-ratio="portrait">3:4</button>
+              <button class="ratio-btn ${item.ratio === 'wide' ? 'active' : ''}" data-ratio="wide">2:1</button>
+              <button class="ratio-btn ${item.ratio === 'landscape' ? 'active' : ''}" data-ratio="landscape">4:3</button>
+              <button class="ratio-btn ${item.ratio === 'square' ? 'active' : ''}" data-ratio="square">1:1</button>
+              <button class="ratio-btn ${item.ratio === 'portrait' ? 'active' : ''}" data-ratio="portrait">3:4</button>
             </div>
             <div class="admin-card-actions">
               <button class="btn-icon danger" data-action="delete" title="Remover">✕</button>
@@ -1004,242 +1160,319 @@
           </div>
         `;
 
-        // Image repositioning
-        const frame = card.querySelector('.admin-card-frame');
-        const img = card.querySelector('.admin-card-image');
-        let dragging = false, startX, startY, startPX, startPY;
+                // Image repositioning
+                const frame = card.querySelector('.admin-card-frame');
+                const img = card.querySelector('.admin-card-image');
+                let dragging = false, startX, startY, startPX, startPY;
 
-        frame.addEventListener('mousedown', (e) => {
-          e.preventDefault(); dragging = true;
-          startX = e.clientX; startY = e.clientY;
-          startPX = item.pos_x; startPY = item.pos_y;
-          frame.style.cursor = 'grabbing'; card.draggable = false;
-        });
-        frame.addEventListener('touchstart', (e) => {
-          dragging = true;
-          startX = e.touches[0].clientX; startY = e.touches[0].clientY;
-          startPX = item.pos_x; startPY = item.pos_y; card.draggable = false;
-        }, { passive: true });
+                frame.addEventListener('mousedown', (e) => {
+                    e.preventDefault(); dragging = true;
+                    startX = e.clientX; startY = e.clientY;
+                    startPX = item.pos_x; startPY = item.pos_y;
+                    frame.style.cursor = 'grabbing'; card.draggable = false;
+                });
+                frame.addEventListener('touchstart', (e) => {
+                    dragging = true;
+                    startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+                    startPX = item.pos_x; startPY = item.pos_y; card.draggable = false;
+                }, { passive: true });
 
-        const onMove = (cx, cy) => {
-          if (!dragging) return;
-          const dx = cx - startX, dy = cy - startY;
-          const fw = frame.offsetWidth, fh = frame.offsetHeight;
-          item.pos_x = Math.round(Math.max(0, Math.min(100, startPX - (dx/fw)*100*0.4)) * 10) / 10;
-          item.pos_y = Math.round(Math.max(0, Math.min(100, startPY - (dy/fh)*100*0.4)) * 10) / 10;
-          img.style.objectPosition = `${item.pos_x}% ${item.pos_y}%`;
+                const onMove = (cx, cy) => {
+                    if (!dragging) return;
+                    const dx = cx - startX, dy = cy - startY;
+                    const fw = frame.offsetWidth, fh = frame.offsetHeight;
+                    item.pos_x = Math.round(Math.max(0, Math.min(100, startPX - (dx / fw) * 100 * 0.4)) * 10) / 10;
+                    item.pos_y = Math.round(Math.max(0, Math.min(100, startPY - (dy / fh) * 100 * 0.4)) * 10) / 10;
+                    img.style.objectPosition = `${item.pos_x}% ${item.pos_y}%`;
+                };
+                document.addEventListener('mousemove', (e) => onMove(e.clientX, e.clientY));
+                document.addEventListener('touchmove', (e) => { if (dragging) onMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+                const onEnd = () => {
+                    if (!dragging) return; dragging = false;
+                    frame.style.cursor = ''; card.draggable = true;
+                    if (item.pos_x !== startPX || item.pos_y !== startPY) markUnsaved();
+                };
+                document.addEventListener('mouseup', onEnd);
+                document.addEventListener('touchend', onEnd);
+
+                // Ratio buttons
+                card.querySelectorAll('.ratio-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        item.ratio = btn.dataset.ratio;
+                        frame.className = `admin-card-frame ratio-${item.ratio}`;
+                        card.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        markUnsaved();
+                    });
+                });
+
+                // Delete
+                card.querySelector('[data-action="delete"]').addEventListener('click', async () => {
+                    if (!confirm('Remover esta foto?')) return;
+                    showLoading();
+                    await sb.storage.from(BUCKET).remove([item.file_path]);
+                    await sb.from('portfolio_items').delete().eq('id', item.id);
+                    portfolioItems = portfolioItems.filter(i => i.id !== item.id);
+                    renderGrid();
+                    hideLoading();
+                    showToast('Foto removida ✓');
+                });
+
+                // Drag reorder
+                card.addEventListener('dragstart', (e) => { card.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', item.id); });
+                card.addEventListener('dragend', () => { card.classList.remove('dragging'); document.querySelectorAll('.admin-card').forEach(c => c.classList.remove('drag-over')); });
+                card.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; card.classList.add('drag-over'); });
+                card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+                card.addEventListener('drop', (e) => {
+                    e.preventDefault(); card.classList.remove('drag-over');
+                    const draggedId = e.dataTransfer.getData('text/plain');
+                    if (draggedId === item.id) return;
+                    const fromIdx = portfolioItems.findIndex(i => i.id === draggedId);
+                    const toIdx = portfolioItems.findIndex(i => i.id === item.id);
+                    const [moved] = portfolioItems.splice(fromIdx, 1);
+                    portfolioItems.splice(toIdx, 0, moved);
+                    portfolioItems.forEach((p, idx) => p.sort_order = idx);
+                    markUnsaved();
+                    renderGrid();
+                });
+
+                grid.appendChild(card);
+            }
+        }
+
+        // ============================================
+        // SAVE — batch update all items + site config
+        // ============================================
+        function initSaveButton() {
+            document.getElementById('saveBtn').addEventListener('click', async () => {
+                showLoading();
+                // Save portfolio items
+                for (const item of portfolioItems) {
+                    await sb.from('portfolio_items').update({
+                        ratio: item.ratio,
+                        pos_x: item.pos_x,
+                        pos_y: item.pos_y,
+                        sort_order: item.sort_order
+                    }).eq('id', item.id);
+                }
+                // Save site config
+                await saveSiteConfig();
+                markSaved();
+                hideLoading();
+                showToast('✅ Alterações salvas com sucesso!');
+            });
+
+            window.addEventListener('beforeunload', (e) => {
+                if (hasUnsavedChanges) { e.preventDefault(); e.returnValue = ''; }
+            });
+        }
+
+        // ============================================
+        // SITE CONFIG — fonts, texts, whatsapp
+        // ============================================
+        const CONFIG_FIELDS = {
+            font_heading: 'cfgFontHeading',
+            font_body: 'cfgFontBody',
+            hero_badge: 'cfgHeroBadge',
+            hero_line1: 'cfgHeroLine1',
+            hero_line2: 'cfgHeroLine2',
+            hero_description: 'cfgHeroDesc',
+            whatsapp: 'cfgWhatsapp'
         };
-        document.addEventListener('mousemove', (e) => onMove(e.clientX, e.clientY));
-        document.addEventListener('touchmove', (e) => { if (dragging) onMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
-        const onEnd = () => {
-          if (!dragging) return; dragging = false;
-          frame.style.cursor = ''; card.draggable = true;
-          if (item.pos_x !== startPX || item.pos_y !== startPY) markUnsaved();
-        };
-        document.addEventListener('mouseup', onEnd);
-        document.addEventListener('touchend', onEnd);
 
-        // Ratio buttons
-        card.querySelectorAll('.ratio-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            item.ratio = btn.dataset.ratio;
-            frame.className = `admin-card-frame ratio-${item.ratio}`;
-            card.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            markUnsaved();
-          });
+        function loadGoogleFont(fontName) {
+            const id = 'gf-' + fontName.replace(/\s+/g, '-');
+            if (document.getElementById(id)) return;
+            const link = document.createElement('link');
+            link.id = id;
+            link.rel = 'stylesheet';
+            link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontName)}:wght@300;400;500;600;700&display=swap`;
+            document.head.appendChild(link);
+        }
+
+        async function loadSiteConfig() {
+            const { data } = await sb.from('site_config').select('key, value');
+            if (!data) return;
+            for (const row of data) {
+                const elId = CONFIG_FIELDS[row.key];
+                if (!elId) continue;
+                const el = document.getElementById(elId);
+                if (el) el.value = row.value;
+            }
+            // Apply font previews
+            updateFontPreview('cfgFontHeading', 'previewHeading');
+            updateFontPreview('cfgFontBody', 'previewBody');
+        }
+
+        async function saveSiteConfig() {
+            for (const [key, elId] of Object.entries(CONFIG_FIELDS)) {
+                const el = document.getElementById(elId);
+                if (!el) continue;
+                const value = el.value.trim();
+                if (!value) continue;
+                await sb.from('site_config').upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+            }
+        }
+
+        function updateFontPreview(selectId, previewId) {
+            const select = document.getElementById(selectId);
+            const preview = document.getElementById(previewId);
+            if (!select || !preview) return;
+            const font = select.value;
+            loadGoogleFont(font);
+            preview.style.fontFamily = `'${font}', serif`;
+        }
+
+        function initConfigUI() {
+            // Font preview on change
+            const headingSelect = document.getElementById('cfgFontHeading');
+            const bodySelect = document.getElementById('cfgFontBody');
+            if (headingSelect) {
+                headingSelect.addEventListener('change', () => { updateFontPreview('cfgFontHeading', 'previewHeading'); markUnsaved(); });
+            }
+            if (bodySelect) {
+                bodySelect.addEventListener('change', () => { updateFontPreview('cfgFontBody', 'previewBody'); markUnsaved(); });
+            }
+            // Text fields mark unsaved on input
+            ['cfgHeroBadge', 'cfgHeroLine1', 'cfgHeroLine2', 'cfgHeroDesc', 'cfgWhatsapp'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', () => markUnsaved());
+            });
+        }
+
+        // ============================================
+        // HERO VIDEO
+        // ============================================
+        function initHeroVideoUpload() {
+            const btn = document.getElementById('heroVideoUploadBtn');
+            const input = document.getElementById('heroVideoInput');
+            const removeBtn = document.getElementById('heroVideoRemoveBtn');
+
+            btn.addEventListener('click', () => input.click());
+
+            input.addEventListener('change', async () => {
+                if (!input.files.length) return;
+                const file = input.files[0];
+                if (file.size > 50 * 1024 * 1024) { showToast('⚠️ Vídeo muito grande (max ~30MB)'); return; }
+
+                showLoading();
+                showToast('Subindo vídeo...');
+                const fileName = `${CATEGORY}/hero_video.mp4`;
+
+                // Remove old entry if exists
+                const { data: old } = await sb.from('portfolio_items').select('id').eq('category', CATEGORY).eq('item_type', 'hero_video');
+                if (old && old.length) {
+                    await sb.storage.from(BUCKET).remove([fileName]);
+                    await sb.from('portfolio_items').delete().eq('id', old[0].id);
+                }
+
+                const { error: upErr } = await sb.storage.from(BUCKET).upload(fileName, file, { contentType: file.type, upsert: true });
+                if (upErr) { hideLoading(); showToast('Erro no upload'); console.error(upErr); return; }
+
+                await sb.from('portfolio_items').insert({ category: CATEGORY, file_path: fileName, item_type: 'hero_video', sort_order: 0 });
+                await loadHeroVideo();
+                hideLoading();
+                showToast('Vídeo de capa atualizado ✓');
+                input.value = '';
+            });
+
+            removeBtn.addEventListener('click', async () => {
+                showLoading();
+                const { data } = await sb.from('portfolio_items').select('id').eq('category', CATEGORY).eq('item_type', 'hero_video');
+                if (data && data.length) {
+                    await sb.storage.from(BUCKET).remove([`${CATEGORY}/hero_video.mp4`]);
+                    await sb.from('portfolio_items').delete().eq('id', data[0].id);
+                }
+                await loadHeroVideo();
+                hideLoading();
+                showToast('Vídeo removido ✓');
+            });
+        }
+
+        async function loadHeroVideo() {
+            const preview = document.getElementById('heroVideoPreview');
+            const removeBtn = document.getElementById('heroVideoRemoveBtn');
+            const { data } = await sb.from('portfolio_items').select('file_path').eq('category', CATEGORY).eq('item_type', 'hero_video').limit(1);
+
+            if (data && data.length) {
+                const url = storageUrl(data[0].file_path) + '?t=' + Date.now();
+                preview.innerHTML = `<video src="${url}" autoplay muted loop playsinline></video>`;
+                removeBtn.style.display = 'inline-flex';
+            } else {
+                preview.innerHTML = '<span>Sem vídeo</span>';
+                removeBtn.style.display = 'none';
+            }
+        }
+
+        // ============================================
+        // ABOUT PHOTO
+        // ============================================
+        function initAboutUpload() {
+            const btn = document.getElementById('aboutUploadBtn');
+            const input = document.getElementById('aboutFileInput');
+            const removeBtn = document.getElementById('aboutRemoveBtn');
+
+            btn.addEventListener('click', () => input.click());
+
+            input.addEventListener('change', async () => {
+                if (!input.files.length) return;
+                showLoading();
+                const blob = await compressImage(input.files[0], 1200);
+                const fileName = `${CATEGORY}/about_photo.webp`;
+
+                const { data: old } = await sb.from('portfolio_items').select('id').eq('category', CATEGORY).eq('item_type', 'about_photo');
+                if (old && old.length) {
+                    await sb.storage.from(BUCKET).remove([fileName]);
+                    await sb.from('portfolio_items').delete().eq('id', old[0].id);
+                }
+
+                await sb.storage.from(BUCKET).upload(fileName, blob, { contentType: 'image/webp', upsert: true });
+                await sb.from('portfolio_items').insert({ category: CATEGORY, file_path: fileName, item_type: 'about_photo', sort_order: 0 });
+                await loadAboutPhoto();
+                hideLoading();
+                showToast('Foto do "Sobre" atualizada ✓');
+                input.value = '';
+            });
+
+            removeBtn.addEventListener('click', async () => {
+                showLoading();
+                const { data } = await sb.from('portfolio_items').select('id').eq('category', CATEGORY).eq('item_type', 'about_photo');
+                if (data && data.length) {
+                    await sb.storage.from(BUCKET).remove([`${CATEGORY}/about_photo.webp`]);
+                    await sb.from('portfolio_items').delete().eq('id', data[0].id);
+                }
+                await loadAboutPhoto();
+                hideLoading();
+                showToast('Foto removida ✓');
+            });
+        }
+
+        async function loadAboutPhoto() {
+            const preview = document.getElementById('aboutPreview');
+            const removeBtn = document.getElementById('aboutRemoveBtn');
+            const { data } = await sb.from('portfolio_items').select('file_path').eq('category', CATEGORY).eq('item_type', 'about_photo').limit(1);
+
+            if (data && data.length) {
+                const url = storageUrl(data[0].file_path) + '?t=' + Date.now();
+                preview.innerHTML = `<img src="${url}" alt="About">`;
+                removeBtn.style.display = 'inline-flex';
+            } else {
+                preview.innerHTML = '<span>Sem foto</span>';
+                removeBtn.style.display = 'none';
+            }
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            initUpload();
+            initAboutUpload();
+            initHeroVideoUpload();
+            initConfigUI();
+            initSaveButton();
+            initLogin();
         });
-
-        // Delete
-        card.querySelector('[data-action="delete"]').addEventListener('click', async () => {
-          if (!confirm('Remover esta foto?')) return;
-          showLoading();
-          await sb.storage.from(BUCKET).remove([item.file_path]);
-          await sb.from('portfolio_items').delete().eq('id', item.id);
-          portfolioItems = portfolioItems.filter(i => i.id !== item.id);
-          renderGrid();
-          hideLoading();
-          showToast('Foto removida ✓');
-        });
-
-        // Drag reorder
-        card.addEventListener('dragstart', (e) => { card.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', item.id); });
-        card.addEventListener('dragend', () => { card.classList.remove('dragging'); document.querySelectorAll('.admin-card').forEach(c => c.classList.remove('drag-over')); });
-        card.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; card.classList.add('drag-over'); });
-        card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
-        card.addEventListener('drop', (e) => {
-          e.preventDefault(); card.classList.remove('drag-over');
-          const draggedId = e.dataTransfer.getData('text/plain');
-          if (draggedId === item.id) return;
-          const fromIdx = portfolioItems.findIndex(i => i.id === draggedId);
-          const toIdx = portfolioItems.findIndex(i => i.id === item.id);
-          const [moved] = portfolioItems.splice(fromIdx, 1);
-          portfolioItems.splice(toIdx, 0, moved);
-          portfolioItems.forEach((p, idx) => p.sort_order = idx);
-          markUnsaved();
-          renderGrid();
-        });
-
-        grid.appendChild(card);
-      }
-    }
-
-    // ============================================
-    // SAVE — batch update all items
-    // ============================================
-    function initSaveButton() {
-      document.getElementById('saveBtn').addEventListener('click', async () => {
-        showLoading();
-        for (const item of portfolioItems) {
-          await sb.from('portfolio_items').update({
-            ratio: item.ratio,
-            pos_x: item.pos_x,
-            pos_y: item.pos_y,
-            sort_order: item.sort_order
-          }).eq('id', item.id);
-        }
-        markSaved();
-        hideLoading();
-        showToast('✅ Alterações salvas com sucesso!');
-      });
-
-      window.addEventListener('beforeunload', (e) => {
-        if (hasUnsavedChanges) { e.preventDefault(); e.returnValue = ''; }
-      });
-    }
-
-    // ============================================
-    // HERO VIDEO
-    // ============================================
-    function initHeroVideoUpload() {
-      const btn = document.getElementById('heroVideoUploadBtn');
-      const input = document.getElementById('heroVideoInput');
-      const removeBtn = document.getElementById('heroVideoRemoveBtn');
-
-      btn.addEventListener('click', () => input.click());
-
-      input.addEventListener('change', async () => {
-        if (!input.files.length) return;
-        const file = input.files[0];
-        if (file.size > 50 * 1024 * 1024) { showToast('⚠️ Vídeo muito grande (max ~30MB)'); return; }
-
-        showLoading();
-        showToast('Subindo vídeo...');
-        const fileName = `${CATEGORY}/hero_video.mp4`;
-
-        // Remove old entry if exists
-        const { data: old } = await sb.from('portfolio_items').select('id').eq('category', CATEGORY).eq('item_type', 'hero_video');
-        if (old && old.length) {
-          await sb.storage.from(BUCKET).remove([fileName]);
-          await sb.from('portfolio_items').delete().eq('id', old[0].id);
-        }
-
-        const { error: upErr } = await sb.storage.from(BUCKET).upload(fileName, file, { contentType: file.type, upsert: true });
-        if (upErr) { hideLoading(); showToast('Erro no upload'); console.error(upErr); return; }
-
-        await sb.from('portfolio_items').insert({ category: CATEGORY, file_path: fileName, item_type: 'hero_video', sort_order: 0 });
-        await loadHeroVideo();
-        hideLoading();
-        showToast('Vídeo de capa atualizado ✓');
-        input.value = '';
-      });
-
-      removeBtn.addEventListener('click', async () => {
-        showLoading();
-        const { data } = await sb.from('portfolio_items').select('id').eq('category', CATEGORY).eq('item_type', 'hero_video');
-        if (data && data.length) {
-          await sb.storage.from(BUCKET).remove([`${CATEGORY}/hero_video.mp4`]);
-          await sb.from('portfolio_items').delete().eq('id', data[0].id);
-        }
-        await loadHeroVideo();
-        hideLoading();
-        showToast('Vídeo removido ✓');
-      });
-    }
-
-    async function loadHeroVideo() {
-      const preview = document.getElementById('heroVideoPreview');
-      const removeBtn = document.getElementById('heroVideoRemoveBtn');
-      const { data } = await sb.from('portfolio_items').select('file_path').eq('category', CATEGORY).eq('item_type', 'hero_video').limit(1);
-
-      if (data && data.length) {
-        const url = storageUrl(data[0].file_path) + '?t=' + Date.now();
-        preview.innerHTML = `<video src="${url}" autoplay muted loop playsinline></video>`;
-        removeBtn.style.display = 'inline-flex';
-      } else {
-        preview.innerHTML = '<span>Sem vídeo</span>';
-        removeBtn.style.display = 'none';
-      }
-    }
-
-    // ============================================
-    // ABOUT PHOTO
-    // ============================================
-    function initAboutUpload() {
-      const btn = document.getElementById('aboutUploadBtn');
-      const input = document.getElementById('aboutFileInput');
-      const removeBtn = document.getElementById('aboutRemoveBtn');
-
-      btn.addEventListener('click', () => input.click());
-
-      input.addEventListener('change', async () => {
-        if (!input.files.length) return;
-        showLoading();
-        const blob = await compressImage(input.files[0], 1200);
-        const fileName = `${CATEGORY}/about_photo.webp`;
-
-        const { data: old } = await sb.from('portfolio_items').select('id').eq('category', CATEGORY).eq('item_type', 'about_photo');
-        if (old && old.length) {
-          await sb.storage.from(BUCKET).remove([fileName]);
-          await sb.from('portfolio_items').delete().eq('id', old[0].id);
-        }
-
-        await sb.storage.from(BUCKET).upload(fileName, blob, { contentType: 'image/webp', upsert: true });
-        await sb.from('portfolio_items').insert({ category: CATEGORY, file_path: fileName, item_type: 'about_photo', sort_order: 0 });
-        await loadAboutPhoto();
-        hideLoading();
-        showToast('Foto do "Sobre" atualizada ✓');
-        input.value = '';
-      });
-
-      removeBtn.addEventListener('click', async () => {
-        showLoading();
-        const { data } = await sb.from('portfolio_items').select('id').eq('category', CATEGORY).eq('item_type', 'about_photo');
-        if (data && data.length) {
-          await sb.storage.from(BUCKET).remove([`${CATEGORY}/about_photo.webp`]);
-          await sb.from('portfolio_items').delete().eq('id', data[0].id);
-        }
-        await loadAboutPhoto();
-        hideLoading();
-        showToast('Foto removida ✓');
-      });
-    }
-
-    async function loadAboutPhoto() {
-      const preview = document.getElementById('aboutPreview');
-      const removeBtn = document.getElementById('aboutRemoveBtn');
-      const { data } = await sb.from('portfolio_items').select('file_path').eq('category', CATEGORY).eq('item_type', 'about_photo').limit(1);
-
-      if (data && data.length) {
-        const url = storageUrl(data[0].file_path) + '?t=' + Date.now();
-        preview.innerHTML = `<img src="${url}" alt="About">`;
-        removeBtn.style.display = 'inline-flex';
-      } else {
-        preview.innerHTML = '<span>Sem foto</span>';
-        removeBtn.style.display = 'none';
-      }
-    }
-
-    // ============================================
-    // INIT
-    // ============================================
-    document.addEventListener('DOMContentLoaded', () => {
-      initUpload();
-      initAboutUpload();
-      initHeroVideoUpload();
-      initSaveButton();
-      initLogin();
-    });
     </script>
 </body>
 

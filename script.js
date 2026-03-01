@@ -7,10 +7,63 @@ document.addEventListener('DOMContentLoaded', () => {
   initScrollAnimations();
   initBudgetCalculator();
   initSmoothScroll();
+  loadSiteConfig();
   loadDynamicPortfolio();
   loadDynamicAboutPhoto();
   loadDynamicHeroVideo();
 });
+
+/* ---- SITE CONFIG (fonts, text, whatsapp) ---- */
+async function loadSiteConfig() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/site_config?select=key,value`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    const data = await res.json();
+    if (!data || !data.length) return;
+
+    const cfg = {};
+    data.forEach(r => cfg[r.key] = r.value);
+
+    // Fonts
+    if (cfg.font_heading) {
+      loadGFont(cfg.font_heading);
+      document.documentElement.style.setProperty('--font-heading', `'${cfg.font_heading}', serif`);
+    }
+    if (cfg.font_body) {
+      loadGFont(cfg.font_body);
+      document.documentElement.style.setProperty('--font-body', `'${cfg.font_body}', sans-serif`);
+    }
+
+    // Hero text
+    const badge = document.querySelector('.hero-badge');
+    const line1 = document.querySelector('.hero-line-1');
+    const line2 = document.querySelector('.hero-line-2');
+    const desc = document.querySelector('.hero-description');
+    if (badge && cfg.hero_badge) badge.textContent = cfg.hero_badge;
+    if (line1 && cfg.hero_line1) line1.textContent = cfg.hero_line1;
+    if (line2 && cfg.hero_line2) line2.textContent = cfg.hero_line2;
+    if (desc && cfg.hero_description) desc.textContent = cfg.hero_description;
+
+    // WhatsApp
+    if (cfg.whatsapp) {
+      document.querySelectorAll('a[href*="wa.me"]').forEach(a => {
+        a.href = `https://wa.me/${cfg.whatsapp}`;
+      });
+    }
+  } catch (err) {
+    console.log('Site config: using defaults', err);
+  }
+}
+
+function loadGFont(name) {
+  const id = 'gf-' + name.replace(/\s+/g, '-');
+  if (document.getElementById(id)) return;
+  const link = document.createElement('link');
+  link.id = id; link.rel = 'stylesheet';
+  link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(name)}:wght@300;400;500;600;700&display=swap`;
+  document.head.appendChild(link);
+}
 
 /* ---- SUPABASE CONFIG ---- */
 const SUPABASE_URL = 'https://pqeqccbtqrmsvivnisuc.supabase.co';
