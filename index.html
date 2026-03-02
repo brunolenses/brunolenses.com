@@ -554,6 +554,37 @@
     </section>
   </main>
 
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-overlay"></div>
+    <button class="lightbox-close" id="lightboxClose" aria-label="Fechar">✕</button>
+    <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Anterior">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6" />
+      </svg>
+    </button>
+    <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Próxima">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 18l6-6-6-6" />
+      </svg>
+    </button>
+    <div class="lightbox-content">
+      <img class="lightbox-img" id="lightboxImg" src="" alt="">
+    </div>
+    <div class="lightbox-comments" id="lightboxComments">
+      <div class="lightbox-comments-header">
+        <h3>Comentários</h3>
+        <button class="lightbox-comments-toggle" id="commentsToggle">💬</button>
+      </div>
+      <div class="lightbox-comments-list" id="commentsList"></div>
+      <form class="lightbox-comment-form" id="commentForm">
+        <input type="text" id="commentAuthor" placeholder="Seu nome" required maxlength="60">
+        <textarea id="commentText" placeholder="Deixe seu comentário..." required rows="2" maxlength="500"></textarea>
+        <button type="submit" class="btn btn-primary btn-sm">Enviar</button>
+      </form>
+    </div>
+  </div>
+
   <!-- FOOTER -->
   <footer class="footer">
     <div class="container">

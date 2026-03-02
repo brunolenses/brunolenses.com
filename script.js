@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initScrollAnimations();
   initBudgetCalculator();
   initSmoothScroll();
+  initLightbox();
   loadSiteConfig();
   loadDynamicPortfolio();
   loadDynamicAboutPhoto();
@@ -89,12 +90,15 @@ async function supabaseQuery(table, filters) {
 }
 
 /* ---- DYNAMIC PORTFOLIO ---- */
+let portfolioData = []; // global for lightbox
+
 async function loadDynamicPortfolio() {
   try {
     const items = await supabaseQuery('portfolio_items',
       `category=eq.${CATEGORY}&item_type=eq.portfolio&order=sort_order`);
     if (!items || !items.length) return;
 
+    portfolioData = items;
     const grid = document.querySelector('.portfolio-grid');
     if (!grid) return;
 
@@ -116,6 +120,8 @@ async function loadDynamicPortfolio() {
       div.className = `portfolio-item ${isWide ? 'portfolio-wide' : ''} anim-reveal`;
       div.style.cssText = ratioStyleMap[item.ratio] || '';
       div.innerHTML = `<img src="${url}" alt="Portfólio B Lenses" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:${posX}% ${posY}%;border-radius:inherit;">`;
+      div.dataset.index = i;
+      div.addEventListener('click', () => openLightbox(i));
       if (i > 0) div.dataset.delay = i * 100;
       grid.appendChild(div);
     });
@@ -124,6 +130,142 @@ async function loadDynamicPortfolio() {
   } catch (err) {
     console.log('Portfolio: using static placeholders', err);
   }
+}
+
+/* ---- LIGHTBOX ---- */
+let currentLightboxIndex = 0;
+
+function initLightbox() {
+  const lb = document.getElementById('lightbox');
+  if (!lb) return;
+
+  document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+  document.getElementById('lightboxPrev').addEventListener('click', () => navigateLightbox(-1));
+  document.getElementById('lightboxNext').addEventListener('click', () => navigateLightbox(1));
+  lb.querySelector('.lightbox-overlay').addEventListener('click', closeLightbox);
+
+  document.getElementById('commentsToggle').addEventListener('click', () => {
+    document.getElementById('lightboxComments').classList.toggle('open');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (!lb.classList.contains('active')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') navigateLightbox(-1);
+    if (e.key === 'ArrowRight') navigateLightbox(1);
+  });
+
+  // Comment form
+  document.getElementById('commentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    await submitComment();
+  });
+}
+
+function openLightbox(index) {
+  if (!portfolioData.length) return;
+  currentLightboxIndex = index;
+  const lb = document.getElementById('lightbox');
+  lb.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  updateLightboxImage();
+}
+
+function closeLightbox() {
+  const lb = document.getElementById('lightbox');
+  lb.classList.remove('active');
+  document.getElementById('lightboxComments').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function navigateLightbox(dir) {
+  currentLightboxIndex += dir;
+  if (currentLightboxIndex < 0) currentLightboxIndex = portfolioData.length - 1;
+  if (currentLightboxIndex >= portfolioData.length) currentLightboxIndex = 0;
+  updateLightboxImage();
+}
+
+function updateLightboxImage() {
+  const item = portfolioData[currentLightboxIndex];
+  if (!item) return;
+  const img = document.getElementById('lightboxImg');
+  img.src = storageUrl(item.file_path);
+  loadComments(item.id);
+}
+
+/* ---- COMMENTS ---- */
+async function loadComments(photoId) {
+  const list = document.getElementById('commentsList');
+  list.innerHTML = '<div class="comments-empty">Carregando...</div>';
+  try {
+    const comments = await supabaseQuery('photo_comments',
+      `portfolio_item_id=eq.${photoId}&approved=eq.true&order=created_at.desc`);
+    if (!comments || !comments.length) {
+      list.innerHTML = '<div class="comments-empty">Nenhum comentário ainda.<br>Seja o primeiro! 💬</div>';
+      return;
+    }
+    list.innerHTML = comments.map(c => `
+      <div class="comment-card">
+        <div class="comment-author">${escapeHtml(c.author_name)}
+          <span class="comment-date">${formatDate(c.created_at)}</span>
+        </div>
+        <div class="comment-body">${escapeHtml(c.comment_text)}</div>
+      </div>
+    `).join('');
+  } catch (err) {
+    list.innerHTML = '<div class="comments-empty">Erro ao carregar</div>';
+  }
+}
+
+async function submitComment() {
+  const item = portfolioData[currentLightboxIndex];
+  if (!item) return;
+  const author = document.getElementById('commentAuthor').value.trim();
+  const text = document.getElementById('commentText').value.trim();
+  if (!author || !text) return;
+
+  const form = document.getElementById('commentForm');
+  const btn = form.querySelector('button');
+  btn.disabled = true; btn.textContent = 'Enviando...';
+
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/photo_comments`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        portfolio_item_id: item.id,
+        author_name: author,
+        comment_text: text
+      })
+    });
+    document.getElementById('commentAuthor').value = '';
+    document.getElementById('commentText').value = '';
+    const list = document.getElementById('commentsList');
+    const msg = document.createElement('div');
+    msg.className = 'comment-success';
+    msg.textContent = '✅ Comentário enviado! Aguardando aprovação.';
+    list.prepend(msg);
+    setTimeout(() => msg.remove(), 4000);
+  } catch (err) {
+    console.error('Comment submit error:', err);
+  }
+  btn.disabled = false; btn.textContent = 'Enviar';
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
 /* ---- DYNAMIC ABOUT PHOTO ---- */

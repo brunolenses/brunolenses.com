@@ -722,6 +722,140 @@
             line-height: 1.4;
         }
 
+        /* COMMENT MODERATION */
+        .comments-mod-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .comments-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            height: 24px;
+            padding: 0 8px;
+            background: var(--sale);
+            color: #fff;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .comments-filter {
+            display: flex;
+            gap: 4px;
+        }
+
+        .comments-filter-btn {
+            padding: 6px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-full);
+            background: var(--bg);
+            font-size: 13px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: inherit;
+        }
+
+        .comments-filter-btn.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .admin-comments-list {
+            min-height: 60px;
+        }
+
+        .admin-comment-card {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            margin-bottom: 12px;
+            align-items: flex-start;
+        }
+
+        .admin-comment-thumb {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .admin-comment-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .admin-comment-author {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .admin-comment-date {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-left: 6px;
+            font-weight: 400;
+        }
+
+        .admin-comment-text {
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text);
+            margin-top: 4px;
+        }
+
+        .admin-comment-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .comment-action-btn {
+            padding: 5px 14px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            transition: all var(--transition);
+            font-family: inherit;
+        }
+
+        .comment-action-btn.approve {
+            color: var(--accent);
+        }
+
+        .comment-action-btn.approve:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .comment-action-btn.reject {
+            color: var(--sale);
+        }
+
+        .comment-action-btn.reject:hover {
+            background: var(--sale);
+            color: #fff;
+            border-color: var(--sale);
+        }
+
         /* RESPONSIVE */
         @media (max-width:768px) {
             .admin-body {
@@ -918,6 +1052,21 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Comment Moderation -->
+            <div class="admin-section">
+                <div class="comments-mod-header">
+                    <h2>Comentários <span class="comments-badge" id="commentsBadge">0</span></h2>
+                    <div class="comments-filter">
+                        <button class="comments-filter-btn active" data-filter="pending">Pendentes</button>
+                        <button class="comments-filter-btn" data-filter="approved">Aprovados</button>
+                    </div>
+                </div>
+                <div id="adminCommentsList" class="admin-comments-list">
+                    <p style="color:var(--text-muted);font-size:14px;text-align:center;padding:30px">Carregando
+                        comentários...</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1053,6 +1202,7 @@
             await loadHeroVideo();
             await loadAboutPhoto();
             await loadSiteConfig();
+            await loadAdminComments();
             hideLoading();
         }
 
@@ -1463,6 +1613,114 @@
         }
 
         // ============================================
+        // COMMENT MODERATION
+        // ============================================
+        let commentsFilter = 'pending';
+
+        async function loadAdminComments() {
+            const list = document.getElementById('adminCommentsList');
+            const badge = document.getElementById('commentsBadge');
+            const filter = commentsFilter === 'pending' ? 'approved=eq.false' : 'approved=eq.true';
+
+            try {
+                // Use raw fetch to get ALL comments (including non-approved) for admin
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/photo_comments?${filter}&order=created_at.desc&select=*,portfolio_items(file_path)`, {
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                });
+                const comments = await res.json();
+
+                // Count pending for badge
+                const pendingRes = await fetch(`${SUPABASE_URL}/rest/v1/photo_comments?approved=eq.false&select=id`, {
+                    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+                });
+                const pending = await pendingRes.json();
+                badge.textContent = pending.length || 0;
+                badge.style.display = pending.length ? '' : 'none';
+
+                if (!comments.length) {
+                    list.innerHTML = `<p style="color:var(--text-muted);font-size:14px;text-align:center;padding:30px">${commentsFilter === 'pending' ? 'Nenhum comentário pendente 🎉' : 'Nenhum comentário aprovado ainda.'}</p>`;
+                    return;
+                }
+
+                list.innerHTML = comments.map(c => {
+                    const thumbUrl = c.portfolio_items?.file_path
+                        ? `${SUPABASE_URL}/storage/v1/object/public/portfolio/${c.portfolio_items.file_path}`
+                        : '';
+                    const date = new Date(c.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+                    return `
+                        <div class="admin-comment-card" data-id="${c.id}">
+                            ${thumbUrl ? `<img class="admin-comment-thumb" src="${thumbUrl}" alt="">` : ''}
+                            <div class="admin-comment-body">
+                                <div class="admin-comment-author">${escHtml(c.author_name)}<span class="admin-comment-date">${date}</span></div>
+                                <div class="admin-comment-text">${escHtml(c.comment_text)}</div>
+                                <div class="admin-comment-actions">
+                                    ${commentsFilter === 'pending' ? `
+                                        <button class="comment-action-btn approve" onclick="approveComment('${c.id}')">✓ Aprovar</button>
+                                        <button class="comment-action-btn reject" onclick="rejectComment('${c.id}')">✕ Rejeitar</button>
+                                    ` : `
+                                        <button class="comment-action-btn reject" onclick="rejectComment('${c.id}')">✕ Remover</button>
+                                    `}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                list.innerHTML = '<p style="color:var(--text-muted);font-size:14px;text-align:center;padding:30px">Erro ao carregar comentários.</p>';
+                console.error(err);
+            }
+        }
+
+        function escHtml(str) {
+            const d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
+        }
+
+        async function approveComment(id) {
+            const card = document.querySelector(`[data-id="${id}"]`);
+            if (card) card.style.opacity = '0.5';
+            await fetch(`${SUPABASE_URL}/rest/v1/photo_comments?id=eq.${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=minimal'
+                },
+                body: JSON.stringify({ approved: true })
+            });
+            showToast('✅ Comentário aprovado!');
+            loadAdminComments();
+        }
+
+        async function rejectComment(id) {
+            if (!confirm('Remover este comentário?')) return;
+            const card = document.querySelector(`[data-id="${id}"]`);
+            if (card) card.style.opacity = '0.5';
+            await fetch(`${SUPABASE_URL}/rest/v1/photo_comments?id=eq.${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`
+                }
+            });
+            showToast('🗑️ Comentário removido.');
+            loadAdminComments();
+        }
+
+        function initCommentModeration() {
+            document.querySelectorAll('.comments-filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.comments-filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    commentsFilter = btn.dataset.filter;
+                    loadAdminComments();
+                });
+            });
+        }
+
+        // ============================================
         // INIT
         // ============================================
         document.addEventListener('DOMContentLoaded', () => {
@@ -1470,6 +1728,7 @@
             initAboutUpload();
             initHeroVideoUpload();
             initConfigUI();
+            initCommentModeration();
             initSaveButton();
             initLogin();
         });
