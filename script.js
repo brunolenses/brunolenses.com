@@ -359,17 +359,23 @@ function initBudgetCalculator() {
       totalEl.textContent = `R$ ${total.toLocaleString('pt-BR')}`;
     }
 
-    // Update WhatsApp link with budget info
-    const whatsappBtn = document.querySelector('.budget-total .btn-primary');
+    // Update WhatsApp link with budget info + observations
+    const whatsappBtn = document.getElementById('budgetWhatsappBtn');
     if (whatsappBtn) {
+      const notes = document.getElementById('budgetNotes')?.value?.trim() || '';
       let msg = `Olá! Gostaria de fechar meu orçamento de casamento:\n\n`;
       breakdown.forEach(item => {
         msg += `• ${item.label}: R$ ${item.value.toLocaleString('pt-BR')}\n`;
       });
       msg += `\nTotal estimado: R$ ${total.toLocaleString('pt-BR')}`;
-      whatsappBtn.href = `https://wa.me/5515999999999?text=${encodeURIComponent(msg)}`;
+      if (notes) msg += `\n\n📝 Observações:\n${notes}`;
+      const waNumber = whatsappBtn.href.match(/wa\.me\/(\d+)/)?.[1] || '5515997730671';
+      whatsappBtn.href = `https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`;
     }
   }
+
+  // Observations textarea
+  document.getElementById('budgetNotes')?.addEventListener('input', () => updateBudget());
 
   // Initial calculation
   updateBudget();

@@ -928,6 +928,62 @@ ul {
   color: var(--text-muted);
 }
 
+/* Observations */
+.budget-notes {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-light);
+}
+
+.budget-notes-label {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.budget-notes-icon {
+  font-size: 18px;
+}
+
+.budget-notes-hint {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-muted);
+  display: block;
+  width: 100%;
+  margin-top: 2px;
+}
+
+.budget-notes-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: var(--font-body);
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+  resize: vertical;
+  min-height: 80px;
+  transition: border var(--transition);
+  line-height: 1.6;
+}
+
+.budget-notes-input:focus {
+  border-color: var(--accent);
+}
+
+.budget-notes-input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
 /* Total panel */
 .budget-total {
   position: sticky;
