@@ -308,6 +308,7 @@
         const dotsContainer = document.getElementById('galleryDots');
         const anglePerCard = 360 / cards.length;
         let currentRotation = 0;
+        let targetRotation = 0; // Utilizado para suavizar (lerp)
         let autoRotateSpeed = 0.015;
         let isScrolling = false;
         let scrollTimeout;
@@ -341,13 +342,11 @@
             const dot = document.createElement('button');
             dot.className = 'gallery-dot' + (i === 0 ? ' active' : '');
             dot.addEventListener('click', () => {
-                const targetAngle = -(i * anglePerCard);
-                gsap.to({ val: currentRotation }, {
-                    val: targetAngle,
-                    duration: 1,
-                    ease: "power2.inOut",
-                    onUpdate: function() { currentRotation = this.targets()[0].val; updateGallery(); }
-                });
+                const tAngle = -(i * anglePerCard);
+                let diff = (tAngle - targetRotation) % 360;
+                if (diff > 180) diff -= 360;
+                if (diff < -180) diff += 360;
+                targetRotation += diff;
             });
             dotsContainer.appendChild(dot);
         });
@@ -367,15 +366,14 @@
             });
         }
 
-        // Scroll-driven rotation
+        // Scroll-driven rotation (updates targetRotation)
         window.addEventListener('scroll', () => {
             isScrolling = true;
             clearTimeout(scrollTimeout);
 
             const scrollable = document.documentElement.scrollHeight - window.innerHeight;
             const progress = scrollable > 0 ? window.scrollY / scrollable : 0;
-            currentRotation = -(progress * 360 * 1.5); // 1.5 full rotations over scroll
-            updateGallery();
+            targetRotation = -(progress * 360 * 1.5); // 1.5 full rotations over scroll
 
             // Hide scroll hint after first scroll
             const hint = document.getElementById('scrollHint');
@@ -387,21 +385,30 @@
             scrollTimeout = setTimeout(() => { isScrolling = false; }, 200);
         }, { passive: true });
 
-        // Auto-rotate when not scrolling
+        // Auto-rotate and LERP loop
         let lastTime = 0;
-        function autoRotate(time) {
+        function renderLoop(time) {
+            // Auto rotate idle state
             if (!isScrolling && document.scrollingElement.scrollTop < 10) {
                 const delta = time - lastTime;
                 if (delta < 100) { // guard against huge gaps
-                    currentRotation -= autoRotateSpeed * delta * 0.06;
-                    updateGallery();
+                    targetRotation -= autoRotateSpeed * delta * 0.06;
                 }
             }
-            lastTime = time;
-            requestAnimationFrame(autoRotate);
-        }
-        requestAnimationFrame(autoRotate);
+            
+            // Linear Interpolation (LERP) for buttery smooth physics
+            currentRotation += (targetRotation - currentRotation) * 0.08;
+            
+            // Limit DOM updates if change is extremely small
+            if (Math.abs(targetRotation - currentRotation) > 0.01) {
+                updateGallery();
+            }
 
+            lastTime = time;
+            requestAnimationFrame(renderLoop);
+        }
+        requestAnimationFrame(renderLoop);
+        
         // Initial state
         updateGallery();
 
@@ -426,7 +433,9 @@
                 vec2 s = uRes / texSize;
                 float sc = max(s.x, s.y);
                 vec2 sz = texSize * sc;
-                vec2 off = (uRes - sz) * 0.5;
+                // Alinha horizonatalmente no centro, mas verticalmente no TOPO (uRes.y - sz.y)
+                // Isso garante que no desktop a cabeça nunca seja cortada. No mobile, sz.y == uRes.y, então é zero natural.
+                vec2 off = vec2((uRes.x - sz.x) * 0.5, uRes.y - sz.y);
                 return (uv * uRes - off) / sz;
             }
 
