@@ -1,628 +1,493 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>B Lenses — Wedding Photography & Film</title>
-  <meta name="description"
-    content="Arte que eterniza o seu grande dia. Fotografia e filmagem de casamento autoral em Sorocaba e região.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bruno Lenses — Fotografia & Filmagem</title>
+    <meta name="description" content="Bruno Lenses — Fotografia e filmagem autoral. Casamentos, ensaios, dança, editorial e mais.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
+    <style>
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+        :root {
+            --font-display: 'Cormorant Garamond', serif;
+            --font-body: 'DM Sans', sans-serif;
+            --color-bg: #0a0a0a;
+            --color-text: #ffffff;
+            --color-text-muted: rgba(255,255,255,0.7);
+            --color-text-light: rgba(255,255,255,0.5);
+            --color-accent: #d4af37;
+        }
+
+        html { scroll-behavior: smooth; }
+        body { background:var(--color-bg); color:var(--color-text); font-family:var(--font-body); }
+
+        /* ---- SCROLLABLE CONTAINER ---- */
+        .scroll-container { height: 400vh; position:relative; }
+
+        /* ---- STICKY VIEWPORT ---- */
+        .sticky-viewport {
+            position:sticky; top:0;
+            width:100%; height:100vh;
+            overflow:hidden;
+        }
+
+        /* ---- WEBGL BACKGROUND ---- */
+        .webgl-canvas {
+            position:absolute; inset:0; width:100%; height:100%;
+            display:block; z-index:1;
+        }
+
+        /* Vignette overlay */
+        .bg-overlay {
+            position:absolute; inset:0; z-index:2;
+            background:
+                radial-gradient(ellipse at center, transparent 20%, rgba(0,0,0,0.7) 100%),
+                linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.4) 100%);
+            pointer-events:none;
+        }
+
+        /* ---- BRANDING ---- */
+        .brand-top {
+            position:absolute; top:36px; left:50%; transform:translateX(-50%);
+            z-index:10; text-align:center;
+        }
+        .brand-name {
+            font-family:var(--font-display); font-size:clamp(22px, 2.8vw, 32px);
+            font-weight:300; letter-spacing:0.3em; text-transform:uppercase;
+            color:var(--color-text); opacity:0.95;
+        }
+        .brand-tagline {
+            font-size:11px; letter-spacing:0.4em; text-transform:uppercase;
+            color:var(--color-text-light); margin-top:6px;
+        }
+
+        /* ---- SCROLL HINT ---- */
+        .scroll-hint {
+            position:absolute; bottom:30px; left:50%; transform:translateX(-50%);
+            z-index:10; text-align:center;
+            animation: hintPulse 2s ease-in-out infinite;
+        }
+        .scroll-hint-text {
+            font-size:11px; letter-spacing:0.2em; text-transform:uppercase;
+            color:var(--color-text-light); margin-bottom:8px;
+        }
+        .scroll-hint-arrow {
+            width:20px; height:20px; margin:0 auto;
+            border-right:1.5px solid var(--color-text-light);
+            border-bottom:1.5px solid var(--color-text-light);
+            transform:rotate(45deg);
+        }
+        @keyframes hintPulse {
+            0%, 100% { opacity:0.6; transform:translateX(-50%) translateY(0); }
+            50% { opacity:1; transform:translateX(-50%) translateY(6px); }
+        }
+
+        /* ---- 3D GALLERY ---- */
+        .gallery-scene {
+            position:absolute; inset:0; z-index:5;
+            display:flex; align-items:center; justify-content:center;
+            perspective:1800px;
+            pointer-events:none;
+        }
+        .gallery-ring {
+            position:relative;
+            width:300px; height:400px;
+            transform-style:preserve-3d;
+            transition:transform 0.1s linear;
+        }
+
+        /* ---- CARD ---- */
+        .gallery-card {
+            position:absolute;
+            width:280px; height:380px;
+            left:50%; top:50%;
+            margin-left:-140px; margin-top:-190px;
+            border-radius:16px;
+            overflow:hidden;
+            cursor:pointer;
+            pointer-events:auto;
+            transition:opacity 0.3s linear, transform 0.3s ease;
+            backface-visibility:hidden;
+            box-shadow:0 20px 60px rgba(0,0,0,0.5);
+        }
+        .gallery-card:hover { transform:scale(1.04); }
+
+        .card-image {
+            position:absolute; inset:0;
+            width:100%; height:100%;
+            object-fit:cover;
+        }
+
+        .card-glass {
+            position:absolute; inset:0;
+            background:linear-gradient(
+                to top,
+                rgba(0,0,0,0.85) 0%,
+                rgba(0,0,0,0.4) 35%,
+                rgba(0,0,0,0.05) 70%,
+                transparent 100%
+            );
+        }
+
+        .card-content {
+            position:absolute; bottom:0; left:0; right:0;
+            padding:24px;
+            z-index:2;
+        }
+        .card-label {
+            font-size:10px; letter-spacing:0.3em; text-transform:uppercase;
+            color:var(--color-accent); margin-bottom:6px; font-weight:500;
+        }
+        .card-title {
+            font-family:var(--font-display); font-size:28px;
+            font-weight:400; line-height:1.2;
+            color:var(--color-text); margin-bottom:6px;
+        }
+        .card-desc {
+            font-size:12px; color:var(--color-text-muted);
+            line-height:1.5; opacity:0.8;
+        }
+        .card-cta {
+            display:inline-flex; align-items:center; gap:6px;
+            margin-top:14px; padding:8px 18px;
+            border:1px solid rgba(255,255,255,0.2);
+            border-radius:999px; background:rgba(255,255,255,0.08);
+            color:var(--color-text); font-size:11px;
+            letter-spacing:0.1em; text-transform:uppercase;
+            text-decoration:none;
+            transition:all 0.3s ease;
+        }
+        .card-cta:hover {
+            background:rgba(255,255,255,0.15);
+            border-color:var(--color-accent);
+        }
+
+        /* ---- INDICATOR DOTS ---- */
+        .gallery-dots {
+            position:absolute; bottom:80px; left:50%; transform:translateX(-50%);
+            z-index:10; display:flex; gap:10px;
+        }
+        .gallery-dot {
+            width:8px; height:8px; border-radius:50%;
+            background:rgba(255,255,255,0.25); border:none;
+            cursor:pointer; transition:all 0.3s ease;
+            pointer-events:auto;
+        }
+        .gallery-dot.active {
+            background:var(--color-accent);
+            box-shadow:0 0 10px rgba(212,175,55,0.4);
+            transform:scale(1.3);
+        }
+
+        /* ---- RESPONSIVE ---- */
+        @media (max-width:768px) {
+            .gallery-card { width:220px; height:310px; margin-left:-110px; margin-top:-155px; }
+            .gallery-ring { width:220px; height:310px; }
+            .card-title { font-size:22px; }
+            .card-content { padding:18px; }
+            .brand-top { top:20px; }
+            .scroll-hint { bottom:20px; }
+            .gallery-dots { bottom:50px; }
+        }
+    </style>
+</head>
 <body>
 
-  <!-- NAVBAR -->
-  <header class="header" id="header">
-    <nav class="navbar">
-      <div class="navbar-inner">
-        <button type="button" class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <line x1="4" x2="20" y1="12" y2="12"></line>
-            <line x1="4" x2="20" y1="6" y2="6"></line>
-            <line x1="4" x2="20" y1="18" y2="18"></line>
-          </svg>
-        </button>
+    <!-- Scrollable space for rotation control -->
+    <div class="scroll-container">
+        <div class="sticky-viewport">
 
-        <div class="nav-links">
-          <a href="#portfolio" class="nav-link">Portfólio</a>
-          <a href="#about" class="nav-link">Sobre</a>
-          <a href="#services" class="nav-link">Serviços</a>
+            <!-- WebGL Background -->
+            <canvas class="webgl-canvas" id="bgCanvas"></canvas>
+            <div class="bg-overlay"></div>
+
+            <!-- Branding -->
+            <div class="brand-top">
+                <div class="brand-name">Bruno Lenses</div>
+                <div class="brand-tagline">Fotografia & Filmagem</div>
+            </div>
+
+            <!-- 3D Card Gallery -->
+            <div class="gallery-scene">
+                <div class="gallery-ring" id="galleryRing"></div>
+            </div>
+
+            <!-- Dots -->
+            <div class="gallery-dots" id="galleryDots"></div>
+
+            <!-- Scroll Hint -->
+            <div class="scroll-hint" id="scrollHint">
+                <div class="scroll-hint-text">Role para explorar</div>
+                <div class="scroll-hint-arrow"></div>
+            </div>
+
         </div>
-
-        <a href="#hero" class="logo">
-          <h1 class="logo-text">B Lenses</h1>
-        </a>
-
-        <div class="nav-icons">
-          <a href="#budget" class="nav-link nav-link-desktop">Orçamento</a>
-          <a href="https://instagram.com/brunolenses" target="_blank" class="icon-btn" aria-label="Instagram">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
-              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-              <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
-            </svg>
-          </a>
-          <a href="https://wa.me/5515997730671" target="_blank" class="icon-btn" aria-label="WhatsApp">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
-              </path>
-            </svg>
-          </a>
-        </div>
-      </div>
-
-      <div class="mobile-menu" id="mobileMenu">
-        <div class="mobile-menu-inner">
-          <a href="#portfolio" class="nav-link">Portfólio</a>
-          <a href="#about" class="nav-link">Sobre</a>
-          <a href="#services" class="nav-link">Serviços</a>
-          <a href="#budget" class="nav-link">Orçamento</a>
-        </div>
-      </div>
-    </nav>
-  </header>
-
-  <main>
-    <!-- HERO -->
-    <section class="hero" id="hero">
-      <div class="hero-bg">
-        <div class="hero-bg-overlay"></div>
-      </div>
-      <div class="hero-content">
-        <div class="container">
-          <div class="hero-text">
-            <span class="hero-badge anim-blur" style="animation-delay:0.2s">Wedding Photography & Film</span>
-            <h2 class="hero-heading">
-              <span class="hero-line-1 anim-blur" style="animation-delay:0.4s">Seu amor</span>
-              <span class="hero-line-2 anim-blur" style="animation-delay:0.6s">merece arte.</span>
-            </h2>
-            <p class="hero-description anim-blur" style="animation-delay:0.8s">
-              Não faço apenas fotos e vídeos. Eu crio arte. Cada frame, cada olhar, cada detalhe — eternizado com a
-              singularidade que só a sua história merece.
-            </p>
-            <div class="hero-cta anim-blur" style="animation-delay:1s">
-              <a href="#budget" class="btn btn-primary">
-                Monte seu orçamento
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M5 12h14"></path>
-                  <path d="m12 5 7 7-7 7"></path>
-                </svg>
-              </a>
-              <a href="#portfolio" class="btn btn-outline">Ver portfólio</a>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="scroll-indicator">
-        <span class="scroll-label">Scroll</span>
-        <div class="scroll-line">
-          <div class="scroll-line-inner"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FEATURES -->
-    <section class="features" id="features">
-      <div class="container">
-        <div class="features-grid">
-          <div class="feature-card anim-reveal">
-            <div class="feature-icon">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z">
-                </path>
-                <circle cx="12" cy="13" r="3"></circle>
-              </svg>
-            </div>
-            <h3 class="feature-title">Fotografia Autoral</h3>
-            <p class="feature-desc">Cada clique é uma obra de arte</p>
-          </div>
-          <div class="feature-card anim-reveal">
-            <div class="feature-icon">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="m22 8-6 4 6 4V8Z"></path>
-                <rect width="14" height="12" x="2" y="6" rx="2" ry="2"></rect>
-              </svg>
-            </div>
-            <h3 class="feature-title">Filmagem Cinematográfica</h3>
-            <p class="feature-desc">Seu dia em formato de cinema</p>
-          </div>
-          <div class="feature-card anim-reveal">
-            <div class="feature-icon">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
-                stroke-linecap="round" stroke-linejoin="round">
-                <rect width="14" height="20" x="5" y="2" rx="2" ry="2"></rect>
-                <path d="M12 18h.01"></path>
-              </svg>
-            </div>
-            <h3 class="feature-title">Storymaker</h3>
-            <p class="feature-desc">Conteúdo mobile em tempo real</p>
-          </div>
-          <div class="feature-card anim-reveal">
-            <div class="feature-icon">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path
-                  d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z">
-                </path>
-                <path d="M20 3v4"></path>
-                <path d="M22 5h-4"></path>
-              </svg>
-            </div>
-            <h3 class="feature-title">Entrega Premium</h3>
-            <p class="feature-desc">Drive, pen card ou site exclusivo</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ABOUT -->
-    <section class="about" id="about">
-      <div class="container">
-        <div class="about-grid">
-          <div class="about-image-col anim-reveal">
-            <div class="about-image-wrapper">
-              <div class="about-image-placeholder">
-                <span>Sua foto aqui</span>
-              </div>
-            </div>
-          </div>
-          <div class="about-text-col anim-reveal">
-            <span class="section-tag">Sobre o artista</span>
-            <h2 class="section-title">Mais do que registrar momentos.<br>Eu construo memória.</h2>
-            <p class="about-paragraph">
-              Fotógrafo profissional desde 2010, atuando no mercado de casamentos desde 2015, com uma trajetória
-              construída a partir de sensibilidade estética, experiência internacional e uma leitura humana que vai
-              além da técnica. Minha assinatura visual une intensidade emocional, elegância e narrativa.
-            </p>
-            <p class="about-paragraph">
-              Ganhei minha primeira câmera aos 13 anos. Aos 18, já atuava profissionalmente — da fotografia noturna
-              à experiência em cruzeiros marítimos internacionais. Aos 23, um tour fotográfico por <strong>18 países na
-                Europa</strong>
-              refinou meu olhar para luz, arquitetura, comportamento e composição.
-            </p>
-            <p class="about-paragraph">
-              Com background em fotografia de dança — onde registrei artistas nacionais e internacionais — incorporei
-              ao universo dos casamentos uma percepção apurada de movimento, postura e estética corporal, elevando
-              a composição de retratos e registros espontâneos.
-            </p>
-            <p class="about-paragraph about-highlight">
-              Para mim, o casamento não é apenas um evento — é um campo emocional complexo, onde expectativas,
-              memórias familiares e projeções de futuro se encontram. Minha fotografia é voltada para quem entende
-              que imagem não é apenas lembrança — <em>é legado</em>.
-            </p>
-            <div class="about-stats">
-              <div class="stat">
-                <span class="stat-number">+15</span>
-                <span class="stat-label">Anos de carreira</span>
-              </div>
-              <div class="stat">
-                <span class="stat-number">18</span>
-                <span class="stat-label">Países fotografados</span>
-              </div>
-              <div class="stat">
-                <span class="stat-number">100%</span>
-                <span class="stat-label">Autoral</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- PORTFOLIO -->
-    <section class="portfolio" id="portfolio">
-      <div class="container">
-        <div class="section-header anim-reveal">
-          <span class="section-tag">Portfólio</span>
-          <h2 class="section-title">Histórias que viram arte</h2>
-          <p class="section-desc">Cada casamento é uma nova obra. Navegue por algumas das histórias que tive o
-            privilégio de eternizar.</p>
-        </div>
-
-        <div class="portfolio-grid">
-          <div class="portfolio-item portfolio-wide anim-reveal">
-            <div class="portfolio-placeholder"><span>Foto do portfólio</span></div>
-          </div>
-          <div class="portfolio-item anim-reveal">
-            <div class="portfolio-placeholder"><span>Foto do portfólio</span></div>
-          </div>
-          <div class="portfolio-item anim-reveal">
-            <div class="portfolio-placeholder"><span>Foto do portfólio</span></div>
-          </div>
-          <div class="portfolio-item anim-reveal">
-            <div class="portfolio-placeholder"><span>Foto do portfólio</span></div>
-          </div>
-          <div class="portfolio-item anim-reveal">
-            <div class="portfolio-placeholder"><span>Foto do portfólio</span></div>
-          </div>
-          <div class="portfolio-item portfolio-wide anim-reveal">
-            <div class="portfolio-placeholder"><span>Foto do portfólio</span></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SERVICES -->
-    <section class="services" id="services">
-      <div class="container">
-        <div class="section-header anim-reveal">
-          <span class="section-tag">Serviços</span>
-          <h2 class="section-title">O que oferecemos</h2>
-          <p class="section-desc">Cada serviço pensado para tornar seu dia inesquecível</p>
-        </div>
-
-        <div class="services-grid">
-          <div class="service-card anim-reveal">
-            <div class="service-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z">
-                </path>
-                <circle cx="12" cy="13" r="3"></circle>
-              </svg>
-            </div>
-            <h3 class="service-title">Fotógrafo</h3>
-            <p class="service-price">R$ 1.500 <span>por profissional</span></p>
-            <p class="service-desc">Mínimo de 2 fotógrafos. Cobertura completa do seu dia com olhar artístico e autoral.
-            </p>
-          </div>
-
-          <div class="service-card anim-reveal">
-            <div class="service-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="m22 8-6 4 6 4V8Z"></path>
-                <rect width="14" height="12" x="2" y="6" rx="2" ry="2"></rect>
-              </svg>
-            </div>
-            <h3 class="service-title">Videomaker</h3>
-            <p class="service-price">R$ 2.000 <span>por profissional</span></p>
-            <p class="service-desc">Mínimo de 2 videomakers. Filmagem cinematográfica que transforma seu dia em um
-              filme.</p>
-          </div>
-
-          <div class="service-card anim-reveal">
-            <div class="service-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                stroke-linecap="round" stroke-linejoin="round">
-                <rect width="14" height="20" x="5" y="2" rx="2" ry="2"></rect>
-                <path d="M12 18h.01"></path>
-              </svg>
-            </div>
-            <h3 class="service-title">Storymaker</h3>
-            <p class="service-price">R$ 600 <span>por profissional</span></p>
-            <p class="service-desc">A partir de 1. Conteúdo mobile em tempo real. Entrega vídeo de até 2min no final da
-              festa.</p>
-          </div>
-
-          <div class="service-card anim-reveal">
-            <div class="service-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                <path d="M2 17l10 5 10-5"></path>
-                <path d="M2 12l10 5 10-5"></path>
-              </svg>
-            </div>
-            <h3 class="service-title">Drone</h3>
-            <p class="service-price">R$ 600</p>
-            <p class="service-desc">Imagens aéreas cinematográficas que adicionam grandiosidade ao seu registro.</p>
-          </div>
-        </div>
-
-        <!-- Extras -->
-        <div class="extras anim-reveal">
-          <h3 class="extras-title">Extras & Entrega</h3>
-          <div class="extras-grid">
-            <div class="extra-item">
-              <span class="extra-icon">📹</span>
-              <div>
-                <strong>Trends</strong>
-                <p>+R$ 200 por trend que a noiva queira fazer à parte</p>
-              </div>
-            </div>
-            <div class="extra-item">
-              <span class="extra-icon">🌐</span>
-              <div>
-                <strong>Site exclusivo dos noivos</strong>
-                <p>R$ 500 — galeria personalizada online</p>
-              </div>
-            </div>
-            <div class="extra-item">
-              <span class="extra-icon">📖</span>
-              <div>
-                <strong>Fotolivro</strong>
-                <p>Valor a combinar</p>
-              </div>
-            </div>
-            <div class="extra-item">
-              <span class="extra-icon">📦</span>
-              <div>
-                <strong>Entrega padrão</strong>
-                <p>Via Google Drive + pen card personalizado em até 60 dias</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- BUDGET CALCULATOR -->
-    <section class="budget" id="budget">
-      <div class="container">
-        <div class="section-header anim-reveal">
-          <span class="section-tag">Orçamento Interativo</span>
-          <h2 class="section-title">Monte seu pacote</h2>
-          <p class="section-desc">Selecione os serviços que deseja e visualize o valor estimado em tempo real</p>
-        </div>
-
-        <div class="budget-wrapper anim-reveal">
-          <div class="budget-form" id="budgetForm">
-            <!-- Photographers -->
-            <div class="budget-row">
-              <div class="budget-label">
-                <div class="budget-label-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path
-                      d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z">
-                    </path>
-                    <circle cx="12" cy="13" r="3"></circle>
-                  </svg>
-                </div>
-                <div>
-                  <strong>Fotógrafos</strong>
-                  <span>R$ 1.500 cada · mín. 2</span>
-                </div>
-              </div>
-              <div class="budget-counter">
-                <button class="counter-btn" data-action="decrease" data-target="photographers"
-                  aria-label="Diminuir">−</button>
-                <span class="counter-value" id="photographers">2</span>
-                <button class="counter-btn" data-action="increase" data-target="photographers"
-                  aria-label="Aumentar">+</button>
-              </div>
-            </div>
-
-            <!-- Videomakers -->
-            <div class="budget-row">
-              <div class="budget-label">
-                <div class="budget-label-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="m22 8-6 4 6 4V8Z"></path>
-                    <rect width="14" height="12" x="2" y="6" rx="2" ry="2"></rect>
-                  </svg>
-                </div>
-                <div>
-                  <strong>Videomakers</strong>
-                  <span>R$ 2.000 cada · mín. 2</span>
-                </div>
-              </div>
-              <div class="budget-counter">
-                <button class="counter-btn" data-action="decrease" data-target="videomakers"
-                  aria-label="Diminuir">−</button>
-                <span class="counter-value" id="videomakers">0</span>
-                <button class="counter-btn" data-action="increase" data-target="videomakers"
-                  aria-label="Aumentar">+</button>
-              </div>
-            </div>
-
-            <!-- Storymakers -->
-            <div class="budget-row">
-              <div class="budget-label">
-                <div class="budget-label-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <rect width="14" height="20" x="5" y="2" rx="2" ry="2"></rect>
-                    <path d="M12 18h.01"></path>
-                  </svg>
-                </div>
-                <div>
-                  <strong>Storymakers</strong>
-                  <span>R$ 600 cada · mín. 1</span>
-                </div>
-              </div>
-              <div class="budget-counter">
-                <button class="counter-btn" data-action="decrease" data-target="storymakers"
-                  aria-label="Diminuir">−</button>
-                <span class="counter-value" id="storymakers">0</span>
-                <button class="counter-btn" data-action="increase" data-target="storymakers"
-                  aria-label="Aumentar">+</button>
-              </div>
-            </div>
-
-            <!-- Toggles -->
-            <div class="budget-row budget-toggle-row">
-              <label class="budget-toggle">
-                <input type="checkbox" id="drone" class="toggle-input">
-                <span class="toggle-switch"></span>
-                <div>
-                  <strong>Drone</strong>
-                  <span>R$ 600</span>
-                </div>
-              </label>
-            </div>
-
-            <div class="budget-row budget-toggle-row">
-              <label class="budget-toggle">
-                <input type="checkbox" id="website" class="toggle-input">
-                <span class="toggle-switch"></span>
-                <div>
-                  <strong>Site exclusivo dos noivos</strong>
-                  <span>R$ 500</span>
-                </div>
-              </label>
-            </div>
-
-            <!-- Trends counter -->
-            <div class="budget-row">
-              <div class="budget-label">
-                <div class="budget-label-icon">📹</div>
-                <div>
-                  <strong>Trends</strong>
-                  <span>R$ 200 cada</span>
-                </div>
-              </div>
-              <div class="budget-counter">
-                <button class="counter-btn" data-action="decrease" data-target="trends" aria-label="Diminuir">−</button>
-                <span class="counter-value" id="trends">0</span>
-                <button class="counter-btn" data-action="increase" data-target="trends" aria-label="Aumentar">+</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Observations -->
-          <div class="budget-notes">
-            <label class="budget-notes-label" for="budgetNotes">
-              <span class="budget-notes-icon">💬</span>
-              Observações
-              <span class="budget-notes-hint">Conte um pouco sobre o casamento: local, estilo, se é civil, na praia, ao
-                ar livre...</span>
-            </label>
-            <textarea id="budgetNotes" class="budget-notes-input" rows="3"
-              placeholder="Ex: Casamento na praia em Ubatuba, cerimônia ao pôr do sol, estilo rústico..."></textarea>
-          </div>
-
-          <!-- Total -->
-          <div class="budget-total">
-            <div class="budget-total-inner">
-              <div class="budget-breakdown" id="budgetBreakdown"></div>
-              <div class="budget-total-line">
-                <span>Total estimado</span>
-                <span class="budget-total-value" id="budgetTotal">R$ 3.000</span>
-              </div>
-              <a id="budgetWhatsappBtn"
-                href="https://wa.me/5515997730671?text=Olá!%20Gostaria%20de%20fechar%20meu%20orçamento%20de%20casamento."
-                target="_blank" class="btn btn-primary btn-full">
-                Fechar orçamento via WhatsApp
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M5 12h14"></path>
-                  <path d="m12 5 7 7-7 7"></path>
-                </svg>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Rules -->
-        <div class="budget-rules anim-reveal">
-          <h4>Informações importantes</h4>
-          <ul>
-            <li>1 hora de alimentação para a equipe (jantar dos convidados, não staff separado)</li>
-            <li>Valores válidos para <strong>Sorocaba e região</strong>. Fora dessa área, custo de deslocamento à parte
-            </li>
-            <li>Fotos e vídeo entregues em até <strong>60 dias</strong></li>
-            <li>Entrega via Google Drive + pen card personalizado, ou site exclusivo dos noivos (+R$ 500)</li>
-            <li>Fotolivro disponível — valor a combinar</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- CTA FINAL -->
-    <section class="cta-section">
-      <div class="container">
-        <div class="cta-inner anim-reveal">
-          <span class="section-tag">Vamos criar juntos?</span>
-          <h2 class="cta-title">Sua história merece<br>virar arte.</h2>
-          <p class="cta-desc">Entre em contato e vamos conversar sobre o dia mais especial da sua vida.</p>
-          <div class="cta-buttons">
-            <a href="https://wa.me/5515999999999" target="_blank" class="btn btn-primary">
-              Fale comigo no WhatsApp
-            </a>
-            <a href="https://instagram.com/brunolenses" target="_blank" class="btn btn-outline">
-              Siga no Instagram
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- LIGHTBOX -->
-  <div class="lightbox" id="lightbox">
-    <div class="lightbox-overlay"></div>
-    <button class="lightbox-close" id="lightboxClose" aria-label="Fechar">✕</button>
-    <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Anterior">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M15 18l-6-6 6-6" />
-      </svg>
-    </button>
-    <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Próxima">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M9 18l6-6-6-6" />
-      </svg>
-    </button>
-    <div class="lightbox-content">
-      <img class="lightbox-img" id="lightboxImg" src="" alt="">
     </div>
-    <div class="lightbox-comments" id="lightboxComments">
-      <div class="lightbox-comments-header">
-        <h3>Comentários</h3>
-        <button class="lightbox-comments-toggle" id="commentsToggle">💬</button>
-      </div>
-      <div class="lightbox-comments-list" id="commentsList"></div>
-      <form class="lightbox-comment-form" id="commentForm">
-        <input type="text" id="commentAuthor" placeholder="Seu nome" required maxlength="60">
-        <textarea id="commentText" placeholder="Deixe seu comentário..." required rows="2" maxlength="500"></textarea>
-        <button type="submit" class="btn btn-primary btn-sm">Enviar</button>
-      </form>
-    </div>
-  </div>
 
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <h2 class="footer-logo">B Lenses</h2>
-          <p class="footer-tagline">Arte que eterniza. Fotografia e filmagem de casamento autoral em Sorocaba e região.
-          </p>
-        </div>
-        <div class="footer-col">
-          <h4 class="footer-heading">Navegação</h4>
-          <a href="#portfolio" class="footer-link">Portfólio</a>
-          <a href="#about" class="footer-link">Sobre</a>
-          <a href="#services" class="footer-link">Serviços</a>
-          <a href="#budget" class="footer-link">Orçamento</a>
-        </div>
-        <div class="footer-col">
-          <h4 class="footer-heading">Serviços</h4>
-          <a href="#services" class="footer-link">Casamento</a>
-          <a href="#services" class="footer-link">Pré-Wedding</a>
-          <a href="#services" class="footer-link">Elopement</a>
-          <a href="#services" class="footer-link">Ensaios</a>
-        </div>
-        <div class="footer-col">
-          <h4 class="footer-heading">Contato</h4>
-          <a href="https://wa.me/5515999999999" class="footer-link" target="_blank">WhatsApp</a>
-          <a href="https://instagram.com/brunolenses" class="footer-link" target="_blank">Instagram</a>
-          <a href="mailto:contato@brunolenses.com" class="footer-link">Email</a>
-          <span class="footer-link">Sorocaba, SP</span>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2026 B Lenses. Todos os direitos reservados.</p>
-      </div>
-    </div>
-  </footer>
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-  <script src="script.js"></script>
+    <script>
+    (function() {
+        'use strict';
+
+        // ============================================
+        // GALLERY CARDS DATA
+        // ============================================
+        const cards = [
+            {
+                title: "Casamento",
+                label: "Fotografia & Filme",
+                desc: "Eternizando cada momento do seu grande dia com arte e emoção.",
+                image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&auto=format&fit=crop&q=80",
+                link: "casamento/"
+            },
+            {
+                title: "Prompts",
+                label: "Inteligência Artificial",
+                desc: "Prompts avançados e engenharia reversa para resultados fora da curva.",
+                image: "assets/cards/canonicas.jpg",
+                link: "prompts/"
+            },
+            {
+                title: "Mentoria",
+                label: "Educação & Negócios",
+                desc: "Anamnese focada em marca pessoal e dissonância cognitiva.",
+                image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&auto=format&fit=crop&q=80",
+                link: "anamnese/"
+            },
+            {
+                title: "Creative-SE",
+                label: "Edição & Presets",
+                desc: "Presets de altíssima qualidade baseados em colorimetria de cinema.",
+                image: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&auto=format&fit=crop&q=80",
+                link: "#"
+            },
+            {
+                title: "Ensaios",
+                label: "Fotografia",
+                desc: "Sessões externas, dança, sensual e corporativo.",
+                image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&auto=format&fit=crop&q=80",
+                link: "ensaios/"
+            },
+            {
+                title: "E-books",
+                label: "Biblioteca",
+                desc: "Acervo completo de conhecimento técnico e prático.",
+                image: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800&auto=format&fit=crop&q=80",
+                link: "#"
+            }
+        ];
+
+        // ============================================
+        // BACKGROUND PHOTOS (Bruno's photos)
+        // ============================================
+        const bgPhotos = [
+            "assets/slides/slide1.jpg",
+            "assets/slides/slide2.png",
+            "assets/slides/slide3.jpg"
+        ];
+
+        // ============================================
+        // 3D CIRCULAR GALLERY
+        // ============================================
+        const RADIUS = window.innerWidth < 768 ? 380 : 550;
+        const ring = document.getElementById('galleryRing');
+        const dotsContainer = document.getElementById('galleryDots');
+        const anglePerCard = 360 / cards.length;
+        let currentRotation = 0;
+        let autoRotateSpeed = 0.015;
+        let isScrolling = false;
+        let scrollTimeout;
+
+        // Build cards
+        cards.forEach((card, i) => {
+            const el = document.createElement('div');
+            el.className = 'gallery-card';
+            el.style.transform = `rotateY(${i * anglePerCard}deg) translateZ(${RADIUS}px)`;
+            
+            const mediaHTML = card.video 
+                ? `<video class="card-image" src="${card.video}" autoplay loop muted playsinline poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video>` // fallback invisível
+                : `<img class="card-image" src="${card.image}" alt="${card.title}" loading="lazy">`;
+
+            el.innerHTML = `
+                ${mediaHTML}
+                <div class="card-glass"></div>
+                <div class="card-content">
+                    <div class="card-label">${card.label}</div>
+                    <div class="card-title">${card.title}</div>
+                    <div class="card-desc">${card.desc}</div>
+                    ${card.link !== '#' ? `<a href="${card.link}" class="card-cta">Explorar <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>` : `<span class="card-cta" style="opacity:0.4">Em breve</span>`}
+                </div>
+            `;
+            if (card.link !== '#') {
+                el.addEventListener('click', () => window.location.href = card.link);
+            }
+            ring.appendChild(el);
+
+            // Dot
+            const dot = document.createElement('button');
+            dot.className = 'gallery-dot' + (i === 0 ? ' active' : '');
+            dot.addEventListener('click', () => {
+                const targetAngle = -(i * anglePerCard);
+                gsap.to({ val: currentRotation }, {
+                    val: targetAngle,
+                    duration: 1,
+                    ease: "power2.inOut",
+                    onUpdate: function() { currentRotation = this.targets()[0].val; updateGallery(); }
+                });
+            });
+            dotsContainer.appendChild(dot);
+        });
+
+        function updateGallery() {
+            ring.style.transform = `rotateY(${currentRotation}deg)`;
+
+            // Update card opacities + dots
+            const totalRot = ((currentRotation % 360) + 360) % 360;
+            cards.forEach((_, i) => {
+                const cardAngle = i * anglePerCard;
+                const relAngle = ((cardAngle + totalRot + 360) % 360);
+                const normAngle = Math.abs(relAngle > 180 ? 360 - relAngle : relAngle);
+                const opacity = Math.max(0.2, 1 - (normAngle / 160));
+                ring.children[i].style.opacity = opacity;
+                dotsContainer.children[i].classList.toggle('active', normAngle < anglePerCard / 2);
+            });
+        }
+
+        // Scroll-driven rotation
+        window.addEventListener('scroll', () => {
+            isScrolling = true;
+            clearTimeout(scrollTimeout);
+
+            const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = scrollable > 0 ? window.scrollY / scrollable : 0;
+            currentRotation = -(progress * 360 * 1.5); // 1.5 full rotations over scroll
+            updateGallery();
+
+            // Hide scroll hint after first scroll
+            const hint = document.getElementById('scrollHint');
+            if (hint && window.scrollY > 50) {
+                hint.style.opacity = '0';
+                hint.style.transition = 'opacity 0.5s';
+            }
+
+            scrollTimeout = setTimeout(() => { isScrolling = false; }, 200);
+        }, { passive: true });
+
+        // Auto-rotate when not scrolling
+        let lastTime = 0;
+        function autoRotate(time) {
+            if (!isScrolling && document.scrollingElement.scrollTop < 10) {
+                const delta = time - lastTime;
+                if (delta < 100) { // guard against huge gaps
+                    currentRotation -= autoRotateSpeed * delta * 0.06;
+                    updateGallery();
+                }
+            }
+            lastTime = time;
+            requestAnimationFrame(autoRotate);
+        }
+        requestAnimationFrame(autoRotate);
+
+        // Initial state
+        updateGallery();
+
+        // ============================================
+        // WEBGL BACKGROUND (3 photos, slow crossfade)
+        // ============================================
+        const canvas = document.getElementById('bgCanvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const bgVertexShader = `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
+        const bgFragmentShader = `
+            uniform sampler2D uTex1, uTex2;
+            uniform float uProgress;
+            uniform vec2 uRes, uSize1, uSize2;
+            varying vec2 vUv;
+
+            vec2 cover(vec2 uv, vec2 texSize) {
+                vec2 s = uRes / texSize;
+                float sc = max(s.x, s.y);
+                vec2 sz = texSize * sc;
+                vec2 off = (uRes - sz) * 0.5;
+                return (uv * uRes - off) / sz;
+            }
+
+            void main() {
+                vec2 uv1 = cover(vUv, uSize1);
+                vec2 uv2 = cover(vUv, uSize2);
+                vec4 c1 = texture2D(uTex1, uv1);
+                vec4 c2 = texture2D(uTex2, uv2);
+                gl_FragColor = mix(c1, c2, smoothstep(0.0, 1.0, uProgress));
+            }
+        `;
+
+        const bgMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                uTex1: { value: null }, uTex2: { value: null }, uProgress: { value: 0 },
+                uRes: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+                uSize1: { value: new THREE.Vector2(1, 1) }, uSize2: { value: new THREE.Vector2(1, 1) }
+            },
+            vertexShader: bgVertexShader, fragmentShader: bgFragmentShader
+        });
+        scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), bgMaterial));
+
+        let bgTextures = [];
+        let bgIndex = 0;
+
+        async function loadBgTextures() {
+            const loader = new THREE.TextureLoader();
+            for (const src of bgPhotos) {
+                try {
+                    const tex = await new Promise((res, rej) => loader.load(src, res, undefined, rej));
+                    tex.minFilter = tex.magFilter = THREE.LinearFilter;
+                    tex.userData = { size: new THREE.Vector2(tex.image.width, tex.image.height) };
+                    bgTextures.push(tex);
+                } catch(e) { console.warn('BG texture failed:', src); }
+            }
+            if (bgTextures.length > 0) {
+                bgMaterial.uniforms.uTex1.value = bgTextures[0];
+                bgMaterial.uniforms.uTex2.value = bgTextures[Math.min(1, bgTextures.length - 1)];
+                bgMaterial.uniforms.uSize1.value = bgTextures[0].userData.size;
+                bgMaterial.uniforms.uSize2.value = bgTextures[Math.min(1, bgTextures.length - 1)].userData.size;
+                document.querySelector('.sticky-viewport').style.opacity = '1';
+            }
+            // Auto cycle backgrounds
+            if (bgTextures.length > 1) cycleBg();
+        }
+
+        function cycleBg() {
+            setInterval(() => {
+                const nextIdx = (bgIndex + 1) % bgTextures.length;
+                bgMaterial.uniforms.uTex1.value = bgTextures[bgIndex];
+                bgMaterial.uniforms.uTex2.value = bgTextures[nextIdx];
+                bgMaterial.uniforms.uSize1.value = bgTextures[bgIndex].userData.size;
+                bgMaterial.uniforms.uSize2.value = bgTextures[nextIdx].userData.size;
+                gsap.fromTo(bgMaterial.uniforms.uProgress, { value: 0 }, { value: 1, duration: 3, ease: "power2.inOut", onComplete: () => { bgIndex = nextIdx; } });
+            }, 8000);
+        }
+
+        function renderBg() { requestAnimationFrame(renderBg); renderer.render(scene, camera); }
+        renderBg();
+        loadBgTextures();
+
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            bgMaterial.uniforms.uRes.value.set(window.innerWidth, window.innerHeight);
+        });
+
+    })();
+    </script>
+
 </body>
-
 </html>

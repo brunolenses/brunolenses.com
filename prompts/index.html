@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompts & IA - Bruno Lenses</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body, html { 
+            margin: 0; padding: 0; min-height: 100vh;
+            background: #050505; color: white;
+            font-family: 'DM Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Nav */
+        nav {
+            position: absolute; top: 0; left: 0; right: 0;
+            padding: 30px; z-index: 50;
+        }
+        .back-link {
+            text-decoration: none; color: rgba(255,255,255,0.6);
+            font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em;
+            transition: color 0.3s;
+        }
+        .back-link:hover { color: white; }
+
+        /* Main Container */
+        .container {
+            display: flex; min-height: 100vh; position: relative;
+            overflow: hidden;
+        }
+
+        /* Spotlight Effect */
+        #spotlight {
+            position: absolute; pointer-events: none;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 40%, transparent 70%);
+            border-radius: 50%; filter: blur(20px);
+            opacity: 0; transition: opacity 0.5s ease;
+            z-index: 10;
+        }
+
+        /* Large glowing orb behind everything */
+        .ambient-glow {
+            position: absolute; top: -20vh; left: 10vw; width: 60vw; height: 60vh;
+            background: radial-gradient(ellipse at center, rgba(255,255,255,0.08) 0%, transparent 60%);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* Left Content */
+        .content {
+            flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center;
+            position: relative; z-index: 20; max-width: 600px; margin-left: 5vw;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 700; margin: 0 0 20px 0;
+            background: linear-gradient(to bottom, #ffffff, #a3a3a3);
+            -webkit-background-clip: text; color: transparent;
+            line-height: 1.1; letter-spacing: -0.02em;
+        }
+
+        p {
+            font-size: 18px; line-height: 1.6; color: #a3a3a3; margin-bottom: 40px;
+            max-width: 480px;
+        }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 15px;
+            text-decoration: none; color: black; background: white;
+            transition: all 0.3s ease; border: 1px solid white;
+            align-self: flex-start;
+        }
+        .btn:hover {
+            background: transparent; color: white;
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+        }
+
+        /* Right Content - 3D Scene */
+        .scene-container {
+            flex: 1; position: relative; z-index: 20;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        spline-viewer {
+            width: 100%; height: 100vh;
+            /* Disable spline's default background */
+            --spline-canvas-bg: transparent;
+        }
+
+        /* Loader */
+        .loader {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            z-index: 15; pointer-events: none; transition: opacity 1s;
+        }
+        .spinner {
+            width: 40px; height: 40px; border: 2px solid rgba(255,255,255,0.1);
+            border-top-color: white; border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 900px) {
+            .container { flex-direction: column; }
+            .content { padding-top: 120px; align-items: center; text-align: center; margin-left: 0; }
+            .btn { align-self: center; }
+            .scene-container { height: 60vh; width: 100%; }
+            spline-viewer { height: 100%; }
+        }
+    </style>
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.5/build/spline-viewer.js"></script>
+</head>
+<body>
+
+    <nav>
+        <a href="../" class="back-link">← Voltar</a>
+    </nav>
+
+    <div class="container" id="main-container">
+        <div class="ambient-glow"></div>
+        <div id="spotlight"></div>
+
+        <!-- Left Content -->
+        <div class="content">
+            <h1>O Prompt Definitivo</h1>
+            <p style="color: white; font-weight: bold; margin-bottom: 15px;">Como criar um site nível Awwwards usando IA:</p>
+            <div class="prompt-box">
+                "Haja como um Desenvolvedor Front-end Sênior especialista em WebGL, Three.js e animações avançadas. Preciso de uma Landing Page com a mesma qualidade de sites do portal Awwwards ou da galeria 21st.dev.
+                <br><br>
+                Requisitos Técnicos:<br>
+                1. Não use frameworks pesados (sem React/Next.js). Quero Vanilla Javascript, HTML5 e CSS puro para garantir máxima performance.<br>
+                2. Na hero section principal, implemente um background WebGL em fullscreen que faça crossfade infinito entre 3 fotos de alta resolução, aplicando um shader customizado para transições suaves.<br>
+                3. Sobre esse background, crie uma galeria circular 3D rotativa orientada ao scroll. Os elementos devem ser 'cards de vidro' (glassmorphism) com perspectiva 3D genuína (preserve-3d), opacidade atrelada ao ângulo de visão, reflexos dinâmicos e blur.<br>
+                4. Entregue um design 'Dark/Premium Aesthetic'. Fontes: Cormorant Garamond (Display) e DM Sans (Body). Cores: preto profundo (#050505), branco e destaques minimalistas.<br>
+                5. Para as sub-páginas, crie interações físicas: galerias que simulam tecido/pano rasgando ao scroll e backgrounds SVG gerados matematicamente que se movem com animações no stroke-dashoffset."
+            </div>
+            
+            <a href="#" class="btn" style="margin-top: 30px;">
+                Começar Agora
+            </a>
+        </div>
+
+        <div class="scene-container">
+            <div class="loader" id="loader"><div class="spinner"></div></div>
+            <spline-viewer url="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" id="spline"></spline-viewer>
+        </div>
+    </div>
+
+    <script>
+        const container = document.getElementById('main-container');
+        const spotlight = document.getElementById('spotlight');
+        const spliteSize = 400;
+
+        let isHovered = false;
+        let mouseX = 0, mouseY = 0;
+        let currentX = 0, currentY = 0;
+
+        container.addEventListener('mouseenter', () => {
+            isHovered = true;
+            spotlight.style.opacity = '1';
+        });
+
+        container.addEventListener('mouseleave', () => {
+            isHovered = false;
+            spotlight.style.opacity = '0';
+        });
+
+        container.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animate() {
+            if (isHovered) {
+                currentX += (mouseX - currentX) * 0.1;
+                currentY += (mouseY - currentY) * 0.1;
+                spotlight.style.transform = "translate(" + (currentX - spliteSize/2) + "px, " + (currentY - spliteSize/2) + "px)";
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        const splineViewer = document.getElementById('spline');
+        const loader = document.getElementById('loader');
+
+        splineViewer.addEventListener('load-complete', () => {
+            loader.style.opacity = '0';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ensaios - Bruno Lenses</title>
+    <style>
+        body, html { margin: 0; padding: 0; overflow: hidden; background: #111; color: white; font-family: 'Courier New', Courier, monospace; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+        
+        .overlay {
+            position: fixed; inset: 0; pointer-events: none;
+            display: flex; align-items: center; justify-content: center;
+            mix-blend-mode: exclusion; color: white; z-index: 10;
+        }
+        h1 { font-family: 'Georgia', serif; font-size: clamp(3rem, 8vw, 7rem); font-style: italic; font-weight: normal; margin: 0; letter-spacing: -0.05em; }
+        
+        .instructions {
+            position: fixed; bottom: 40px; left: 0; right: 0;
+            text-align: center; font-size: 11px; text-transform: uppercase;
+            letter-spacing: 0.1em; font-weight: 600; opacity: 0.8; z-index: 10;
+            pointer-events: none;
+        }
+        .instructions .sub { opacity: 0.6; margin-top: 4px; display: block; }
+        
+        .back-btn {
+            position: fixed; top: 30px; left: 30px; z-index: 20; color: white;
+            text-decoration: none; font-size: 11px; text-transform: uppercase;
+            letter-spacing: 0.2em; border: 1px solid rgba(255,255,255,0.3);
+            padding: 10px 20px; border-radius: 30px; backdrop-filter: blur(10px);
+            background: rgba(0,0,0,0.2); transition: all 0.3s ease;
+            pointer-events: auto;
+        }
+        .back-btn:hover { background: white; color: black; }
+    </style>
+</head>
+<body>
+    <a href="../" class="back-btn">Voltar</a>
+    <div class="overlay"><h1>Ensaios</h1></div>
+    <div class="instructions">
+        Scroll / Setas do teclado para navegar
+        <span class="sub">Auto-play após 3s de inatividade</span>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+    (function() {
+        // ---- Config ----
+        const images = [
+            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&auto=format&fit=crop&q=80',
+            'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&auto=format&fit=crop&q=80',
+            'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&auto=format&fit=crop&q=80',
+            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&auto=format&fit=crop&q=80',
+            'https://images.unsplash.com/photo-1515378960530-7c0da6229b92?w=800&auto=format&fit=crop&q=80',
+            'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800&auto=format&fit=crop&q=80',
+            'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&auto=format&fit=crop&q=80',
+            'https://images.unsplash.com/photo-1526510747491-58f928ec870c?w=800&auto=format&fit=crop&q=80'
+        ];
+
+        const speed = 1.2;
+        const visibleCount = 12;
+        const depthRange = 50;
+        const maxHorizOffset = 8;
+        const maxVertOffset = 8;
+
+        const fadeSettings = { inStart: 0.05, inEnd: 0.25, outStart: 0.4, outEnd: 0.43 };
+        const blurSettings = { inStart: 0.0, inEnd: 0.1, outStart: 0.4, outEnd: 0.43, maxBlur: 8.0 };
+
+        // ---- Setup Three.js ----
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.z = 0;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.body.appendChild(renderer.domElement);
+
+        // ---- Texture Loader ----
+        const textureLoader = new THREE.TextureLoader();
+        const textures = images.map(src => {
+            const tex = textureLoader.load(src);
+            tex.generateMipmaps = true;
+            tex.minFilter = THREE.LinearMipmapLinearFilter;
+            return tex;
+        });
+
+        // ---- Shaders ----
+        const vertexShader = `
+            uniform float scrollForce;
+            uniform float time;
+            varying vec2 vUv;
+            
+            void main() {
+                vUv = uv;
+                vec3 pos = position;
+                
+                float curveIntensity = scrollForce * 0.3;
+                float dist = length(pos.xy);
+                float curve = dist * dist * curveIntensity;
+                
+                float ripple1 = sin(pos.x * 2.0 + scrollForce * 3.0) * 0.02;
+                float ripple2 = sin(pos.y * 2.5 + scrollForce * 2.0) * 0.015;
+                float clothEffect = (ripple1 + ripple2) * abs(curveIntensity) * 2.0;
+                
+                // Mouse hover wave logic omitted for simplicity on vanilla pure scroll
+                pos.z -= (curve + clothEffect);
+                
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+            }
+        `;
+
+        const fragmentShader = `
+            uniform sampler2D map;
+            uniform float opacity;
+            uniform float blurAmount;
+            uniform float scrollForce;
+            varying vec2 vUv;
+            
+            void main() {
+                vec4 color = texture2D(map, vUv);
+                
+                if (blurAmount > 0.0) {
+                    vec2 texelSize = 1.0 / vec2(512.0); // Approximation
+                    vec4 blurred = vec4(0.0);
+                    float total = 0.0;
+                    for (float x = -2.0; x <= 2.0; x += 1.0) {
+                        for (float y = -2.0; y <= 2.0; y += 1.0) {
+                            vec2 offset = vec2(x, y) * texelSize * blurAmount * 2.0;
+                            float weight = 1.0 / (1.0 + length(vec2(x, y)));
+                            blurred += texture2D(map, vUv + offset) * weight;
+                            total += weight;
+                        }
+                    }
+                    color = blurred / total;
+                }
+                
+                float curveHighlight = abs(scrollForce) * 0.05;
+                color.rgb += vec3(curveHighlight * 0.1);
+                
+                gl_FragColor = vec4(color.rgb, color.a * opacity);
+            }
+        `;
+
+        // ---- Create Planes ----
+        const materials = [];
+        const planes = [];
+        const planeData = [];
+        const geometry = new THREE.PlaneGeometry(1, 1, 32, 32);
+
+        for (let i = 0; i < visibleCount; i++) {
+            const material = new THREE.ShaderMaterial({
+                transparent: true,
+                uniforms: {
+                    map: { value: null },
+                    opacity: { value: 0.0 },
+                    blurAmount: { value: 0.0 },
+                    scrollForce: { value: 0.0 },
+                    time: { value: 0.0 }
+                },
+                vertexShader, fragmentShader,
+                side: THREE.DoubleSide
+            });
+            materials.push(material);
+
+            const mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+            planes.push(mesh);
+
+            // Spatial positioning
+            const hAngle = (i * 2.618) % (Math.PI * 2);
+            const vAngle = (i * 1.618 + Math.PI / 3) % (Math.PI * 2);
+            const hRadius = (i % 3) * 1.2;
+            const vRadius = ((i + 1) % 4) * 0.8;
+            
+            const x = (Math.sin(hAngle) * hRadius * maxHorizOffset) / 3;
+            const y = (Math.cos(vAngle) * vRadius * maxVertOffset) / 4;
+
+            planeData.push({
+                index: i,
+                z: (depthRange / visibleCount) * i,
+                imageIndex: i % images.length,
+                x, y
+            });
+        }
+
+        // ---- Input Handling ----
+        let scrollVelocity = 0;
+        let autoPlay = true;
+        let lastInteraction = Date.now();
+
+        window.addEventListener('wheel', e => {
+            scrollVelocity += e.deltaY * 0.005 * speed;
+            autoPlay = false; lastInteraction = Date.now();
+        }, { passive: true });
+
+        window.addEventListener('keydown', e => {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                scrollVelocity -= 1.0 * speed; autoPlay = false; lastInteraction = Date.now();
+            } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                scrollVelocity += 1.0 * speed; autoPlay = false; lastInteraction = Date.now();
+            }
+        });
+
+        setInterval(() => {
+            if (Date.now() - lastInteraction > 3000) autoPlay = true;
+        }, 1000);
+
+        // ---- Render Loop ----
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+            const time = clock.getElapsedTime();
+
+            if (autoPlay) scrollVelocity += 0.3 * delta;
+            scrollVelocity *= 0.95; // Damping
+
+            const totalImages = images.length;
+            const halfRange = depthRange / 2;
+
+            planeData.forEach((plane, i) => {
+                let newZ = plane.z + scrollVelocity * delta * 15;
+                
+                // Wrapping logic
+                if (newZ >= depthRange) {
+                    newZ -= depthRange;
+                    plane.imageIndex = (plane.imageIndex + visibleCount) % totalImages;
+                } else if (newZ < 0) {
+                    newZ += depthRange;
+                    plane.imageIndex = (plane.imageIndex - visibleCount + totalImages * 10) % totalImages;
+                }
+                plane.z = newZ;
+
+                const worldZ = plane.z - halfRange;
+                const mesh = planes[i];
+                mesh.position.set(plane.x, plane.y, worldZ);
+
+                // Set Texture & aspect ratio
+                const tex = textures[plane.imageIndex];
+                materials[i].uniforms.map.value = tex;
+                
+                if (tex && tex.image) {
+                    const aspect = tex.image.width / tex.image.height;
+                    mesh.scale.set(2 * aspect, 2, 1);
+                }
+
+                // Opacity & Blur based on Depth
+                const normPos = plane.z / depthRange;
+                let opacity = 1.0;
+                
+                if (normPos >= fadeSettings.inStart && normPos <= fadeSettings.inEnd) {
+                    opacity = (normPos - fadeSettings.inStart) / (fadeSettings.inEnd - fadeSettings.inStart);
+                } else if (normPos < fadeSettings.inStart) opacity = 0;
+                else if (normPos >= fadeSettings.outStart && normPos <= fadeSettings.outEnd) {
+                    opacity = 1 - (normPos - fadeSettings.outStart) / (fadeSettings.outEnd - fadeSettings.outStart);
+                } else if (normPos > fadeSettings.outEnd) opacity = 0;
+
+                let blur = 0;
+                if (normPos >= blurSettings.inStart && normPos <= blurSettings.inEnd) {
+                    blur = blurSettings.maxBlur * (1 - (normPos - blurSettings.inStart) / (blurSettings.inEnd - blurSettings.inStart));
+                } else if (normPos < blurSettings.inStart) blur = blurSettings.maxBlur;
+                else if (normPos >= blurSettings.outStart && normPos <= blurSettings.outEnd) {
+                    blur = blurSettings.maxBlur * ((normPos - blurSettings.outStart) / (blurSettings.outEnd - blurSettings.outStart));
+                } else if (normPos > blurSettings.outEnd) blur = blurSettings.maxBlur;
+
+                materials[i].uniforms.opacity.value = Math.max(0, Math.min(1, opacity));
+                materials[i].uniforms.blurAmount.value = blur;
+                materials[i].uniforms.scrollForce.value = scrollVelocity;
+                materials[i].uniforms.time.value = time;
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    })();
+    </script>
+</body>
+</html>

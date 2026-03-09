@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentoria & Anamnese - Bruno Lenses</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; background: #0a0a0a; color: white; font-family: 'DM Sans', sans-serif; overflow: hidden; }
+        
+        .bg-container {
+            position: absolute; inset: 0; pointer-events: none; z-index: 1;
+        }
+        svg {
+            width: 100%; height: 100%; color: white;
+        }
+
+        @keyframes drawPath {
+            0% { stroke-dasharray: 400 1200; stroke-dashoffset: 0; opacity: 0.3; }
+            50% { stroke-dasharray: 1200 1200; stroke-dashoffset: -1200; opacity: 0.6; }
+            100% { stroke-dasharray: 400 1200; stroke-dashoffset: 0; opacity: 0.3; }
+        }
+
+        .content {
+            position: relative; z-index: 10; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 0 20px;
+        }
+
+        h1 {
+            font-size: clamp(3rem, 8vw, 6rem); font-weight: 700; margin: 0 0 40px 0;
+            letter-spacing: -0.04em; line-height: 1.1;
+            background: linear-gradient(to right, #ffffff, rgba(255,255,255,0.7));
+            -webkit-background-clip: text; color: transparent;
+            opacity: 0; transform: translateY(30px); animation: fadeUp 1.5s 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn-wrapper {
+            display: inline-block; padding: 1px; border-radius: 99px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.15), rgba(0,0,0,0.1));
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+            opacity: 0; transform: translateY(20px); animation: fadeUp 1.5s 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 18px 40px; border-radius: 99px; font-size: 16px; font-weight: 600;
+            text-decoration: none; color: white;
+            background: rgba(255,255,255,0.05); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3);
+            transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .btn span.arrow {
+            margin-left: 10px; transition: transform 0.3s ease; opacity: 0.7;
+        }
+        .btn:hover span.arrow {
+            transform: translateX(4px); opacity: 1;
+        }
+
+        .back-link {
+            position: absolute; top: 30px; left: 30px; z-index: 20; color: rgba(255,255,255,0.5);
+            text-decoration: none; font-size: 13px; text-transform: uppercase; letter-spacing: 0.1em;
+            transition: color 0.3s;
+        }
+        .back-link:hover { color: white; }
+    </style>
+</head>
+<body>
+    <a href="../" class="back-link">← Voltar ao Início</a>
+    
+    <div class="bg-container">
+        <svg id="paths-svg" viewBox="0 0 696 316" fill="none" preserveAspectRatio="none"></svg>
+    </div>
+
+    <div class="content">
+        <h1>Mentoria &<br>Anamnese Clínica</h1>
+        <div class="btn-wrapper">
+            <a href="#" class="btn">
+                <span>Descobrir Excelência</span>
+                <span class="arrow">→</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const svg = document.getElementById('paths-svg');
+
+        function createFloatingPaths(position) {
+            const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            for (let i = 0; i < 36; i++) {
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                const d = \`M-\${380 - i * 5 * position} -\${189 + i * 6}C-\${380 - i * 5 * position} -\${189 + i * 6} -\${312 - i * 5 * position} \${216 - i * 6} \${152 - i * 5 * position} \${343 - i * 6}C\${616 - i * 5 * position} \${470 - i * 6} \${684 - i * 5 * position} \${875 - i * 6} \${684 - i * 5 * position} \${875 - i * 6}\`;
+                
+                path.setAttribute("d", d);
+                path.setAttribute("stroke", "currentColor");
+                path.setAttribute("stroke-width", 0.5 + i * 0.03);
+                path.setAttribute("stroke-opacity", 0.1 + i * 0.03);
+                
+                // Add CSS animation
+                const duration = 20 + Math.random() * 10;
+                path.style.animation = \`drawPath \${duration}s linear infinite\`;
+                
+                group.appendChild(path);
+            }
+            return group;
+        }
+
+        svg.appendChild(createFloatingPaths(1));
+        svg.appendChild(createFloatingPaths(-1));
+    </script>
+</body>
+</html>
