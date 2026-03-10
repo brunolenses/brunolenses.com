@@ -11,889 +11,8 @@
         href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap"
         rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        *,
-        *::before,
-        *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --bg: #f7f4ef;
-            --bg-warm: #ede6dc;
-            --accent: #4f5b3a;
-            --accent-light: #4f5b3a20;
-            --text: #2c2c2c;
-            --text-muted: #6b6560;
-            --border: #d8cfc4;
-            --white: #fff;
-            --radius: 16px;
-            --radius-sm: 12px;
-            --shadow: 0 0 0 1px rgba(14, 63, 126, .04), 0 1px 1px -.5px rgba(42, 51, 69, .04), 0 3px 3px -1.5px rgba(42, 51, 70, .04), 0 6px 6px -3px rgba(42, 51, 70, .04);
-            --transition: .3s cubic-bezier(.4, 0, .2, 1);
-        }
-
-        html {
-            -webkit-font-smoothing: antialiased;
-        }
-
-        body {
-            font-family: 'DM Sans', sans-serif;
-            font-size: 16px;
-            line-height: 1.5;
-            color: var(--text);
-            background: var(--bg);
-            min-height: 100vh;
-        }
-
-        /* LOGIN */
-        .login-screen {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .login-card {
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 48px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: var(--shadow);
-            text-align: center;
-        }
-
-        .login-card h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px;
-            font-weight: 400;
-            margin-bottom: 8px;
-        }
-
-        .login-card p {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 32px;
-        }
-
-        .login-card input {
-            width: 100%;
-            padding: 14px 20px;
-            border: 1px solid var(--border);
-            border-radius: 9999px;
-            font-size: 14px;
-            font-family: inherit;
-            background: var(--bg);
-            outline: none;
-            transition: border var(--transition);
-            margin-bottom: 16px;
-        }
-
-        .login-card input:focus {
-            border-color: var(--accent);
-        }
-
-        .login-error {
-            color: #a65d57;
-            font-size: 13px;
-            margin-bottom: 12px;
-            display: none;
-        }
-
-        /* BUTTONS */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 14px 28px;
-            font-size: 14px;
-            font-weight: 500;
-            font-family: inherit;
-            border-radius: 9999px;
-            border: none;
-            cursor: pointer;
-            transition: all var(--transition);
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: var(--bg);
-        }
-
-        .btn-primary:hover {
-            background: #3d4a2c;
-            transform: translateY(-1px);
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-
-        .btn-outline:hover {
-            background: var(--bg-warm);
-            border-color: var(--text);
-        }
-
-        .btn-sm {
-            padding: 8px 16px;
-            font-size: 13px;
-        }
-
-        .btn-full {
-            width: 100%;
-        }
-
-        .btn-icon {
-            width: 36px;
-            height: 36px;
-            padding: 0;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            font-size: 16px;
-            transition: all var(--transition);
-            cursor: pointer;
-        }
-
-        .btn-icon:hover {
-            background: var(--bg-warm);
-            color: var(--text);
-        }
-
-        .btn-icon.danger:hover {
-            background: #a65d57;
-            color: #fff;
-            border-color: #a65d57;
-        }
-
-        /* LAYOUT */
-        .admin {
-            display: none;
-        }
-
-        .admin-header {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            background: rgba(247, 244, 239, .85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            padding: 16px 32px;
-        }
-
-        .admin-header-inner {
-            max-width: 1280px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .admin-logo {
-            font-family: 'Playfair Display', serif;
-            font-size: 22px;
-            font-weight: 400;
-        }
-
-        .admin-logo span {
-            font-size: 12px;
-            font-family: 'DM Sans', sans-serif;
-            font-weight: 500;
-            background: var(--accent);
-            color: var(--bg);
-            padding: 3px 10px;
-            border-radius: 9999px;
-            margin-left: 8px;
-            vertical-align: middle;
-        }
-
-        .admin-actions {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .admin-body {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 32px;
-            padding-bottom: 120px;
-        }
-
-        /* UPLOAD ZONE */
-        .upload-zone {
-            border: 2px dashed var(--border);
-            border-radius: var(--radius);
-            padding: 48px;
-            text-align: center;
-            cursor: pointer;
-            transition: all var(--transition);
-            background: var(--white);
-            margin-bottom: 32px;
-        }
-
-        .upload-zone:hover,
-        .upload-zone.dragover {
-            border-color: var(--accent);
-            background: var(--accent-light);
-        }
-
-        .upload-zone-icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-            opacity: .5;
-        }
-
-        .upload-zone h3 {
-            font-family: 'Playfair Display', serif;
-            font-size: 20px;
-            font-weight: 400;
-            margin-bottom: 8px;
-        }
-
-        .upload-zone p {
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-
-        .upload-zone input {
-            display: none;
-        }
-
-        /* GRID */
-        .grid-controls {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .grid-controls h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 24px;
-            font-weight: 400;
-        }
-
-        .photo-count {
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-
-        .admin-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-        }
-
-        .admin-card {
-            position: relative;
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            overflow: hidden;
-            cursor: grab;
-            transition: box-shadow var(--transition), transform var(--transition);
-        }
-
-        .admin-card:hover {
-            box-shadow: var(--shadow);
-        }
-
-        .admin-card.dragging {
-            opacity: .5;
-            transform: scale(.97);
-        }
-
-        .admin-card.drag-over {
-            border-color: var(--accent);
-            border-style: dashed;
-        }
-
-        /* IMAGE FRAME */
-        .admin-card-frame {
-            position: relative;
-            overflow: hidden;
-            cursor: grab;
-        }
-
-        .admin-card-frame:active {
-            cursor: grabbing;
-        }
-
-        .admin-card-frame.ratio-wide {
-            aspect-ratio: 2/1;
-        }
-
-        .admin-card-frame.ratio-square {
-            aspect-ratio: 1;
-        }
-
-        .admin-card-frame.ratio-portrait {
-            aspect-ratio: 3/4;
-        }
-
-        .admin-card-frame.ratio-landscape {
-            aspect-ratio: 4/3;
-        }
-
-        .admin-card-image {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            background: var(--bg-warm);
-            pointer-events: none;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        .reposition-hint {
-            position: absolute;
-            bottom: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, .6);
-            color: #fff;
-            font-size: 11px;
-            padding: 4px 12px;
-            border-radius: 9999px;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity .2s;
-            white-space: nowrap;
-        }
-
-        .admin-card-frame:hover .reposition-hint {
-            opacity: 1;
-        }
-
-        .admin-card-frame:active .reposition-hint {
-            opacity: 0;
-        }
-
-        /* TOOLBAR */
-        .admin-card-toolbar {
-            padding: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-        }
-
-        .ratio-selector {
-            display: flex;
-            gap: 4px;
-        }
-
-        .ratio-btn {
-            padding: 4px 10px;
-            font-size: 11px;
-            font-weight: 500;
-            font-family: inherit;
-            border: 1px solid var(--border);
-            border-radius: 9999px;
-            background: var(--bg);
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: all var(--transition);
-        }
-
-        .ratio-btn.active {
-            background: var(--accent);
-            color: var(--bg);
-            border-color: var(--accent);
-        }
-
-        .ratio-btn:hover:not(.active) {
-            background: var(--bg-warm);
-            color: var(--text);
-        }
-
-        .admin-card-actions {
-            display: flex;
-            gap: 6px;
-        }
-
-        /* EMPTY STATE */
-        .empty-state {
-            text-align: center;
-            padding: 64px 32px;
-            color: var(--text-muted);
-        }
-
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: .4;
-        }
-
-        .empty-state h3 {
-            font-family: 'Playfair Display', serif;
-            font-size: 20px;
-            font-weight: 400;
-            color: var(--text);
-            margin-bottom: 8px;
-        }
-
-        /* SAVE BAR */
-        .save-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 60;
-            background: var(--text);
-            color: var(--bg);
-            padding: 16px 32px;
-            transform: translateY(100%);
-            transition: transform .4s cubic-bezier(.4, 0, .2, 1);
-        }
-
-        .save-bar.visible {
-            transform: translateY(0);
-        }
-
-        .save-bar-inner {
-            max-width: 1280px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .save-bar-text {
-            font-size: 14px;
-            opacity: .8;
-        }
-
-        .save-bar .btn-save {
-            background: var(--bg);
-            color: var(--text);
-            padding: 12px 32px;
-            font-size: 14px;
-            font-weight: 600;
-            font-family: inherit;
-            border: none;
-            border-radius: 9999px;
-            cursor: pointer;
-            transition: all var(--transition);
-        }
-
-        .save-bar .btn-save:hover {
-            background: var(--bg-warm);
-            transform: translateY(-1px);
-        }
-
-        /* TOAST */
-        .toast {
-            position: fixed;
-            bottom: 32px;
-            right: 32px;
-            background: var(--text);
-            color: var(--bg);
-            padding: 14px 24px;
-            border-radius: var(--radius-sm);
-            font-size: 14px;
-            z-index: 200;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all .3s ease-out;
-        }
-
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .toast.save-toast {
-            bottom: 100px;
-        }
-
-        /* SECTIONS */
-        .admin-section {
-            margin-top: 48px;
-            padding-top: 48px;
-            border-top: 1px solid var(--border);
-        }
-
-        .admin-section h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 24px;
-            font-weight: 400;
-            margin-bottom: 20px;
-        }
-
-        /* HERO VIDEO */
-        .hero-video-section {
-            display: flex;
-            gap: 24px;
-            align-items: flex-start;
-            flex-wrap: wrap;
-        }
-
-        .hero-video-preview {
-            width: 400px;
-            max-width: 100%;
-            aspect-ratio: 16/9;
-            border-radius: var(--radius-sm);
-            background: var(--bg-warm);
-            border: 1px solid var(--border);
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            font-size: 14px;
-            font-style: italic;
-        }
-
-        .hero-video-preview video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .hero-video-info {
-            padding-top: 8px;
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .hero-video-info p {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 16px;
-        }
-
-        /* ABOUT */
-        .about-upload {
-            display: flex;
-            gap: 24px;
-            align-items: flex-start;
-        }
-
-        .about-preview {
-            width: 200px;
-            height: 267px;
-            border-radius: var(--radius-sm);
-            background: var(--bg-warm);
-            border: 1px solid var(--border);
-            overflow: hidden;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            font-size: 14px;
-            font-style: italic;
-        }
-
-        .about-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .about-upload-info {
-            padding-top: 8px;
-        }
-
-        .about-upload-info p {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 16px;
-        }
-
-        /* LOADING */
-        .loading-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(247, 244, 239, .9);
-            z-index: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .loading-overlay.hidden {
-            display: none;
-        }
-
-        .spinner {
-            width: 32px;
-            height: 32px;
-            border: 3px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin .8s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* CONFIG FIELDS */
-        .config-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .config-field {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .config-field.full-width {
-            grid-column: 1 / -1;
-        }
-
-        .config-field label {
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text);
-        }
-
-        .config-hint {
-            font-weight: 400;
-            color: var(--text-muted);
-            margin-left: 4px;
-        }
-
-        .config-input,
-        .config-textarea,
-        .config-select {
-            padding: 12px 16px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            font-size: 14px;
-            font-family: inherit;
-            background: var(--white);
-            color: var(--text);
-            outline: none;
-            transition: border var(--transition);
-            width: 100%;
-        }
-
-        .config-input:focus,
-        .config-textarea:focus,
-        .config-select:focus {
-            border-color: var(--accent);
-        }
-
-        .config-textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .config-select {
-            cursor: pointer;
-            appearance: auto;
-        }
-
-        .font-preview {
-            margin-top: 12px;
-            padding: 16px 20px;
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            color: var(--text);
-            line-height: 1.4;
-        }
-
-        /* COMMENT MODERATION */
-        .comments-mod-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .comments-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 24px;
-            height: 24px;
-            padding: 0 8px;
-            background: var(--sale);
-            color: #fff;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-left: 8px;
-        }
-
-        .comments-filter {
-            display: flex;
-            gap: 4px;
-        }
-
-        .comments-filter-btn {
-            padding: 6px 16px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-full);
-            background: var(--bg);
-            font-size: 13px;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: all var(--transition);
-            font-family: inherit;
-        }
-
-        .comments-filter-btn.active {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-        }
-
-        .admin-comments-list {
-            min-height: 60px;
-        }
-
-        .admin-comment-card {
-            display: flex;
-            gap: 16px;
-            padding: 16px;
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            margin-bottom: 12px;
-            align-items: flex-start;
-        }
-
-        .admin-comment-thumb {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 8px;
-            flex-shrink: 0;
-        }
-
-        .admin-comment-body {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .admin-comment-author {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .admin-comment-date {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-left: 6px;
-            font-weight: 400;
-        }
-
-        .admin-comment-text {
-            font-size: 14px;
-            line-height: 1.5;
-            color: var(--text);
-            margin-top: 4px;
-        }
-
-        .admin-comment-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .comment-action-btn {
-            padding: 5px 14px;
-            border-radius: var(--radius-full);
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            border: 1px solid var(--border);
-            background: var(--bg);
-            transition: all var(--transition);
-            font-family: inherit;
-        }
-
-        .comment-action-btn.approve {
-            color: var(--accent);
-        }
-
-        .comment-action-btn.approve:hover {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-        }
-
-        .comment-action-btn.reject {
-            color: var(--sale);
-        }
-
-        .comment-action-btn.reject:hover {
-            background: var(--sale);
-            color: #fff;
-            border-color: var(--sale);
-        }
-
-        /* RESPONSIVE */
-        @media (max-width:768px) {
-            .admin-body {
-                padding: 20px;
-                padding-bottom: 120px;
-            }
-
-            .admin-header {
-                padding: 12px 20px;
-            }
-
-            .admin-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .upload-zone {
-                padding: 32px 20px;
-            }
-
-            .login-card {
-                padding: 32px 24px;
-            }
-
-            .about-upload {
-                flex-direction: column;
-            }
-
-            .save-bar {
-                padding: 12px 20px;
-            }
-        }
-
-        @media (max-width:480px) {
-            .admin-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="admin.css">
 </head>
 
 <body>
@@ -910,163 +29,232 @@
 
     <!-- ADMIN -->
     <div class="admin" id="adminPanel">
-        <header class="admin-header">
-            <div class="admin-header-inner">
-                <div class="admin-logo">B Lenses <span>Admin</span></div>
-                <div class="admin-actions">
-                    <a href="index.html" class="btn btn-outline btn-sm" target="_blank">👁 Ver site</a>
-                    <button class="btn btn-outline btn-sm" id="logoutBtn">Sair</button>
-                </div>
+        
+        <!-- LOADING, TOAST AND SAVE BAR -->
+        <div class="loading-overlay hidden" id="loadingOverlay">
+            <div class="spinner"></div>
+            <p>Sincronizando Sistema B Lenses OS...</p>
+        </div>
+        
+        <div class="toast" id="toast"></div>
+        
+        <div class="save-bar" id="saveBar">
+            <div class="save-bar-inner">
+                <div class="save-bar-text">Alterações pendentes detectadas</div>
+                <button class="btn btn-save" id="saveBtn">Salvar Alterações</button>
             </div>
-        </header>
-        <div class="admin-body">
-            <div class="upload-zone" id="uploadZone">
-                <div class="upload-zone-icon">📸</div>
-                <h3>Arraste fotos aqui</h3>
-                <p>ou clique para selecionar · JPG, PNG, WebP</p>
-                <input type="file" id="fileInput" accept="image/*" multiple>
-            </div>
-            <div class="grid-controls">
-                <h2>Portfólio</h2>
-                <span class="photo-count" id="photoCount">0 fotos</span>
-            </div>
-            <div class="admin-grid" id="adminGrid">
-                <div class="empty-state" id="emptyState">
-                    <div class="empty-state-icon">🖼</div>
-                    <h3>Nenhuma foto ainda</h3>
-                    <p>Faça upload das suas melhores fotos de casamento</p>
-                </div>
-            </div>
+        </div>
 
-            <!-- Hero Video -->
-            <div class="admin-section">
-                <h2>Vídeo de capa (Hero)</h2>
-                <div class="hero-video-section">
-                    <div class="hero-video-preview" id="heroVideoPreview"><span>Sem vídeo</span></div>
-                    <div class="hero-video-info">
-                        <p>Vídeo que aparece como background na seção principal do site. MP4 recomendado, até ~30MB.</p>
-                        <input type="file" id="heroVideoInput" accept="video/mp4,video/webm" style="display:none">
-                        <button class="btn btn-outline btn-sm" id="heroVideoUploadBtn">Escolher vídeo</button>
-                        <button class="btn btn-sm btn-icon danger" id="heroVideoRemoveBtn"
-                            style="display:none;margin-left:8px" title="Remover">✕</button>
+        <div class="admin-layout">
+            <!-- SIDEBAR -->
+            <aside class="admin-sidebar">
+                <div class="sidebar-header">
+                    <div class="admin-logo">B Lenses <span>OS</span></div>
+                </div>
+                <nav class="sidebar-nav">
+                    <button class="nav-item active" data-target="tab-dashboard">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                        Dashboard
+                    </button>
+                    <button class="nav-item" data-target="tab-portfolio">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                        Portfólio (Casamento)
+                    </button>
+                    <button class="nav-item" data-target="tab-ensaios">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                        Capa Prompts & Ensaios
+                    </button>
+                    <button class="nav-item" data-target="tab-config">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                        Setup Global
+                    </button>
+                </nav>
+                <div class="sidebar-footer">
+                    <a href="index.html" class="btn-outline btn-sm btn-full" target="_blank" style="text-align:center; display:block; margin-bottom:12px;">Despachar para o ar</a>
+                    <button class="btn-outline btn-sm btn-full" id="logoutBtn" style="border-color:#ff5555; color:#ff5555;">Desconectar OS</button>
+                </div>
+            </aside>
+
+            <!-- MAIN CONTENT -->
+            <main class="admin-main">
+                
+                <!-- TAB: DASHBOARD -->
+                <section class="tab-content active" id="tab-dashboard">
+                    <div class="dashboard-header">
+                        <h2>Visão Geral do Sistema</h2>
+                        <p style="color:var(--text-muted); margin-top:8px;">Métricas e Status do Ecosistema B Lenses (Simulação Estática)</p>
                     </div>
-                </div>
-            </div>
-
-            <!-- About Photo -->
-            <div class="admin-section">
-                <h2>Foto do "Sobre o artista"</h2>
-                <div class="about-upload">
-                    <div class="about-preview" id="aboutPreview"><span>Sem foto</span></div>
-                    <div class="about-upload-info">
-                        <p>Foto retrato que aparece na seção "Sobre o artista" do site. Proporção 3:4 recomendada.</p>
-                        <input type="file" id="aboutFileInput" accept="image/*" style="display:none">
-                        <button class="btn btn-outline btn-sm" id="aboutUploadBtn">Escolher foto</button>
-                        <button class="btn btn-sm btn-icon danger" id="aboutRemoveBtn"
-                            style="display:none;margin-left:8px" title="Remover">✕</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Fonts -->
-            <div class="admin-section">
-                <h2>Tipografia</h2>
-                <p style="font-size:14px;color:var(--text-muted);margin-bottom:20px">Escolha as fontes do site. A
-                    preview aparece ao lado.</p>
-                <div class="config-grid">
-                    <div class="config-field">
-                        <label>Fonte dos títulos</label>
-                        <select id="cfgFontHeading" class="config-select">
-                            <option value="Playfair Display">Playfair Display</option>
-                            <option value="Cormorant Garamond">Cormorant Garamond</option>
-                            <option value="Libre Baskerville">Libre Baskerville</option>
-                            <option value="Bodoni Moda">Bodoni Moda</option>
-                            <option value="EB Garamond">EB Garamond</option>
-                            <option value="Lora">Lora</option>
-                            <option value="Merriweather">Merriweather</option>
-                            <option value="Cinzel">Cinzel</option>
-                            <option value="Spectral">Spectral</option>
-                            <option value="DM Serif Display">DM Serif Display</option>
-                            <option value="Italiana">Italiana</option>
-                            <option value="Cormorant">Cormorant</option>
-                        </select>
-                        <div class="font-preview" id="previewHeading" style="font-size:28px;">Seu amor merece arte.
+                    
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-title">Visitantes Únicos (30d)</div>
+                            <div class="metric-value">14.289</div>
+                            <div class="metric-trend positive">↑ 12% vs mês anterior</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-title">Leads de Casamento</div>
+                            <div class="metric-value">34</div>
+                            <div class="metric-trend positive">↑ 5% vs mês anterior</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-title">Respostas Anamnese</div>
+                            <div class="metric-value">12</div>
+                            <div class="metric-trend neutral">- 0% vs mês anterior</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-title">Tempo Médio Galeria 3D</div>
+                            <div class="metric-value">2m 14s</div>
+                            <div class="metric-trend positive">↑ High Engagement</div>
                         </div>
                     </div>
-                    <div class="config-field">
-                        <label>Fonte do corpo</label>
-                        <select id="cfgFontBody" class="config-select">
-                            <option value="DM Sans">DM Sans</option>
-                            <option value="Inter">Inter</option>
-                            <option value="Outfit">Outfit</option>
-                            <option value="Poppins">Poppins</option>
-                            <option value="Lato">Lato</option>
-                            <option value="Open Sans">Open Sans</option>
-                            <option value="Raleway">Raleway</option>
-                            <option value="Source Sans 3">Source Sans 3</option>
-                            <option value="Work Sans">Work Sans</option>
-                            <option value="Nunito">Nunito</option>
-                            <option value="Jost">Jost</option>
-                            <option value="Montserrat">Montserrat</option>
-                        </select>
-                        <div class="font-preview" id="previewBody" style="font-size:16px;">Não faço apenas fotos e
-                            vídeos. Eu crio arte.</div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Text Editor -->
-            <div class="admin-section">
-                <h2>Textos do site</h2>
-                <p style="font-size:14px;color:var(--text-muted);margin-bottom:20px">Edite os textos que aparecem na
-                    página principal.</p>
-                <div class="config-grid">
-                    <div class="config-field">
-                        <label>Badge do Hero <span class="config-hint">ex: Wedding Photography & Film</span></label>
-                        <input type="text" id="cfgHeroBadge" class="config-input"
-                            placeholder="Wedding Photography & Film">
+                    <div class="charts-area" style="margin-top:40px; padding: 24px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-sm);">
+                        <canvas id="trafficChart" height="80"></canvas>
                     </div>
-                    <div class="config-field">
-                        <label>Título linha 1 <span class="config-hint">texto grande</span></label>
-                        <input type="text" id="cfgHeroLine1" class="config-input" placeholder="Seu amor">
-                    </div>
-                    <div class="config-field">
-                        <label>Título linha 2 <span class="config-hint">texto maior, itálico</span></label>
-                        <input type="text" id="cfgHeroLine2" class="config-input" placeholder="merece arte.">
-                    </div>
-                    <div class="config-field full-width">
-                        <label>Descrição do Hero</label>
-                        <textarea id="cfgHeroDesc" class="config-textarea" rows="3"
-                            placeholder="Não faço apenas fotos e vídeos..."></textarea>
-                    </div>
-                </div>
-            </div>
+                </section>
 
-            <!-- WhatsApp -->
-            <div class="admin-section">
-                <h2>WhatsApp</h2>
-                <div class="config-grid">
-                    <div class="config-field">
-                        <label>Número (com DDD, sem espaços) <span class="config-hint">ex: 5515997730671</span></label>
-                        <input type="text" id="cfgWhatsapp" class="config-input" placeholder="5515997730671">
+                <!-- TAB: PORTFOLIO -->
+                <section class="tab-content" id="tab-portfolio">
+                    <div class="upload-zone" id="uploadZone">
+                        <div class="upload-zone-icon">📸</div>
+                        <h3>Arraste fotos de casamento aqui</h3>
+                        <p>ou clique para selecionar · JPG, PNG, WebP</p>
+                        <input type="file" id="fileInput" accept="image/*" multiple>
                     </div>
-                </div>
-            </div>
+                    <div class="grid-controls">
+                        <h2>Portfólio 3D Principal</h2>
+                        <span class="photo-count" id="photoCount">0 fotos</span>
+                    </div>
+                    <div class="admin-grid" id="adminGrid">
+                        <div class="empty-state" id="emptyState">
+                            <div class="empty-state-icon">🖼</div>
+                            <h3>Nenhuma foto ainda</h3>
+                            <p>Faça upload das suas melhores fotos de casamento</p>
+                        </div>
+                    </div>
+                </section>
 
-            <!-- Comment Moderation -->
-            <div class="admin-section">
-                <div class="comments-mod-header">
-                    <h2>Comentários <span class="comments-badge" id="commentsBadge">0</span></h2>
-                    <div class="comments-filter">
-                        <button class="comments-filter-btn active" data-filter="pending">Pendentes</button>
-                        <button class="comments-filter-btn" data-filter="approved">Aprovados</button>
+                <!-- TAB: ENSAIOS & PROMPTS (New Placeholder) -->
+                <section class="tab-content" id="tab-ensaios">
+                    <h2>Sub-páginas (Cards da Roda)</h2>
+                    <p style="color:var(--text-muted); margin-bottom: 30px;">Gerencie as capas e links dos cards adjacentes.</p>
+                    <div class="config-grid">
+                        <div class="config-field">
+                            <label>Capa do Card Ensaios (URL Temporária)</label>
+                            <input type="text" class="config-input" placeholder="https://images.unsplash.com/..." value="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&auto=format&fit=crop&q=80">
+                        </div>
+                        <div class="config-field">
+                            <label>Capa do Card Prompts (URL Temporária)</label>
+                            <input type="text" class="config-input" placeholder="https://images.unsplash.com/..." value="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=800&auto=format&fit=crop&q=80">
+                        </div>
                     </div>
-                </div>
-                <div id="adminCommentsList" class="admin-comments-list">
-                    <p style="color:var(--text-muted);font-size:14px;text-align:center;padding:30px">Carregando
-                        comentários...</p>
-                </div>
-            </div>
+                    <div class="admin-section">
+                        <h3>Vídeo Fundo "Ensaios"</h3>
+                        <p style="color:var(--text-muted); margin-bottom: 20px;">O vídeo com gravidade rasgando o tecido.</p>
+                        <div class="hero-video-section">
+                            <div class="hero-video-preview"><span>Vídeo Atual Padrão</span></div>
+                            <div class="hero-video-info">
+                                <button class="btn btn-outline btn-sm">Substituir Vídeo</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- TAB: CONFIGURAÇÕES GLOBAIS -->
+                <section class="tab-content" id="tab-config">
+                    <!-- Hero Video -->
+                    <div>
+                        <h2>Vídeo de capa (Hero do Hub)</h2>
+                        <div class="hero-video-section">
+                            <div class="hero-video-preview" id="heroVideoPreview"><span>Sem vídeo</span></div>
+                            <div class="hero-video-info">
+                                <p>Vídeo que aparece como background na seção inicial de loading. MP4 recomendado.</p>
+                                <input type="file" id="heroVideoInput" accept="video/mp4,video/webm" style="display:none">
+                                <button class="btn btn-outline btn-sm" id="heroVideoUploadBtn">Escolher vídeo</button>
+                                <button class="btn btn-sm btn-icon danger" id="heroVideoRemoveBtn"
+                                    style="display:none;margin-left:8px" title="Remover">✕</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- About Photo -->
+                    <div class="admin-section">
+                        <h2>Foto Biografia (Hub)</h2>
+                        <div class="about-upload">
+                            <div class="about-preview" id="aboutPreview"><span>Sem foto</span></div>
+                            <div class="about-upload-info">
+                                <p>Foto retrato que aparece rolando a roda principal para baixo. Proporção 3:4 recomendada.</p>
+                                <input type="file" id="aboutFileInput" accept="image/*" style="display:none">
+                                <button class="btn btn-outline btn-sm" id="aboutUploadBtn">Escolher foto</button>
+                                <button class="btn btn-sm btn-icon danger" id="aboutRemoveBtn"
+                                    style="display:none;margin-left:8px" title="Remover">✕</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fonts and Text -->
+                    <div class="admin-section">
+                        <h2>Textos do Site & Contato</h2>
+                        <div class="config-grid">
+                            <div class="config-field">
+                                <label>Badge do Hero <span class="config-hint">ex: Wedding Photography & Film</span></label>
+                                <input type="text" id="cfgHeroBadge" class="config-input"
+                                    placeholder="Wedding Photography & Film">
+                            </div>
+                            <div class="config-field">
+                                <label>WhatsApp (com DDD, sem espaços)</label>
+                                <input type="text" id="cfgWhatsapp" class="config-input" placeholder="5515997730671">
+                            </div>
+                            <div class="config-field">
+                                <label>Título linha 1 <span class="config-hint">texto grande</span></label>
+                                <input type="text" id="cfgHeroLine1" class="config-input" placeholder="Seu amor">
+                            </div>
+                            <div class="config-field">
+                                <label>Título linha 2 <span class="config-hint">texto maior, itálico</span></label>
+                                <input type="text" id="cfgHeroLine2" class="config-input" placeholder="merece arte.">
+                            </div>
+                            <div class="config-field full-width">
+                                <label>Descrição do Hero</label>
+                                <textarea id="cfgHeroDesc" class="config-textarea" rows="3"
+                                    placeholder="Não faço apenas fotos e vídeos..."></textarea>
+                            </div>
+
+                            <div class="config-field">
+                                <label>Fonte dos títulos (Google Font API)</label>
+                                <select id="cfgFontHeading" class="config-select">
+                                    <option value="Playfair Display">Playfair Display</option>
+                                    <option value="Cormorant Garamond">Cormorant Garamond</option>
+                                    <option value="DM Serif Display">DM Serif Display</option>
+                                </select>
+                                <div class="font-preview" id="previewHeading" style="font-size:28px;">Seu amor merece arte.</div>
+                            </div>
+                            <div class="config-field">
+                                <label>Fonte do corpo</label>
+                                <select id="cfgFontBody" class="config-select">
+                                    <option value="DM Sans">DM Sans</option>
+                                    <option value="Inter">Inter</option>
+                                </select>
+                                <div class="font-preview" id="previewBody" style="font-size:16px;">Não faço apenas fotos e vídeos. Eu crio arte.</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Comment Moderation -->
+                    <div class="admin-section">
+                        <div class="comments-mod-header">
+                            <h2>Comentários <span class="comments-badge" id="commentsBadge">0</span></h2>
+                            <div class="comments-filter">
+                                <button class="comments-filter-btn active" data-filter="pending">Pendentes</button>
+                                <button class="comments-filter-btn" data-filter="approved">Aprovados</button>
+                            </div>
+                        </div>
+                        <div id="adminCommentsList" class="admin-comments-list">
+                            <p style="color:var(--text-muted);font-size:14px;text-align:center;padding:30px">Carregando comentários...</p>
+                        </div>
+                    </div>
+                </section>
+                
+            </main>
         </div>
     </div>
 
@@ -1156,6 +344,94 @@
         }
 
         // ============================================
+        // SPA TAB ROUTING
+        // ============================================
+        function initTabs() {
+            const navItems = document.querySelectorAll('.nav-item');
+            const contents = document.querySelectorAll('.tab-content');
+
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    // Remove active from all
+                    navItems.forEach(n => n.classList.remove('active'));
+                    contents.forEach(c => {
+                        c.classList.remove('active');
+                        // Reset animation trick
+                        c.style.animation = 'none';
+                        c.offsetHeight; // trigger reflow
+                        c.style.animation = null; 
+                    });
+
+                    // Set active
+                    item.classList.add('active');
+                    const targetId = item.getAttribute('data-target');
+                    document.getElementById(targetId).classList.add('active');
+                });
+            });
+        }
+
+        // ============================================
+        // DASHBOARD CHARTS (Chart.js)
+        // ============================================
+        function initCharts() {
+            const ctx = document.getElementById('trafficChart').getContext('2d');
+            
+            // Create gradient
+            let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                    datasets: [{
+                        label: 'Visitantes Únicos',
+                        data: [4200, 5100, 4800, 6200, 5900, 7100, 8400, 8200, 11000, 10500, 12800, 14289],
+                        borderColor: '#ffffff',
+                        backgroundColor: gradient,
+                        borderWidth: 2,
+                        pointBackgroundColor: '#000000',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        fill: true,
+                        tension: 0.4 // Curva suave
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            titleFont: { family: "'DM Sans', sans-serif", size: 13 },
+                            bodyFont: { family: "'DM Sans', sans-serif", size: 14, weight: 'bold' },
+                            padding: 12,
+                            displayColors: false,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false, drawBorder: false },
+                            ticks: { color: '#888888', font: { family: "'DM Sans', sans-serif", size: 11 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+                            ticks: { color: '#888888', font: { family: "'DM Sans', sans-serif", size: 11 }, padding: 10 }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
+                }
+            });
+        }
+
+        // ============================================
         // LOGIN
         // ============================================
         function initLogin() {
@@ -1168,6 +444,8 @@
             if (sessionStorage.getItem('blenses_admin') === 'true') {
                 loginScreen.style.display = 'none';
                 adminPanel.style.display = 'block';
+                initTabs();
+                initCharts();
                 loadAll();
                 return;
             }
@@ -1177,6 +455,8 @@
                     sessionStorage.setItem('blenses_admin', 'true');
                     loginScreen.style.display = 'none';
                     adminPanel.style.display = 'block';
+                    initTabs();
+                    initCharts();
                     loadAll();
                 } else {
                     err.style.display = 'block';

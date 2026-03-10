@@ -1,0 +1,10 @@
+::1 - - [09/Mar/2026 22:32:25] "GET /admin.html HTTP/1.1" 200 -
+::1 - - [09/Mar/2026 22:32:25] "GET /admin.css HTTP/1.1" 304 -
+::1 - - [09/Mar/2026 22:32:38] "GET /admin.html HTTP/1.1" 200 -
+::1 - - [09/Mar/2026 22:32:52] "GET /admin.html HTTP/1.1" 304 -
+::1 - - [09/Mar/2026 22:33:05] "GET /admin.html HTTP/1.1" 200 -
+::1 - - [09/Mar/2026 22:33:06] "GET /admin.css HTTP/1.1" 200 -
+::1 - - [09/Mar/2026 22:33:07] code 404, message File not found
+::1 - - [09/Mar/2026 22:33:07] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [09/Mar/2026 22:35:03] "GET /admin.html HTTP/1.1" 200 -
+::1 - - [09/Mar/2026 22:35:04] "GET /admin.css HTTP/1.1" 304 -
