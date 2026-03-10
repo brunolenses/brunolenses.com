@@ -123,19 +123,19 @@
 
         /* SPECIFIC CARD POSITIONS & DEPTHS */
         /* Top Left */
-        #card-mind { top: 10%; left: 10%; transform: translateZ(-80px) rotateY(10deg); }
+        #card-mind { top: 10%; left: 10%; transform: translateZ(10px) rotateY(10deg); }
         /* Bottom Left */
         #card-social { bottom: 15%; left: 15%; transform: translateZ(120px) rotateY(5deg) rotateX(5deg); width: 280px; }
         /* Top Right */
-        #card-dxm { top: 15%; right: 10%; transform: translateZ(-150px) rotateY(-15deg); }
+        #card-dxm { top: 15%; right: 10%; transform: translateZ(30px) rotateY(-15deg); }
         /* Bottom Right */
-        #card-me { bottom: 10%; right: 15%; transform: translateZ(200px) rotateY(-10deg) rotateX(-5deg); width: 340px; }
+        #card-me { bottom: 10%; right: 15%; transform: translateZ(180px) rotateY(-10deg) rotateX(-5deg); width: 340px; }
 
         @media (max-width: 1024px) {
             /* Fallback layout for tablets / smaller screens */
             body { overflow-y: auto; overflow-x: hidden; height: auto; padding-bottom: 100px; }
             #scene { position: relative; height: auto; padding: 100px 20px; flex-direction: column; transform: none !important; }
-            .scene-center { position: relative; transform: none; margin-bottom: 60px; }
+            .scene-center { position: relative; transform: none; margin-bottom: 60px; pointer-events: none; }
             .card { position: relative; top: auto; left: auto; right: auto; bottom: auto; transform: none !important; width: 100%; max-width: 400px; margin-bottom: 24px; }
         }
 
