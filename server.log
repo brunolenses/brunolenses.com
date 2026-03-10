@@ -11,3 +11,21 @@
 ::1 - - [09/Mar/2026 23:36:19] "GET /index.html HTTP/1.1" 200 -
 ::1 - - [09/Mar/2026 23:36:20] code 404, message File not found
 ::1 - - [09/Mar/2026 23:36:20] "GET /assets/slides/slide2.png HTTP/1.1" 404 -
+::1 - - [10/Mar/2026 13:20:57] code 404, message File not found
+::1 - - [10/Mar/2026 13:20:57] "GET /assets/slides/slide2.png HTTP/1.1" 404 -
+::1 - - [10/Mar/2026 13:21:06] "GET /prompts/ HTTP/1.1" 200 -
+::1 - - [10/Mar/2026 13:40:39] "GET /anamnese/index.html HTTP/1.1" 200 -
+::1 - - [10/Mar/2026 13:42:08] "GET / HTTP/1.1" 200 -
+::1 - - [10/Mar/2026 13:42:08] code 404, message File not found
+::1 - - [10/Mar/2026 13:42:08] "GET /assets/slides/slide1.jpg HTTP/1.1" 404 -
+::1 - - [10/Mar/2026 13:42:08] code 404, message File not found
+::1 - - [10/Mar/2026 13:42:08] "GET /assets/slides/slide2.png HTTP/1.1" 404 -
+::1 - - [10/Mar/2026 13:42:08] code 404, message File not found
+::1 - - [10/Mar/2026 13:42:08] "GET /assets/slides/slide3.jpg HTTP/1.1" 404 -
+::1 - - [10/Mar/2026 13:42:13] "GET /anamnese/ HTTP/1.1" 200 -
+::1 - - [10/Mar/2026 13:45:24] "GET /anamnese/index.html HTTP/1.1" 200 -
+::1 - - [10/Mar/2026 13:45:25] code 404, message File not found
+::1 - - [10/Mar/2026 13:45:25] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [10/Mar/2026 14:12:15] "GET /anamnese/social-lenses.html HTTP/1.1" 200 -
+::1 - - [10/Mar/2026 14:18:24] "GET /anamnese/index.html HTTP/1.1" 200 -
+::1 - - [10/Mar/2026 14:18:28] "GET /anamnese/social-lenses.html HTTP/1.1" 200 -

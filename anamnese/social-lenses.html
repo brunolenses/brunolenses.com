@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Lenses - Entrevista Cognitiva de Marca</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #030303;
+            --text: #ffffff;
+            --text-muted: #888888;
+            --accent: #D4AF37; /* Dourado B Lenses */
+            --input-bg: rgba(255, 255, 255, 0.03);
+            --input-border: rgba(255, 255, 255, 0.1);
+            --focus: rgba(212, 175, 55, 0.5);
+            --font-heading: 'Playfair Display', serif;
+            --font-body: 'DM Sans', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font-body);
+            overflow: hidden; 
+            line-height: 1.6;
+        }
+
+        /* Top Progress Bar */
+        .progress-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 4px;
+            background: rgba(255,255,255,0.05); z-index: 100;
+        }
+        .progress-bar {
+            height: 100%; width: 0%; background: var(--accent);
+            transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Branding Header */
+        .header {
+            position: fixed; top: 30px; left: 40px; z-index: 100;
+            display: flex; align-items: center; gap: 20px;
+        }
+        .back-link {
+            color: rgba(255,255,255,0.4); text-decoration: none;
+            font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em;
+            transition: color 0.3s;
+        }
+        .back-link:hover { color: var(--text); }
+        .brand-title {
+            font-family: var(--font-heading); font-style: italic; font-size: 18px; color: var(--text);
+            border-left: 1px solid rgba(255,255,255,0.2); padding-left: 20px;
+        }
+
+        /* Main Form Container */
+        .form-wrapper {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; transition: transform 0.8s cubic-bezier(0.86, 0, 0.07, 1);
+        }
+
+        /* Blocks */
+        .block {
+            min-width: 100vw; height: 100vh;
+            display: flex; flex-direction: column; 
+            padding: 100px 10vw; padding-bottom: 50px;
+            overflow-y: auto; scrollbar-width: none;
+        }
+        .block::-webkit-scrollbar { display: none; }
+
+        .block-inner {
+            max-width: 800px; width: 100%; margin: 0 auto;
+            opacity: 0; transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            transition-delay: 0.3s;
+        }
+        .block.active .block-inner { opacity: 1; transform: translateY(0); }
+
+        .block-counter {
+            font-size: 11px; text-transform: uppercase; letter-spacing: 0.3em;
+            color: var(--accent); margin-bottom: 20px; font-weight: 500;
+            position: sticky; top: 0; background: var(--bg); padding-top: 20px; padding-bottom: 10px; z-index: 10;
+        }
+        .block-title {
+            font-family: var(--font-heading); font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 400; margin-bottom: 40px; line-height: 1.1; color: var(--text);
+        }
+
+        /* Questions */
+        .question { margin-bottom: 40px; }
+        .question label {
+            display: block; font-size: 16px; font-weight: 400; margin-bottom: 16px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        input[type="text"], textarea {
+            width: 100%; background: transparent;
+            border: none; border-bottom: 1px solid var(--input-border);
+            color: var(--text); font-family: var(--font-body); font-size: 18px;
+            padding: 10px 0; outline: none; transition: border-color 0.3s;
+            resize: none;
+        }
+        input[type="text"]:focus, textarea:focus { border-bottom-color: var(--accent); }
+        textarea { height: 40px; overflow: hidden; }
+
+        /* Radios & Scales */
+        .radio-group { display: flex; flex-wrap: wrap; gap: 10px; }
+        .radio-card {
+            background: var(--input-bg); border: 1px solid var(--input-border);
+            padding: 10px 20px; border-radius: 8px; cursor: pointer;
+            transition: all 0.2s; font-size: 14px; color: var(--text-muted);
+        }
+        .radio-card input { display: none; }
+        .radio-card:hover { border-color: rgba(255,255,255,0.3); color: var(--text); }
+        .radio-card.selected {
+            background: rgba(212, 175, 55, 0.1); border-color: var(--accent); color: var(--accent);
+        }
+
+        .scale-group {
+            display: flex; gap: 8px; align-items: center; justify-content: space-between;
+            background: var(--input-bg); padding: 10px; border-radius: 99px; max-width: 400px;
+        }
+        .scale-btn {
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: transparent; border: 1px solid var(--input-border);
+            color: var(--text-muted); font-size: 16px; cursor: pointer; transition: all 0.2s;
+        }
+        .scale-btn:hover { border-color: var(--text); color: var(--text); }
+        .scale-btn.selected {
+            background: var(--accent); border-color: var(--accent); color: #000; font-weight: 600;
+        }
+        .scale-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 10px; padding: 0 10px; max-width: 400px; }
+
+        /* Buttons */
+        .controls { display: flex; gap: 15px; margin-top: 20px; padding-bottom: 100px; }
+        .btn {
+            padding: 14px 30px; border-radius: 99px; font-size: 12px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer;
+            background: transparent; border: 1px solid var(--input-border); color: var(--text);
+            transition: all 0.3s; outline: none; display: flex; align-items: center; gap: 10px;
+        }
+        .btn:hover { background: rgba(255,255,255,0.05); }
+        .btn-primary { background: var(--text); color: var(--bg); border: none; }
+        .btn-primary:hover { background: var(--accent); color: #000; }
+
+        /* Loader */
+        #loader {
+            position: fixed; inset: 0; background: var(--bg); z-index: 999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.4s; text-align: center;
+        }
+        #loader.show { opacity: 1; pointer-events: auto; }
+        .spinner {
+            width: 40px; height: 40px; border: 2px solid rgba(255,255,255,0.1);
+            border-top-color: var(--accent); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Intro */
+        .intro-screen {
+            position: absolute; inset: 0; z-index: 50; background: var(--bg);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 0 20px; transition: transform 0.8s ease, opacity 0.8s ease;
+        }
+        .intro-screen h1 { font-family: var(--font-heading); font-size: clamp(3rem, 6vw, 5rem); margin-bottom: 20px; font-weight: 400; line-height: 1; }
+        .intro-screen p { max-width: 600px; color: var(--text-muted); font-size: 16px; margin-bottom: 40px; }
+
+    </style>
+</head>
+<body>
+
+    <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+
+    <div class="header">
+        <a href="index.html" class="back-link">← HUB LENSES</a>
+        <div class="brand-title">Lenses Prime</div>
+    </div>
+
+    <!-- Intro -->
+    <div class="intro-screen" id="introScreen">
+        <h1>Entrevista Cognitiva<br>de Marca</h1>
+        <p>Objetivo: extrair identidade, narrativa, valores, posicionamento e percepção psicológica do seu negócio.<br><br>Responda com calma. Não existe resposta certa ou errada. Quanto mais honestas forem as respostas, mais precisa será a estratégia construída.</p>
+        <button class="btn btn-primary" onclick="startForm()">INICIAR AVALIAÇÃO</button>
+    </div>
+
+    <div class="form-wrapper" id="formWrapper">
+
+        <!-- BLOCO 1: IDENTIDADE DO NEGÓCIO -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Bloco 1 de 10</div>
+                <h2 class="block-title">Identidade do Negócio</h2>
+                
+                <div class="question"><label>1. Qual é o nome da sua marca ou empresa?</label><input type="text" name="b1_q1" required></div>
+                <div class="question"><label>2. Em qual cidade e região o negócio está localizado?</label><input type="text" name="b1_q2"></div>
+                <div class="question"><label>3. Em qual área ou segmento sua empresa atua?</label><input type="text" name="b1_q3"></div>
+                <div class="question"><label>4. O que exatamente você vende ou oferece hoje?</label><textarea name="b1_q4"></textarea></div>
+                <div class="question"><label>5. Se alguém perguntasse “o que sua empresa faz”, como você explicaria em uma frase simples?</label><input type="text" name="b1_q5"></div>
+                <div class="question">
+                    <label>6. Há quanto tempo o negócio existe?</label>
+                    <div class="radio-group">
+                        <label class="radio-card"><input type="radio" name="b1_q6" value="-1 ano">Menos de 1 ano</label>
+                        <label class="radio-card"><input type="radio" name="b1_q6" value="1 a 3 anos">1 a 3 anos</label>
+                        <label class="radio-card"><input type="radio" name="b1_q6" value="3 a 10 anos">3 a 10 anos</label>
+                        <label class="radio-card"><input type="radio" name="b1_q6" value="+10 anos">Mais de 10 anos</label>
+                    </div>
+                </div>
+                <div class="question">
+                    <label>7. O negócio nasceu de uma oportunidade, de uma necessidade ou de um sonho antigo?</label>
+                    <div class="radio-group">
+                        <label class="radio-card"><input type="radio" name="b1_q7" value="Oportunidade">Oportunidade de Mercado</label>
+                        <label class="radio-card"><input type="radio" name="b1_q7" value="Necessidade">Necessidade</label>
+                        <label class="radio-card"><input type="radio" name="b1_q7" value="Sonho/Vocação">Sonho / Vocação</label>
+                    </div>
+                </div>
+                <div class="question"><label>8. Antes de existir formalmente, esse negócio já existia de alguma forma na sua vida? Como?</label><textarea name="b1_q8"></textarea></div>
+                <div class="question"><label>9. Se esse negócio deixasse de existir amanhã, qual parte da sua história pessoal desapareceria junto?</label><textarea name="b1_q9"></textarea></div>
+                <div class="question"><label>10. Existe algum momento marcante que você considera o verdadeiro início da empresa?</label><textarea name="b1_q10"></textarea></div>
+
+                <div class="controls"><button class="btn btn-primary" onclick="nextBlock()">Avançar para História →</button></div>
+            </div>
+        </div>
+
+        <!-- BLOCO 2: HISTÓRIA E FUNDADORES -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Bloco 2 de 10</div>
+                <h2 class="block-title">História e Fundadores</h2>
+                
+                <div class="question"><label>11. Quem criou ou fundou o negócio?</label><input type="text" name="b2_q11"></div>
+                <div class="question"><label>12. Qual é a trajetória profissional dessa pessoa antes da empresa existir?</label><textarea name="b2_q12"></textarea></div>
+                <div class="question">
+                    <label>13. Essa pessoa sempre quis trabalhar nessa área ou chegou nela por acaso?</label>
+                    <div class="radio-group">
+                        <label class="radio-card"><input type="radio" name="b2_q13" value="Sempre quis">Sempre soube que queria isso</label>
+                        <label class="radio-card"><input type="radio" name="b2_q13" value="Acaso">Foi um desvio (Acaso)</label>
+                    </div>
+                </div>
+                <div class="question"><label>14. Qual foi o maior desafio enfrentado no início do negócio?</label><textarea name="b2_q14"></textarea></div>
+                <div class="question"><label>15. Houve algum momento em que você realmente pensou em desistir? O que aconteceu?</label><textarea name="b2_q15"></textarea></div>
+                <div class="question"><label>16. O que fez você continuar mesmo diante das dificuldades?</label><input type="text" name="b2_q16"></div>
+                <div class="question"><label>17. Hoje, olhando para trás, qual conquista do negócio mais te orgulha?</label><textarea name="b2_q17"></textarea></div>
+
+                <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
+            </div>
+        </div>
+
+        <!-- BLOCO 3: PRODUTOS E SERVIÇOS -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Bloco 3 de 10</div>
+                <h2 class="block-title">Produtos e Serviços</h2>
+                
+                <div class="question"><label>18. Quais são os principais produtos ou serviços que você oferece hoje?</label><textarea name="b3_q18"></textarea></div>
+                <div class="question"><label>19. Existe algum produto ou serviço que seja o carro-chefe do negócio?</label><input type="text" name="b3_q19"></div>
+                <div class="question"><label>20. Qual produto ou serviço mais representa a essência da sua marca?</label><input type="text" name="b3_q20"></div>
+                <div class="question"><label>21. Existe algo que os clientes elogiam com frequência?</label><textarea name="b3_q21"></textarea></div>
+                <div class="question"><label>22. Existe algo que surpreende as pessoas quando conhecem sua empresa pela primeira vez?</label><textarea name="b3_q22"></textarea></div>
+                <div class="question"><label>23. Qual produto ou serviço você mais gosta de entregar ou realizar? Por quê?</label><textarea name="b3_q23"></textarea></div>
+
+                <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
+            </div>
+        </div>
+
+        <!-- BLOCO 4: EXPERIÊNCIA DO CLIENTE -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Bloco 4 de 10</div>
+                <h2 class="block-title">Experiência do Cliente</h2>
+                
+                <div class="question"><label>24. Como a maioria das pessoas descobre sua empresa hoje?</label><input type="text" name="b4_q24"></div>
+                <div class="question"><label>25. O que normalmente acontece desde o primeiro contato até a compra?</label><textarea name="b4_q25"></textarea></div>
+                <div class="question">
+                    <label>26. Numa escala de 1 a 5, como você qualifica a fluidez da experiência do cliente dentro do negócio?</label>
+                    <div class="scale-group">
+                        <button type="button" class="scale-btn" data-val="1">1</button>
+                        <button type="button" class="scale-btn" data-val="2">2</button>
+                        <button type="button" class="scale-btn" data-val="3">3</button>
+                        <button type="button" class="scale-btn" data-val="4">4</button>
+                        <button type="button" class="scale-btn" data-val="5">5</button>
+                        <input type="hidden" name="b4_q26">
+                    </div>
+                    <div class="scale-labels"><span>1: Dolorosa/Burocrática</span><span>5: Impecável/Premium</span></div>
+                </div>
+                <div class="question">
+                    <label>27. O atendimento é mais rápido e objetivo ou mais próximo e conversado?</label>
+                    <div class="radio-group">
+                        <label class="radio-card"><input type="radio" name="b4_q27" value="Rápido/Objetivo">Rápido e Objetivo</label>
+                        <label class="radio-card"><input type="radio" name="b4_q27" value="Próximo/Conversado">Próximo e Conversado</label>
+                    </div>
+                </div>
+                <div class="question"><label>28. Existe algum momento especial durante o atendimento que costuma marcar os clientes?</label><textarea name="b4_q28"></textarea></div>
+                <div class="question"><label>29. O que faz um cliente voltar pela segunda ou terceira vez?</label><input type="text" name="b4_q29"></div>
+                <div class="question"><label>30. Existe algum comportamento ou hábito curioso que você percebe nos seus clientes?</label><textarea name="b4_q30"></textarea></div>
+
+                <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
+            </div>
+        </div>
+
+        <!-- BLOCO 5: PÚBLICO -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Bloco 5 de 10</div>
+                <h2 class="block-title">Público</h2>
+                
+                <div class="question"><label>31. Quem é o público principal do seu negócio?</label><textarea name="b5_q31"></textarea></div>
+                <div class="question">
+                    <label>32. Qual é a faixa etária média dos seus clientes?</label>
+                    <div class="radio-group">
+                        <label class="radio-card"><input type="radio" name="b5_q32" value="Sub 20">Sub 20</label>
+                        <label class="radio-card"><input type="radio" name="b5_q32" value="20 a 30">20 a 30 anos</label>
+                        <label class="radio-card"><input type="radio" name="b5_q32" value="30 a 45">30 a 45 anos</label>
+                        <label class="radio-card"><input type="radio" name="b5_q32" value="+45">Mais de 45 anos</label>
+                    </div>
+                </div>
+                <div class="question">
+                    <label>33. Seus clientes costumam vir mais por necessidade ou por desejo?</label>
+                    <div class="radio-group">
+                        <label class="radio-card"><input type="radio" name="b5_q33" value="Necessidade">Necessidade</label>
+                        <label class="radio-card"><input type="radio" name="b5_q33" value="Desejo">Desejo de Elevação</label>
+                    </div>
+                </div>
+                <div class="question"><label>34. Existe um público secundário importante para a empresa?</label><input type="text" name="b5_q34"></div>
+                <div class="question">
+                    <label>35. Seus clientes são predominantemente:</label>
+                    <div class="radio-group">
+                        <label class="radio-card"><input type="radio" name="b5_q35" value="Homens">Homens</label>
+                        <label class="radio-card"><input type="radio" name="b5_q35" value="Mulheres">Mulheres</label>
+                        <label class="radio-card"><input type="radio" name="b5_q35" value="Equilibrado">Equilibrado</label>
+                    </div>
+                </div>
+                <div class="question"><label>36. O que normalmente motiva uma pessoa a procurar exatamente esse tipo de serviço ou produto?</label><textarea name="b5_q36"></textarea></div>
+
+                <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
+            </div>
+        </div>
+
+        <!-- BLOCO 6: DIFERENCIAIS E VALORES -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Bloco 6 de 10</div>
+                <h2 class="block-title">Diferenciais e Valores</h2>
+                
+                <div class="question"><label>37. Por que um cliente escolheria sua empresa em vez de um concorrente?</label><textarea name="b6_q37"></textarea></div>
+                <div class="question"><label>38. O que você acredita que sua empresa faz melhor que a maioria no mercado?</label><textarea name="b6_q38"></textarea></div>
+                <div class="question"><label>39. Existe algo que só o seu negócio oferece ou faz de um jeito muito próprio?</label><textarea name="b6_q39"></textarea></div>
+                <div class="question"><label>40. Qual é o cuidado ou detalhe que vocês têm que talvez os clientes nem percebam, mas que é muito importante para você?</label><textarea name="b6_q40"></textarea></div>
+                <div class="question"><label>41. Existe algo que você se recusa a fazer no seu negócio, mesmo que isso pudesse gerar mais dinheiro?</label><input type="text" name="b6_q41"></div>
+                <div class="question"><label>42. Existe alguma prática comum no seu mercado que você não concorda?</label><textarea name="b6_q42"></textarea></div>
+
+                <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
+            </div>
+        </div>
+
+        <!-- BLOCO 7: AMBIENTE E ATMOSFERA -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Bloco 7 de 10</div>
+                <h2 class="block-title">Ambiente e Atmosfera</h2>
+                
+                <div class="question"><label>43. Como é o espaço físico (ou percepção online) do seu negócio?</label><textarea name="b7_q43"></textarea></div>
+                <div class="question"><label>44. Que sensação você gostaria que as pessoas tivessem ao entrar no seu ecossistema?</label><input type="text" name="b7_q44"></div>
+                <div class="question">
+                    <label>45. A atmosfera sentida deve ser mais:</label>
+                    <div class="radio-group">
+                        <label class="radio-card"><input type="radio" name="b7_q45" value="Sofisticado/Minimalista">Sofisticado & Minimalista</label>
+                        <label class="radio-card"><input type="radio" name="b7_q45" value="Acolhedor/Humano">Acolhedor & Humano</label>
+                        <label class="radio-card"><input type="radio" name="b7_q45" value="Vibrante/Enérgico">Vibrante & Enérgico</label>
+                        <label class="radio-card"><input type="radio" name="b7_q45" value="Sombrio/Subversivo">Sombrio & Subversivo</label>
+                    </div>
+                </div>
+                <div class="question"><label>46. Existe algum detalhe visual ou elemento do ambiente que represente bem a marca?</label><input type="text" name="b7_q46"></div>
+                <div class="question">
+                    <label>47. Você prefere que os clientes fiquem bastante tempo em contato ou que seja algo altamente objetivo?</label>
+                    <div class="radio-group">
+                        <label class="radio-card"><input type="radio" name="b7_q47" value="Imersão Demorada">Imersão/Retenção longa</label>
+                        <label class="radio-card"><input type="radio" name="b7_q47" value="Rápido Clínico">Transacional/Rápido</label>
+                    </div>
+                </div>
+
+                <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
+            </div>
+        </div>
+
+        <!-- BLOCO 8: PERCEPÇÃO E CONCORRÊNCIA -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Bloco 8 de 10</div>
+                <h2 class="block-title">Percepção e Concorrência</h2>
+                
+                <div class="question"><label>48. Quem são os principais concorrentes na sua região ou nicho digital?</label><input type="text" name="b8_q48"></div>
+                <div class="question"><label>49. O que você acredita que esses concorrentes fazem BEM?</label><textarea name="b8_q49"></textarea></div>
+                <div class="question"><label>50. O que você acredita que eles deixam a desejar (o calcanhar de Aquiles deles)?</label><textarea name="b8_q50"></textarea></div>
+                <div class="question"><label>51. Existe algo que você sente que ainda falta visceralmente no mercado da sua região?</label><textarea name="b8_q51"></textarea></div>
+
+                <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
+            </div>
+        </div>
+
+        <!-- BLOCO 9: IDENTIDADE DA MARCA -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Bloco 9 de 10</div>
+                <h2 class="block-title">Identidade da Marca</h2>
+                
+                <div class="question">
+                    <label>52. Se sua marca fosse uma pessoa em um ambiente social alto padrão, como ela se comportaria?</label>
+                    <textarea name="b9_q52" placeholder="Ex: Falaria baixo? Dominaria a mesa?"></textarea>
+                </div>
+                <div class="question"><label>53. Quais três palavras devem definir sua marca hoje?</label><input type="text" name="b9_q53"></div>
+                <div class="question"><label>54. Quais três palavras você NUNCA gostaria que fossem associadas à sua empresa (Ofensas)?</label><input type="text" name="b9_q54"></div>
+                <div class="question"><label>55. Se três clientes estivessem conversando sobre sua empresa agora num bar, o que você gostaria de ouvir escondido?</label><textarea name="b9_q55"></textarea></div>
+                <div class="question"><label>56. Existe algo que você teria medo profundo de ouvir nessa mesma conversa?</label><textarea name="b9_q56"></textarea></div>
+
+                <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Último Passo →</button></div>
+            </div>
+        </div>
+
+        <!-- BLOCO 10: VISÃO E FUTURO -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Bloco 10 de 10</div>
+                <h2 class="block-title">O Ápice da Visão</h2>
+                
+                <div class="question"><label>57. O que você gostaria que as pessoas sentissem no peito quando veem sua marca nas redes sociais?</label><textarea name="b10_q57"></textarea></div>
+                <div class="question"><label>58. Qual é o principal objetivo do marketing da empresa hoje?</label><input type="text" name="b10_q58"></div>
+                <div class="question"><label>59. Se esse negócio crescer absurdamente nos próximos anos, o que ele vai permitir que você realize na sua vida particular?</label><textarea name="b10_q59"></textarea></div>
+                <div class="question"><label>60. Se sua marca pudesse deixar uma única mensagem (Legado Filosófico) para o mundo, qual seria?</label><textarea name="b10_q60"></textarea></div>
+
+                <div class="controls" style="margin-top:20px;">
+                    <button class="btn" onclick="prevBlock()">← Revisar</button>
+                    <!-- ACTION BOTÃO FINAL -->
+                    <button class="btn btn-primary" id="btnSubmitForm" style="box-shadow: 0 0 30px rgba(212,175,55,0.4);">
+                        Descriptografar Diagnóstico (Finalizar)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- LOADER -->
+    <div id="loader">
+        <div class="spinner"></div>
+        <p style="text-transform:uppercase; letter-spacing:0.2em; font-size:12px; color:var(--accent)" id="loaderText">Transmitindo Malha Cognitiva...</p>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        const EMAIL_RECEIVER = "brunolenses@gmail.com";
+        const FORMSUBMIT_URL = `https://formsubmit.co/ajax/${EMAIL_RECEIVER}`;
+        
+        let currentBlock = 0;
+        const blocks = document.querySelectorAll('.block');
+        const wrapper = document.getElementById('formWrapper');
+        const progressBar = document.getElementById('progressBar');
+        const introScreen = document.getElementById('introScreen');
+
+        // Auto-resize
+        document.querySelectorAll('textarea').forEach(el => {
+            el.addEventListener('input', function() {
+                this.style.height = '40px';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        });
+
+        // Radios
+        document.querySelectorAll('.radio-group').forEach(group => {
+            const cards = group.querySelectorAll('.radio-card');
+            cards.forEach(card => {
+                card.addEventListener('click', () => {
+                    cards.forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    card.querySelector('input').checked = true;
+                });
+            });
+        });
+
+        // Scales
+        document.querySelectorAll('.scale-group').forEach(group => {
+            const btns = group.querySelectorAll('.scale-btn');
+            const hiddenInput = group.querySelector('input[type="hidden"]');
+            btns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    btns.forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    hiddenInput.value = btn.dataset.val;
+                });
+            });
+        });
+
+        // Flow
+        function startForm() {
+            introScreen.style.opacity = '0';
+            introScreen.style.transform = 'translateY(-50px)';
+            setTimeout(() => {
+                introScreen.style.display = 'none';
+                updateView();
+            }, 800);
+        }
+
+        function nextBlock() {
+            if(currentBlock < blocks.length - 1) {
+                currentBlock++;
+                updateView();
+            }
+        }
+
+        function prevBlock() {
+            if(currentBlock > 0) {
+                currentBlock--;
+                updateView();
+            }
+        }
+
+        function updateView() {
+            wrapper.style.transform = `translateX(-${currentBlock * 100}vw)`;
+            blocks.forEach((b, i) => {
+                if(i === currentBlock) b.classList.add('active');
+                else b.classList.remove('active');
+            });
+            const pct = ((currentBlock + 1) / blocks.length) * 100;
+            progressBar.style.width = `${pct}%`;
+        }
+
+        // Submissão AJAX
+        document.getElementById('btnSubmitForm').addEventListener('click', async () => {
+            let rawData = {};
+            
+            document.querySelectorAll('input[type="text"], textarea').forEach(el => {
+                if(el.value.trim()) rawData[el.name] = el.value.trim();
+            });
+            document.querySelectorAll('input[type="radio"]:checked').forEach(el => {
+                rawData[el.name] = el.value;
+            });
+            document.querySelectorAll('input[type="hidden"]').forEach(el => {
+                if(el.value) rawData[el.name] = el.value;
+            });
+
+            rawData['_subject'] = "🔥 LENSES PRIME - Entrevista Cognitiva Completa!";
+            rawData['_template'] = "box"; 
+            rawData['_captcha'] = "false";
+
+            const loader = document.getElementById('loader');
+            const loaderText = document.getElementById('loaderText');
+            loader.classList.add('show');
+
+            try {
+                await fetch(FORMSUBMIT_URL, {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify(rawData)
+                });
+
+                loader.innerHTML = `
+                    <h2 style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:10px;">Diagnóstico Capturado Concluído.</h2>
+                    <p style="color:#888;">Os dados da sua percepção de marca foram enviados ao Lenses Lab.</p>
+                    <a href="index.html" class="btn btn-primary" style="margin-top:30px;text-decoration:none;">Retornar à Base</a>
+                `;
+
+                // WhatsApp Notification via CallMeBot
+                const phone = "5515997730671";
+                const apikey = "8684363";
+                const text = encodeURIComponent("🚨 *B LENSES SYSTEM* 🚨\nUma nova Anamnese Estratégica (Social Lenses) acabou de ser preenchida no site!\n\nVerifique as respostas da entrevista cognitiva no seu e-mail: brunolenses@gmail.com");
+                const callMeBotUrl = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${text}&apikey=${apikey}`;
+
+                // Fire and forget (no-cors to avoid browser blocking the cross-origin request)
+                fetch(callMeBotUrl, { mode: 'no-cors' }).catch(e => console.log("CallMeBot Note:", e));
+
+                console.log("Transmission and Notifications sent.");
+
+            } catch (err) {
+                loader.innerHTML = `
+                    <h2 style="font-family:'Playfair Display',serif;font-size:24px;margin-bottom:10px;color:red;">Falha na Transmissão</h2>
+                    <p style="color:#888;">Verifique sua conexão. Os dados não puderam ser enviados.</p>
+                    <a href="#" class="btn btn-primary" style="margin-top:30px;text-decoration:none;" onclick="location.reload()">Tentar Novamente</a>
+                `;
+            }
+        });
+
+    </script>
+</body>
+</html>
