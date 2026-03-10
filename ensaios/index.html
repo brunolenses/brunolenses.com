@@ -32,11 +32,37 @@
             pointer-events: auto;
         }
         .back-btn:hover { background: white; color: black; }
+        
+        /* Quick Nav Footer */
+        .style-nav {
+            position: fixed; bottom: 85px; left: 0; right: 0;
+            display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;
+            z-index: 20; pointer-events: auto; padding: 0 20px;
+        }
+        .style-link {
+            color: rgba(255,255,255,0.6); text-decoration: none;
+            font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em;
+            padding: 8px 16px; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px; backdrop-filter: blur(5px);
+            background: rgba(0,0,0,0.3); transition: all 0.3s ease;
+        }
+        .style-link:hover {
+            color: white; border-color: rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.1);
+        }
     </style>
 </head>
 <body>
     <a href="../" class="back-btn">Voltar</a>
     <div class="overlay"><h1>Ensaios</h1></div>
+    
+    <div class="style-nav">
+        <a href="../intimo/" class="style-link">Sensual/Íntimo</a>
+        <a href="#" class="style-link" onclick="alert('Em breve: Ensaios de Dança')">Dança</a>
+        <a href="#" class="style-link" onclick="alert('Em breve: Ensaios Editoriais')">Editorial</a>
+        <a href="#" class="style-link" onclick="alert('Em breve: Retratos Corporativos')">Retrato</a>
+    </div>
+
     <div class="instructions">
         Scroll / Setas do teclado para navegar
         <span class="sub">Auto-play após 3s de inatividade</span>
@@ -281,6 +307,50 @@
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // ---- Raycasting (Click Detection) ----
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        // Cursor logic
+        window.addEventListener('mousemove', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(planes);
+            
+            // If hovering over the Boudoir image (index 5), change cursor
+            let isHoveringBoudoir = false;
+            if (intersects.length > 0) {
+                const hoveredMesh = intersects[0].object;
+                const index = planes.indexOf(hoveredMesh);
+                if (index !== -1 && planeData[index].imageIndex === 5) {
+                    isHoveringBoudoir = true;
+                }
+            }
+            document.body.style.cursor = isHoveringBoudoir ? 'pointer' : 'default';
+        });
+
+        // Click logic
+        window.addEventListener('click', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(planes);
+
+            if (intersects.length > 0) {
+                const clickedMesh = intersects[0].object;
+                const index = planes.indexOf(clickedMesh);
+                
+                // Index 5 is the Boudoir Image ('photo-1529626455594...')
+                if (index !== -1 && planeData[index].imageIndex === 5) {
+                    // Trigger routing to Private Area
+                    window.location.href = '../intimo/';
+                }
+            }
         });
     })();
     </script>

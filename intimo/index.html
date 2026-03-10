@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Íntimo - Bruno Lenses</title>
+    <!-- Google Fonts: DM Sans and Playfair Display -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+    <!-- Feather Icons for lightweight SVGs -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-black text-white antialiased">
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="../" class="logo">B<span>Lenses</span></a>
+            <div class="nav-links">
+                <a href="#gallery">Prévia</a>
+                <a href="#plans">Planos</a>
+                <a href="#plans" class="btn btn-outline btn-sm">
+                    <i data-feather="lock" class="icon-sm"></i> Área de Membros
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero relative flex-center">
+        <!-- Background Overlay -->
+        <div class="hero-bg absolute inset-0">
+            <div class="hero-gradient absolute inset-0"></div>
+        </div>
+        
+        <div class="container relative z-10 text-center fade-in-up">
+            <h1 class="hero-title">
+                <span class="text-rose">Exclusivo.</span> Como você merece.
+            </h1>
+            <p class="hero-subtitle">Tudo que a gente não pode postar aqui, tem lá.</p>
+            
+            <div class="hero-cta">
+                <a href="#plans" class="btn btn-rose btn-lg">
+                    Acessar agora <i data-feather="lock" class="icon-sm ml-2"></i>
+                </a>
+                <a href="#plans" class="btn btn-outline btn-rose-outline btn-lg">
+                    Conhecer planos
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Teaser Section -->
+    <section class="teaser bg-gradient-dark">
+        <div class="container text-center reveal">
+            <h2 class="section-title text-rose-light">A gente deixa a imaginação por sua conta.</h2>
+            <p class="section-subtitle">Pois é, a gente fez isso mesmo que você tá pensando. Agora é só assinar!</p>
+        </div>
+    </section>
+
+    <!-- Preview Gallery Section -->
+    <section id="gallery" class="gallery-section bg-zinc-900">
+        <div class="container reveal">
+            <div class="text-center mb-12">
+                <h2 class="section-title">Prévia do Conteúdo</h2>
+                <p class="section-subtitle">Um pequeno gostinho do que você encontrará no acesso exclusivo. O melhor conteúdo está protegido para assinantes.</p>
+            </div>
+
+            <!-- CSS Grid Galeria -->
+            <div class="gallery-grid" id="previewGallery">
+                <!-- Javascript will populate 8 items here with blur effect -->
+            </div>
+
+            <div class="text-center mt-12">
+                <a href="#plans" class="btn btn-rose btn-lg">
+                    Ver galeria completa <i data-feather="lock" class="icon-sm ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Subscription Plans Section -->
+    <section id="plans" class="plans-section bg-black">
+        <div class="container reveal">
+            <div class="text-center mb-12">
+                <h2 class="section-title">Escolha seu Plano</h2>
+                <p class="section-subtitle">Acesso exclusivo a todo o conteúdo premium. Cancele quando quiser.</p>
+            </div>
+
+            <div class="plans-grid">
+                
+                <!-- Trimestral (POPULAR) - Centralized and Highlighted -->
+                <div class="plan-card plan-popular">
+                    <div class="popular-badge">MAIS POPULAR</div>
+                    <div class="plan-header">
+                        <div class="plan-icon bg-violet"><i data-feather="star" class="text-white"></i></div>
+                        <h3 class="plan-name">Trimestral</h3>
+                        <p class="plan-desc">Economize 16% em relação ao plano mensal</p>
+                    </div>
+                    <div class="plan-price">
+                        <span class="price">R$ 99,90</span><span class="period">/trimestre</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li><i data-feather="check" class="text-rose"></i> Fotos em alta resolução</li>
+                        <li><i data-feather="check" class="text-rose"></i> Vídeos exclusivos</li>
+                        <li><i data-feather="check" class="text-rose"></i> Atualizações semanais</li>
+                        <li><i data-feather="check" class="text-rose"></i> Chat privado</li>
+                        <li><i data-feather="check" class="text-rose"></i> Conteúdo especial mensal</li>
+                    </ul>
+                    <a href="https://buy.stripe.com/placeholder_trimestral" class="btn btn-rose btn-full">Assinar agora</a>
+                </div>
+
+                <!-- Mensal -->
+                <div class="plan-card">
+                    <div class="plan-header">
+                        <div class="plan-icon bg-orange"><i data-feather="heart" class="text-white"></i></div>
+                        <h3 class="plan-name">Mensal</h3>
+                        <p class="plan-desc">Acesso a todo o conteúdo exclusivo</p>
+                    </div>
+                    <div class="plan-price">
+                        <span class="price">R$ 39,90</span><span class="period">/mês</span>
+                    </div>
+                    <ul class="plan-features">
+                        <li><i data-feather="check" class="text-rose"></i> Fotos em alta resolução</li>
+                        <li><i data-feather="check" class="text-rose"></i> Vídeos exclusivos</li>
+                        <li><i data-feather="check" class="text-rose"></i> Atualizações semanais</li>
+                        <li><i data-feather="check" class="text-rose"></i> Chat privado</li>
+                    </ul>
+                    <a href="https://buy.stripe.com/placeholder_mensal" class="btn btn-zinc btn-full">Assinar agora</a>
+                </div>
+
+                <!-- Vitalício -->
+                <div class="plan-card">
+                    <div class="plan-header">
+                        <div class="plan-icon bg-amber"><i data-feather="aperture" class="text-white"></i></div>
+                        <h3 class="plan-name">Vitalício</h3>
+                        <p class="plan-desc">Acesso ilimitado a todo o conteúdo para sempre</p>
+                    </div>
+                    <div class="plan-price">
+                        <span class="price">R$ 499,90</span><span class="period"></span>
+                    </div>
+                    <ul class="plan-features">
+                        <li><i data-feather="check" class="text-rose"></i> Fotos em alta resolução</li>
+                        <li><i data-feather="check" class="text-rose"></i> Vídeos exclusivos</li>
+                        <li><i data-feather="check" class="text-rose"></i> Atualizações semanais</li>
+                        <li><i data-feather="check" class="text-rose"></i> Chat privado</li>
+                        <li><i data-feather="check" class="text-rose"></i> Arquivos antigos</li>
+                    </ul>
+                    <a href="https://buy.stripe.com/placeholder_vitalicio" class="btn btn-zinc btn-full">Assinar agora</a>
+                </div>
+
+            </div>
+
+            <div class="text-center mt-12 text-sm text-gray-500">
+                <p>Pagamento seguro via Stripe. Cancele a qualquer momento. Sem compromisso.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer CTA -->
+    <section class="footer-cta bg-gradient-t-dark">
+        <div class="container text-center reveal">
+            <h2 class="section-title">Não é o que você está pensando... <span class="text-rose">É outra coisa 😜</span></h2>
+            <p class="section-subtitle mb-8">Acesso imediato a todo o conteúdo exclusivo. Cancele quando quiser.</p>
+            <a href="#plans" class="btn btn-rose btn-lg">
+                Acessar conteúdo exclusivo <i data-feather="zap" class="icon-sm ml-2"></i>
+            </a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Íntimo - Bruno Lenses. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Init Scripts -->
+    <script>
+        // Inicializar Icones
+        feather.replace();
+
+        // Populate Preview Gallery with 8 Items (using unsplash random fashion for now as placeholder)
+        const galleryGrid = document.getElementById('previewGallery');
+        const placeholders = [
+            'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80',
+            'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600&q=80',
+            'https://images.unsplash.com/photo-1492446845049-9c50cc313f00?w=600&q=80',
+            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&q=80',
+            'https://images.unsplash.com/photo-1529139574466-a303027c1fe8?w=600&q=80',
+            'https://images.unsplash.com/photo-1506956191951-7a88da4435e5?w=600&q=80',
+            'https://images.unsplash.com/photo-1485230405346-71acb9518d9c?w=600&q=80',
+            'https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?w=600&q=80',
+        ];
+
+        placeholders.forEach((url, i) => {
+            const item = document.createElement('div');
+            item.className = 'gallery-item';
+            
+            // Random blur values to simulate protected content
+            const isHeavilyBlurred = Math.random() > 0.5;
+            const blurClass = isHeavilyBlurred ? 'blur-heavy' : 'blur-light';
+            
+            item.innerHTML = `
+                <div class="image-wrapper ${blurClass}">
+                    <img src="${url}" alt="Preview ${i + 1}" loading="lazy" />
+                    <!-- Watermark / Lock -->
+                    <div class="gallery-overlay">
+                        <i data-feather="lock" class="text-white opacity-50 w-8 h-8"></i>
+                    </div>
+                </div>
+            `;
+            galleryGrid.appendChild(item);
+        });
+        feather.replace();
+
+        // Scroll Reveal Logic
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealConfig = { threshold: 0.1 };
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, revealConfig);
+
+        revealElements.forEach(el => revealObserver.observe(el));
+    </script>
+</body>
+</html>
