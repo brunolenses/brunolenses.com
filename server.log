@@ -29,3 +29,5 @@
 ::1 - - [10/Mar/2026 14:12:15] "GET /anamnese/social-lenses.html HTTP/1.1" 200 -
 ::1 - - [10/Mar/2026 14:18:24] "GET /anamnese/index.html HTTP/1.1" 200 -
 ::1 - - [10/Mar/2026 14:18:28] "GET /anamnese/social-lenses.html HTTP/1.1" 200 -
+::1 - - [10/Mar/2026 14:20:52] "GET /anamnese/index.html HTTP/1.1" 304 -
+::1 - - [10/Mar/2026 14:32:06] "GET /anamnese/dxm-lenses.html HTTP/1.1" 200 -
