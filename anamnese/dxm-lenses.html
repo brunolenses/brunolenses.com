@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DXM Lenses - Entrevista de Posicionamento</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #030303;
+            --text: #ffffff;
+            --text-muted: #888888;
+            --accent: #D4AF37;
+            --input-bg: rgba(255, 255, 255, 0.03);
+            --input-border: rgba(255, 255, 255, 0.1);
+            --focus: rgba(212, 175, 55, 0.5);
+            --font-heading: 'Playfair Display', serif;
+            --font-body: 'DM Sans', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg); color: var(--text);
+            font-family: var(--font-body); overflow: hidden; line-height: 1.6;
+        }
+
+        .progress-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 4px;
+            background: rgba(255,255,255,0.05); z-index: 100;
+        }
+        .progress-bar {
+            height: 100%; width: 0%; background: var(--accent);
+            transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .header {
+            position: fixed; top: 30px; left: 40px; z-index: 100;
+            display: flex; align-items: center; gap: 20px;
+        }
+        .back-link {
+            color: rgba(255,255,255,0.4); text-decoration: none;
+            font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; transition: color 0.3s;
+        }
+        .back-link:hover { color: var(--text); }
+        .brand-title {
+            font-family: var(--font-heading); font-style: italic; font-size: 18px; color: var(--text);
+            border-left: 1px solid rgba(255,255,255,0.2); padding-left: 20px;
+        }
+
+        .form-wrapper {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; transition: transform 0.8s cubic-bezier(0.86, 0, 0.07, 1);
+        }
+
+        .block {
+            min-width: 100vw; height: 100vh;
+            display: flex; flex-direction: column; 
+            padding: 100px 10vw; padding-bottom: 50px;
+            overflow-y: auto; scrollbar-width: none;
+        }
+        .block::-webkit-scrollbar { display: none; }
+
+        .block-inner {
+            max-width: 800px; width: 100%; margin: 0 auto;
+            opacity: 0; transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease; transition-delay: 0.3s;
+        }
+        .block.active .block-inner { opacity: 1; transform: translateY(0); }
+
+        .block-counter {
+            font-size: 11px; text-transform: uppercase; letter-spacing: 0.3em;
+            color: var(--accent); margin-bottom: 20px; font-weight: 500;
+            position: sticky; top: 0; background: var(--bg); padding-top: 20px; padding-bottom: 10px; z-index: 10;
+        }
+        .block-title {
+            font-family: var(--font-heading); font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 400; margin-bottom: 40px; line-height: 1.1; color: var(--text);
+        }
+
+        .question { margin-bottom: 40px; }
+        .question label {
+            display: block; font-size: 16px; font-weight: 400; margin-bottom: 16px; color: rgba(255,255,255,0.9);
+        }
+        .required-star { color: var(--accent); margin-left: 4px; }
+
+        input[type="text"], input[type="email"], input[type="tel"], textarea {
+            width: 100%; background: transparent;
+            border: none; border-bottom: 1px solid var(--input-border);
+            color: var(--text); font-family: var(--font-body); font-size: 18px;
+            padding: 10px 0; outline: none; transition: border-color 0.3s; resize: none;
+        }
+        input:focus, textarea:focus { border-bottom-color: var(--accent); }
+        textarea { height: 40px; overflow: hidden; }
+
+        .radio-group { display: flex; flex-wrap: wrap; gap: 10px; }
+        .radio-card {
+            background: var(--input-bg); border: 1px solid var(--input-border);
+            padding: 10px 20px; border-radius: 8px; cursor: pointer;
+            transition: all 0.2s; font-size: 14px; color: var(--text-muted);
+        }
+        .radio-card input { display: none; }
+        .radio-card:hover { border-color: rgba(255,255,255,0.3); color: var(--text); }
+        .radio-card.selected { background: rgba(212, 175, 55, 0.1); border-color: var(--accent); color: var(--accent); }
+
+        .scale-group {
+            display: flex; gap: 8px; align-items: center; justify-content: space-between;
+            background: var(--input-bg); padding: 10px; border-radius: 99px; max-width: 400px;
+        }
+        .scale-btn {
+            width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            background: transparent; border: 1px solid var(--input-border);
+            color: var(--text-muted); font-size: 16px; cursor: pointer; transition: all 0.2s;
+        }
+        .scale-btn:hover { border-color: var(--text); color: var(--text); }
+        .scale-btn.selected { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 600; }
+        .scale-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 10px; padding: 0 10px; max-width: 400px; }
+
+        .controls { display: flex; gap: 15px; margin-top: 20px; padding-bottom: 100px; }
+        .btn {
+            padding: 14px 30px; border-radius: 99px; font-size: 12px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer;
+            background: transparent; border: 1px solid var(--input-border); color: var(--text);
+            transition: all 0.3s; outline: none; display: flex; align-items: center; gap: 10px;
+        }
+        .btn:hover { background: rgba(255,255,255,0.05); }
+        .btn-primary { background: var(--text); color: var(--bg); border: none; }
+        .btn-primary:hover { background: var(--accent); color: #000; }
+        .btn-disabled { opacity: 0.5; pointer-events: none; cursor: not-allowed; }
+
+        #loader {
+            position: fixed; inset: 0; background: var(--bg); z-index: 999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.4s; text-align: center;
+        }
+        #loader.show { opacity: 1; pointer-events: auto; }
+        .spinner {
+            width: 40px; height: 40px; border: 2px solid rgba(255,255,255,0.1);
+            border-top-color: var(--accent); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .intro-screen {
+            position: absolute; inset: 0; z-index: 50; background: var(--bg);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 0 20px; transition: transform 0.8s ease, opacity 0.8s ease;
+        }
+        .intro-screen h1 { font-family: var(--font-heading); font-size: clamp(3rem, 5vw, 4.5rem); margin-bottom: 20px; font-weight: 400; line-height: 1.1; }
+        .intro-screen p { max-width: 600px; color: var(--text-muted); font-size: 16px; margin-bottom: 40px; }
+        .error-msg { color: #ff4d4f; font-size: 12px; margin-top: 5px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+
+    <div class="header">
+        <a href="index.html" class="back-link">← HUB LENSES</a>
+        <div class="brand-title">Lenses Prime</div>
+    </div>
+
+    <!-- Intro -->
+    <div class="intro-screen" id="introScreen">
+        <h1>DXM Lenses<br><span style="color:var(--accent); font-size:0.7em;">Entrevista de Posicionamento</span></h1>
+        <p>Um diagnóstico profundo sobre a identidade, arquétipo, público oculto e estética narrativa da sua marca.<br><br>Você precisará de tempo profundo para responder. Não existe resposta certa ou errada.</p>
+        <button class="btn btn-primary" onclick="startForm()">INICIAR AVALIAÇÃO</button>
+    </div>
+
+    <div class="form-wrapper" id="formWrapper">
+
+        <!-- BLOCO 1: IDENTIFICAÇÃO E CONTEXTO -->
+        <div class="block">
+            <div class="block-inner" id="b1-validator-zone">
+                <div class="block-counter">Bloco 1 de 12</div>
+                <h2 class="block-title">Identificação & Contexto</h2>
+                
+                <div class="question">
+                    <label>Por favor, responda estas perguntas iniciais para calibrarmos a leitura da sua marca.</label>
+                </div>
+
+                <div class="question"><label>Nome completo <span class="required-star">*</span></label><input type="text" name="context_name" required></div>
+                <div class="question"><label>E-mail <span class="required-star">*</span></label><input type="email" name="context_email" required></div>
+                <div class="question"><label>WhatsApp <span class="required-star">*</span></label><input type="tel" name="context_whatsapp" required></div>
+                <div class="question"><label>Rede social principal (Link ou @) <span class="required-star">*</span></label><input type="text" name="context_social_media" required></div>
+
+                <div class="question">
+                    <label>Qual tipo de perfil você é? <span class="required-star">*</span></label>
+                    <div class="radio-group" data-required="true">
+                        <label class="radio-card"><input type="radio" name="context_role" value="Empreendedor">Empreendedor</label>
+                        <label class="radio-card"><input type="radio" name="context_role" value="Influencer/Creator">Influencer/Creator</label>
+                        <label class="radio-card"><input type="radio" name="context_role" value="Profissional Autônomo">Profissional Autônomo</label>
+                        <label class="radio-card"><input type="radio" name="context_role" value="Empresa">Empresa</label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <label>Quanto tempo está no mercado? <span class="required-star">*</span></label>
+                    <div class="radio-group" data-required="true">
+                        <label class="radio-card"><input type="radio" name="context_time" value="- 1 ano">Menos de 1 ano</label>
+                        <label class="radio-card"><input type="radio" name="context_time" value="1 a 3 anos">1 a 3 anos</label>
+                        <label class="radio-card"><input type="radio" name="context_time" value="3 a 7 anos">3 a 7 anos</label>
+                        <label class="radio-card"><input type="radio" name="context_time" value="7 a 15 anos">7 a 15 anos</label>
+                        <label class="radio-card"><input type="radio" name="context_time" value="+ 15 anos">Mais de 15 anos</label>
+                    </div>
+                </div>
+
+                <div class="question"><label>Nome da empresa/negócio (Opcional se for marca pessoal)</label><input type="text" name="context_business_name"></div>
+                <div class="question"><label>Qual é o principal objetivo que te fez buscar esse diagnóstico? <span class="required-star">*</span></label><textarea name="context_main_goal" required></textarea></div>
+                <div class="question"><label>Quais são seus maiores desafios hoje? <span class="required-star">*</span></label><textarea name="context_challenges" required></textarea></div>
+                
+                <div class="question">
+                    <label>O que você acredita ser seu maior diferencial? <span class="required-star">*</span></label>
+                    <textarea name="context_differential" required></textarea>
+                </div>
+
+                <div class="question">
+                    <label>O que você acredita estar te segurando hoje? <span class="required-star">*</span></label>
+                    <textarea name="context_holding_back" required></textarea>
+                </div>
+                
+                <div class="question">
+                    <label>Que tipo de transformação você quer gerar nas pessoas? <span class="required-star">*</span></label>
+                    <textarea name="context_transformation" required></textarea>
+                </div>
+
+                <div class="controls">
+                    <span id="b1-error" style="color:#ff4d4f; font-size:14px; margin-right:auto; display:none; align-items:center;">Preencha todos os campos obrigatórios (*)</span>
+                    <button class="btn btn-primary" onclick="validateNext(0)">Adentrar Diagnóstico Profundo →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- BLOCO 2: IDENTIDADE DA MARCA -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Bloco 2 de 12</div>
+                <h2 class="block-title">I. Identidade da Marca</h2>
+                
+                <div class="question"><label>1. Se a sua marca fosse um personagem vivo, quem ela seria — e o que ela esconde que ninguém percebe?</label><textarea name="b1_q1"></textarea></div>
+                <div class="question">
+                    <label>2. De 0 a 5, o quanto sua marca é compreendida pelo público atualmente?</label>
+                    <div class="scale-group"><button class="scale-btn" data-val="0">0</button><button class="scale-btn" data-val="1">1</button><button class="scale-btn" data-val="2">2</button><button class="scale-btn" data-val="3">3</button><button class="scale-btn" data-val="4">4</button><button class="scale-btn" data-val="5">5</button><input type="hidden" name="b1_q2"></div>
+                    <div class="scale-labels"><span>Totalmente Incompreendida</span><span>Perfeitamente Compreendida</span></div>
+                </div>
+                <div class="question"><label>3. Se sua marca deixasse de existir amanhã, o que morreria no mundo?</label><textarea name="b1_q3"></textarea></div>
+                <div class="question"><label>4. Qual é a frase que define a existência da sua marca, sem mencionar produto?</label><input type="text" name="b1_q4"></div>
+                <div class="question"><label>5. O que sua marca sabe sobre o mercado que ninguém mais sabe?</label><textarea name="b1_q5"></textarea></div>
+                <div class="question">
+                    <label>6. Sua marca escolhe ser amada, temida, desejada ou respeitada?</label>
+                    <div class="radio-group">
+                        <label class="radio-card"><input type="radio" name="b1_q6" value="Ser amada">Ser amada</label>
+                        <label class="radio-card"><input type="radio" name="b1_q6" value="Ser temida">Ser temida</label>
+                        <label class="radio-card"><input type="radio" name="b1_q6" value="Ser desejada">Ser desejada</label>
+                        <label class="radio-card"><input type="radio" name="b1_q6" value="Ser respeitada">Ser respeitada</label>
+                    </div>
+                </div>
+
+                <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
+            </div>
+        </div>
+
+        <!-- BLOCO 3: ARCHETYPE E PERSONA -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Bloco 3 de 12</div>
+                <h2 class="block-title">II. Archetype e Persona Pública</h2>
+                
+                <div class="question"><label>7. Qual arquétipo sua marca acha que tem — e qual arquétipo ela realmente expressa?</label><textarea name="b2_q7"></textarea></div>
+                <div class="question">
+                    <label>8. De 0 a 5, o quanto sua comunicação atual reflete a essência real da marca?</label>
+                    <div class="scale-group"><button class="scale-btn" data-val="0">0</button><button class="scale-btn" data-val="1">1</button><button class="scale-btn" data-val="2">2</button><button class="scale-btn" data-val="3">3</button><button class="scale-btn" data-val="4">4</button><button class="scale-btn" data-val="5">5</button><input type="hidden" name="b2_q8"></div>
+                    <div class="scale-labels"><span>Desconexa</span><span>Exata</span></div>
+                </div>
+                <div class="question"><label>9. Se sua marca tivesse um pecado capital dominante, qual seria?</label><input type="text" name="b2_q9"></div>
+                <div class="question"><label>10. Complete: "Minha marca quer ser percebida como ________, mas muitas vezes parece __________."</label><textarea name="b2_q10"></textarea></div>
+                <div class="question"><label>11. Em qual emoção sua marca opera como default? (ex.: ambição, calma, caos, precisão…)</label><input type="text" name="b2_q11"></div>
+                <div class="question"><label>12. Se sua marca fosse uma arma, qual seria a função dela?</label><textarea name="b2_q12"></textarea></div>
+
+                <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
+            </div>
+        </div>
+
+        <!-- BLOCO 4: PÚBLICO OCULTO -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Bloco 4 de 12</div>
+                <h2 class="block-title">III. Público e Avatar Oculto</h2>
+                
+                <div class="question"><label>13. Quem é o cliente que você diz que atende — e quem é o cliente que você realmente atende?</label><textarea name="b3_q13"></textarea></div>
+                <div class="question">
+                    <label>14. De 0 a 5, o quanto seu público se sente visto por você?</label>
+                    <div class="scale-group"><button class="scale-btn" data-val="0">0</button><button class="scale-btn" data-val="1">1</button><button class="scale-btn" data-val="2">2</button><button class="scale-btn" data-val="3">3</button><button class="scale-btn" data-val="4">4</button><button class="scale-btn" data-val="5">5</button><input type="hidden" name="b3_q14"></div>
+                </div>
+                <div class="question"><label>15. Qual é a dor que seu público nunca admite em voz alta?</label><textarea name="b3_q15"></textarea></div>
+                <div class="question"><label>16. Se seu público fosse um vilão, qual seria sua fraqueza secreta?</label><textarea name="b3_q16"></textarea></div>
+                <div class="question"><label>17. O que seu público busca, mas não sabe colocar em palavras?</label><textarea name="b3_q17"></textarea></div>
+                <div class="question"><label>18. Quem é o cliente que você teme atrair — mas no fundo sabe que deveria?</label><textarea name="b3_q18"></textarea></div>
+
+                <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
+            </div>
+        </div>
+
+        <!-- BLOCO 5: NICHO REAL -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Bloco 5 de 12</div>
+                <h2 class="block-title">IV. Nicho Real vs Declarado</h2>
+                
+                <div class="question"><label>19. Qual é seu nicho declarado?</label><input type="text" name="b4_q19"></div>
+                <div class="question"><label>20. Qual é seu nicho real (a transformação invisível que você causa)?</label><textarea name="b4_q20"></textarea></div>
+                <div class="question">
+                    <label>21. De 0 a 5, o quanto seu nicho atual tem espaço para crescer?</label>
+                    <div class="scale-group"><button class="scale-btn" data-val="0">0</button><button class="scale-btn" data-val="1">1</button><button class="scale-btn" data-val="2">2</button><button class="scale-btn" data-val="3">3</button><button class="scale-btn" data-val="4">4</button><button class="scale-btn" data-val="5">5</button><input type="hidden" name="b4_q21"></div>
+                </div>
+                <div class="question"><label>22. Se você fosse forçado a redefinir seu nicho em uma palavra, qual seria?</label><input type="text" name="b4_q22"></div>
+
+                <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
+            </div>
+        </div>
+
+        <!-- BLOCO 6: PRODUTO COMO PORTAL -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Bloco 6 de 12</div>
+                <h2 class="block-title">V. Produto Como Portal</h2>
+                
+                <div class="question"><label>23. Qual transformação seu produto promete — e qual transformação ele realmente entrega?</label><textarea name="b5_q23"></textarea></div>
+                <div class="question">
+                    <label>24. De 0 a 5, o quanto seu produto é diferente do resto do mercado?</label>
+                    <div class="scale-group"><button class="scale-btn" data-val="0">0</button><button class="scale-btn" data-val="1">1</button><button class="scale-btn" data-val="2">2</button><button class="scale-btn" data-val="3">3</button><button class="scale-btn" data-val="4">4</button><button class="scale-btn" data-val="5">5</button><input type="hidden" name="b5_q24"></div>
+                </div>
+                <div class="question"><label>25. Se seu produto fosse proibido amanhã, qual seria o motivo?</label><textarea name="b5_q25"></textarea></div>
+                <div class="question">
+                    <label>26. Seu produto é uma ponte, uma arma, um remédio ou uma profecia?</label>
+                    <div class="radio-group">
+                        <label class="radio-card"><input type="radio" name="b5_q26" value="Uma ponte">Uma ponte</label>
+                        <label class="radio-card"><input type="radio" name="b5_q26" value="Uma arma">Uma arma</label>
+                        <label class="radio-card"><input type="radio" name="b5_q26" value="Um remédio">Um remédio</label>
+                        <label class="radio-card"><input type="radio" name="b5_q26" value="Uma profecia">Uma profecia</label>
+                    </div>
+                </div>
+                <div class="question"><label>27. Qual detalhe do seu produto você nunca destacou, mas deveria?</label><textarea name="b5_q27"></textarea></div>
+                <div class="question">
+                    <label>28. Sua oferta comunica destino ou comunica ferramenta?</label>
+                    <div class="radio-group">
+                        <label class="radio-card"><input type="radio" name="b5_q28" value="Destino">Destino</label>
+                        <label class="radio-card"><input type="radio" name="b5_q28" value="Ferramenta">Ferramenta</label>
+                    </div>
+                </div>
+
+                <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
+            </div>
+        </div>
+
+        <!-- BLOCO 7: PRECIFICAÇÃO SIMBÓLICA -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Bloco 7 de 12</div>
+                <h2 class="block-title">VI. Precificação Simbólica</h2>
+                
+                <div class="question">
+                    <label>29. Seu preço atual representa valor, posicionamento ou medo?</label>
+                    <div class="radio-group">
+                        <label class="radio-card"><input type="radio" name="b6_q29" value="Valor">Valor</label>
+                        <label class="radio-card"><input type="radio" name="b6_q29" value="Posicionamento">Posicionamento</label>
+                        <label class="radio-card"><input type="radio" name="b6_q29" value="Medo">Medo</label>
+                    </div>
+                </div>
+                <div class="question">
+                    <label>30. De 0 a 5, o quanto você acredita no seu próprio preço?</label>
+                    <div class="scale-group"><button class="scale-btn" data-val="0">0</button><button class="scale-btn" data-val="1">1</button><button class="scale-btn" data-val="2">2</button><button class="scale-btn" data-val="3">3</button><button class="scale-btn" data-val="4">4</button><button class="scale-btn" data-val="5">5</button><input type="hidden" name="b6_q30"></div>
+                </div>
+                <div class="question">
+                    <label>31. Seu preço aproxima ou afasta o avatar certo?</label>
+                    <div class="radio-group">
+                        <label class="radio-card"><input type="radio" name="b6_q31" value="Aproxima">Aproxima</label>
+                        <label class="radio-card"><input type="radio" name="b6_q31" value="Afasta">Afasta</label>
+                    </div>
+                </div>
+                <div class="question"><label>32. Se seu produto custasse 10x mais, o que ele precisaria se tornar?</label><textarea name="b6_q32"></textarea></div>
+
+                <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
+            </div>
+        </div>
+
+        <!-- BLOCO 8: STORYTELLING -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Bloco 8 de 12</div>
+                <h2 class="block-title">VII. Storytelling & Voz</h2>
+                
+                <div class="question"><label>33. Qual é a história de origem da sua marca — e qual é a história que você nunca contou?</label><textarea name="b7_q33"></textarea></div>
+                <div class="question">
+                    <label>34. De 0 a 5, o quanto seu storytelling gera identificação?</label>
+                    <div class="scale-group"><button class="scale-btn" data-val="0">0</button><button class="scale-btn" data-val="1">1</button><button class="scale-btn" data-val="2">2</button><button class="scale-btn" data-val="3">3</button><button class="scale-btn" data-val="4">4</button><button class="scale-btn" data-val="5">5</button><input type="hidden" name="b7_q34"></div>
+                </div>
+                <div class="question">
+                    <label>35. Sua narrativa opera no tempo: passado, presente ou futuro?</label>
+                    <div class="radio-group">
+                        <label class="radio-card"><input type="radio" name="b7_q35" value="Passado">Passado</label>
+                        <label class="radio-card"><input type="radio" name="b7_q35" value="Presente">Presente</label>
+                        <label class="radio-card"><input type="radio" name="b7_q35" value="Futuro">Futuro</label>
+                    </div>
+                </div>
+                <div class="question"><label>36. O que sua marca quer que as pessoas sintam depois de consumir seu conteúdo?</label><textarea name="b7_q36"></textarea></div>
+                <div class="question"><label>37. Se sua marca tivesse um vilão narrativo, quem seria?</label><input type="text" name="b7_q37"></div>
+                <div class="question"><label>38. Se sua marca tivesse uma trilha sonora, qual seria o clima?</label><input type="text" name="b7_q38"></div>
+
+                <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
+            </div>
+        </div>
+
+        <!-- BLOCO 9: ESTÉTICA VISUAL -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Bloco 9 de 12</div>
+                <h2 class="block-title">VIII. Estética & Visuais</h2>
+                
+                <div class="question"><label>39. O que sua estética comunica sem palavras?</label><textarea name="b8_q39"></textarea></div>
+                <div class="question">
+                    <label>40. De 0 a 5, o quanto sua estética está alinhada com sua proposta de transformação?</label>
+                    <div class="scale-group"><button class="scale-btn" data-val="0">0</button><button class="scale-btn" data-val="1">1</button><button class="scale-btn" data-val="2">2</button><button class="scale-btn" data-val="3">3</button><button class="scale-btn" data-val="4">4</button><button class="scale-btn" data-val="5">5</button><input type="hidden" name="b8_q40"></div>
+                </div>
+                <div class="question"><label>41. Qual elemento visual poderia desaparecer sem afetar sua marca?</label><textarea name="b8_q41"></textarea></div>
+                <div class="question"><label>42. Se sua marca fosse um filme, qual seria a direção de arte?</label><textarea name="b8_q42"></textarea></div>
+
+                <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
+            </div>
+        </div>
+
+        <!-- BLOCO 10: CONVERSÃO -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Bloco 10 de 12</div>
+                <h2 class="block-title">IX. Oferta & Conversão</h2>
+                
+                <div class="question"><label>43. O que você realmente vende — e o que o cliente realmente compra?</label><textarea name="b9_q43"></textarea></div>
+                <div class="question">
+                    <label>44. De 0 a 5, o quanto sua oferta instiga desejo imediato?</label>
+                    <div class="scale-group"><button class="scale-btn" data-val="0">0</button><button class="scale-btn" data-val="1">1</button><button class="scale-btn" data-val="2">2</button><button class="scale-btn" data-val="3">3</button><button class="scale-btn" data-val="4">4</button><button class="scale-btn" data-val="5">5</button><input type="hidden" name="b9_q44"></div>
+                </div>
+                <div class="question"><label>45. Qual é a fricção invisível que impede mais vendas?</label><textarea name="b9_q45"></textarea></div>
+                <div class="question"><label>46. Se sua conversão fosse um ritual, qual seria o primeiro passo?</label><textarea name="b9_q46"></textarea></div>
+                <div class="question">
+                    <label>47. Seu funil é baseado em lógica, em emoção ou em fricção?</label>
+                    <div class="radio-group">
+                        <label class="radio-card"><input type="radio" name="b9_q47" value="Lógica">Lógica</label>
+                        <label class="radio-card"><input type="radio" name="b9_q47" value="Emoção">Emoção</label>
+                        <label class="radio-card"><input type="radio" name="b9_q47" value="Fricção">Fricção</label>
+                    </div>
+                </div>
+                <div class="question"><label>48. Qual parte da sua oferta você não tem coragem de abandonar?</label><textarea name="b9_q48"></textarea></div>
+
+                <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
+            </div>
+        </div>
+
+        <!-- BLOCO 11: COLAPSO E RENASCIMENTO -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Bloco 11 de 12</div>
+                <h2 class="block-title">X. Colapso e Renascimento</h2>
+                
+                <div class="question"><label>49. O que sua marca faz hoje que você sabe que não deveria fazer mais?</label><textarea name="b10_q49"></textarea></div>
+                <div class="question">
+                    <label>50. De 0 a 5, o quanto você está disposto a destruir para evoluir?</label>
+                    <div class="scale-group"><button class="scale-btn" data-val="0">0</button><button class="scale-btn" data-val="1">1</button><button class="scale-btn" data-val="2">2</button><button class="scale-btn" data-val="3">3</button><button class="scale-btn" data-val="4">4</button><button class="scale-btn" data-val="5">5</button><input type="hidden" name="b10_q50"></div>
+                </div>
+                <div class="question"><label>51. Se você recomeçasse sua marca do zero, o que permaneceria?</label><textarea name="b10_q51"></textarea></div>
+                <div class="question"><label>52. Qual é a versão "perigosa" da sua marca — e por que ela ainda não existe?</label><textarea name="b10_q52"></textarea></div>
+                <div class="question"><label>53. O que você faria se não estivesse preso às expectativas do seu nicho?</label><textarea name="b10_q53"></textarea></div>
+                <div class="question"><label>54. Qual é a expansão inevitável da sua marca nos próximos 12 meses?</label><textarea name="b10_q54"></textarea></div>
+
+                <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
+            </div>
+        </div>
+
+        <!-- BLOCO 12: UNIVERSO PARALELO -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Bloco 12 de 12</div>
+                <h2 class="block-title">XI. Universo Paralelo & Realidade</h2>
+                
+                <div class="question"><label>55. Se sua marca tivesse uma versão alternativa em outro universo, como ela operaria?</label><textarea name="b11_q55"></textarea></div>
+                <div class="question">
+                    <label>56. De 0 a 5, o quanto você está alinhado com o criador que sua marca exige?</label>
+                    <div class="scale-group"><button class="scale-btn" data-val="0">0</button><button class="scale-btn" data-val="1">1</button><button class="scale-btn" data-val="2">2</button><button class="scale-btn" data-val="3">3</button><button class="scale-btn" data-val="4">4</button><button class="scale-btn" data-val="5">5</button><input type="hidden" name="b11_q56"></div>
+                </div>
+                <div class="question"><label>57. Se sua marca fosse um culto, qual seria a crença principal?</label><textarea name="b11_q57"></textarea></div>
+                <div class="question"><label>58. Qual é o segredo da sua marca que só você sabe?</label><textarea name="b11_q58"></textarea></div>
+                <div class="question"><label>59. O que sua marca diria para você se pudesse falar?</label><textarea name="b11_q59"></textarea></div>
+                <div class="question"><label>60. Quem você precisa se tornar para que sua marca exista em sua forma final?</label><textarea name="b11_q60"></textarea></div>
+
+                <div class="controls" style="margin-top:20px;">
+                    <button class="btn" onclick="prevBlock()">← Voltar</button>
+                    <!-- ACTION BOTÃO FINAL -->
+                    <button class="btn btn-primary" id="btnSubmitForm" style="box-shadow: 0 0 30px rgba(212,175,55,0.4);">
+                        Descriptografar Diagnóstico (Finalizar)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- LOADER -->
+    <div id="loader">
+        <div class="spinner"></div>
+        <p style="text-transform:uppercase; letter-spacing:0.2em; font-size:12px; color:var(--accent)" id="loaderText">Transmitindo Diagnóstico Profundo...</p>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        const EMAIL_RECEIVER = "brunolenses@gmail.com";
+        const FORMSUBMIT_URL = `https://formsubmit.co/ajax/${EMAIL_RECEIVER}`;
+        
+        let currentBlock = 0;
+        const blocks = document.querySelectorAll('.block');
+        const wrapper = document.getElementById('formWrapper');
+        const progressBar = document.getElementById('progressBar');
+        const introScreen = document.getElementById('introScreen');
+
+        // Auto-resize
+        document.querySelectorAll('textarea').forEach(el => {
+            el.addEventListener('input', function() {
+                this.style.height = '40px';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        });
+
+        // Radios
+        document.querySelectorAll('.radio-group').forEach(group => {
+            const cards = group.querySelectorAll('.radio-card');
+            cards.forEach(card => {
+                card.addEventListener('click', () => {
+                    cards.forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    const input = card.querySelector('input');
+                    if(input) input.checked = true;
+                });
+            });
+        });
+
+        // Scales
+        document.querySelectorAll('.scale-group').forEach(group => {
+            const btns = group.querySelectorAll('.scale-btn');
+            const hiddenInput = group.querySelector('input[type="hidden"]');
+            btns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    btns.forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    if(hiddenInput) hiddenInput.value = btn.dataset.val;
+                });
+            });
+        });
+
+        function startForm() {
+            introScreen.style.opacity = '0';
+            introScreen.style.transform = 'translateY(-50px)';
+            setTimeout(() => {
+                introScreen.style.display = 'none';
+                updateView();
+            }, 800);
+        }
+
+        // Custom Validator for Block 1 only (which has required fields)
+        function validateNext(blockIndex) {
+            if (blockIndex === 0) {
+                const b1 = document.getElementById('b1-validator-zone');
+                const reqInputs = b1.querySelectorAll('input[required], textarea[required]');
+                const radioGroups = b1.querySelectorAll('.radio-group[data-required="true"]');
+                const errorSpan = document.getElementById('b1-error');
+                
+                let valid = true;
+                
+                reqInputs.forEach(el => {
+                    if(!el.value.trim()) valid = false;
+                });
+
+                radioGroups.forEach(rg => {
+                    const checked = rg.querySelector('input[type="radio"]:checked');
+                    if(!checked) valid = false;
+                })
+
+                if(!valid) {
+                    errorSpan.style.display = "block";
+                    return;
+                } else {
+                    errorSpan.style.display = "none";
+                    nextBlock();
+                }
+            } else {
+                nextBlock();
+            }
+        }
+
+        function nextBlock() {
+            if(currentBlock < blocks.length - 1) {
+                currentBlock++;
+                updateView();
+            }
+        }
+
+        function prevBlock() {
+            if(currentBlock > 0) {
+                currentBlock--;
+                updateView();
+            }
+        }
+
+        function updateView() {
+            wrapper.style.transform = `translateX(-${currentBlock * 100}vw)`;
+            blocks.forEach((b, i) => {
+                if(i === currentBlock) b.classList.add('active');
+                else b.classList.remove('active');
+            });
+            const pct = ((currentBlock + 1) / blocks.length) * 100;
+            progressBar.style.width = `${pct}%`;
+        }
+
+        // Submissão AJAX e WhatsApp
+        document.getElementById('btnSubmitForm').addEventListener('click', async () => {
+            let rawData = {};
+            
+            document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea').forEach(el => {
+                if(el.value.trim()) rawData[el.name] = el.value.trim();
+            });
+            document.querySelectorAll('input[type="radio"]:checked').forEach(el => {
+                rawData[el.name] = el.value;
+            });
+            document.querySelectorAll('input[type="hidden"]').forEach(el => {
+                if(el.value) rawData[el.name] = el.value;
+            });
+
+            rawData['_subject'] = "🔥 LENSES PRIME - DXM LENSES / Entrevista de Posicionamento";
+            rawData['_template'] = "box"; 
+            rawData['_captcha'] = "false";
+
+            const loader = document.getElementById('loader');
+            loader.classList.add('show');
+
+            try {
+                // Email via FormSubmit
+                await fetch(FORMSUBMIT_URL, {
+                    method: "POST",
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify(rawData)
+                });
+
+                // WhatsApp via CallMeBot
+                const phone = "5515997730671";
+                const apikey = "8684363";
+                const text = encodeURIComponent("🚨 *DXM LENSES SYSTEM* 🚨\nUm novo Diagnóstico Profundo (DXM Lenses) acabou de ser capturado!\n\nVerifique os dados brutos no seu e-mail: brunolenses@gmail.com");
+                const callMeBotUrl = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${text}&apikey=${apikey}`;
+
+                fetch(callMeBotUrl, { mode: 'no-cors' }).catch(e => console.log(e));
+
+                loader.innerHTML = `
+                    <h2 style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:10px;">Leitura Inicial Completa.</h2>
+                    <p style="color:#888;">Os dados foram empacotados e disparados para o Lenses Lab.</p>
+                    <a href="index.html" class="btn btn-primary" style="margin-top:30px;text-decoration:none;">Retornar à Base</a>
+                `;
+
+            } catch (err) {
+                loader.innerHTML = `
+                    <h2 style="font-family:'Playfair Display',serif;font-size:24px;margin-bottom:10px;color:red;">Falha na Transmissão</h2>
+                    <p style="color:#888;">Verifique sua conexão. Os dados não puderam ser enviados.</p>
+                    <a href="#" class="btn btn-primary" style="margin-top:30px;text-decoration:none;" onclick="location.reload()">Tentar Novamente</a>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
