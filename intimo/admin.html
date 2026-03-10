@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OnlyLenses CMS - Admin</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="stylesheet" href="styles.css"> <!-- Reusing the Rose/Zinc theme -->
+    <style>
+        /* Admin Specific Overrides */
+        body { background-color: #09090b; overflow: hidden; } /* bg-zinc-950 */
+        
+        /* Layout */
+        .admin-layout { display: flex; height: 100vh; }
+        
+        /* Sidebar (Left) */
+        .sidebar {
+            width: 250px; background-color: #000; border-right: 1px solid #27272a;
+            display: flex; flex-direction: column; padding: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        .sidebar-logo {
+            font-size: 1.5rem; font-weight: 700; color: white; margin-bottom: 2rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .sidebar-logo span { color: var(--rose-500); }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+        .menu-item {
+            display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem;
+            color: var(--text-muted); cursor: pointer; border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+        .menu-item:hover, .menu-item.active { background-color: #27272a; color: white; }
+        .menu-item.active { border-left: 3px solid var(--rose-500); }
+
+        /* Main Content (Right) */
+        .main-content {
+            flex: 1; overflow-y: auto; padding: 2rem;
+            scrollbar-width: thin; scrollbar-color: #3f3f46 transparent;
+        }
+        .main-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 2rem;
+        }
+        .header-title { font-size: 1.875rem; font-weight: 700; color: white; }
+        .header-actions { display: flex; gap: 1rem; }
+
+        /* Dashboard Grid Layout (Inspired by kCp7yB2uXfI) */
+        .dashboard-grid {
+            display: grid; grid-template-columns: 1fr; gap: 1.5rem;
+        }
+        @media (min-width: 1024px) {
+            .dashboard-grid { grid-template-columns: 300px 1fr; }
+        }
+
+        /* Left Column: Stats & Selectors */
+        .stats-col { display: flex; flex-direction: column; gap: 1.5rem; }
+        .stat-card {
+            background-color: #18181b; border: 1px solid #27272a; border-radius: 1rem; padding: 1.5rem;
+        }
+        .stat-value { font-size: 2.5rem; font-weight: 700; color: white; margin: 0.5rem 0; }
+        .stat-label { color: var(--text-muted); font-size: 0.875rem; }
+
+        /* Album Selector Dropdown */
+        .album-selector {
+            width: 100%; padding: 0.75rem; background: #000; border: 1px solid #3f3f46;
+            color: white; border-radius: 0.5rem; font-family: inherit; font-size: 1rem;
+            outline: none; cursor: pointer;
+        }
+
+        /* Right Column: Hero Image & Controls */
+        .hero-col { display: flex; flex-direction: column; gap: 1.5rem; }
+        
+        /* The Hero Cover */
+        .hero-cover {
+            width: 100%; aspect-ratio: 16/9; background-color: #18181b; 
+            border-radius: 1.5rem; overflow: hidden; position: relative;
+            border: 1px solid #27272a;
+        }
+        .hero-cover img { width: 100%; height: 100%; object-fit: cover; }
+        .hero-overlay {
+            position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            display: flex; flex-direction: column; justify-content: flex-end; padding: 2rem;
+            pointer-events: none;
+        }
+        .hero-title { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .hero-meta { color: var(--text-muted); font-size: 0.875rem; display: flex; gap: 1rem; }
+        
+        /* Edit Cover Button inside Hero */
+        .edit-cover-btn {
+            position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2);
+            padding: 0.5rem; border-radius: 50%; cursor: pointer; color: white;
+            pointer-events: auto; transition: background 0.2s;
+        }
+        .edit-cover-btn:hover { background: var(--rose-500); border-color: var(--rose-500); }
+
+        /* Configuration Cards Grid (Bottom of Hero) */
+        .config-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;
+        }
+        .config-card {
+            background-color: #18181b; border: 1px solid #27272a; border-radius: 1rem;
+            padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;
+            transition: transform 0.2s, border-color 0.2s; cursor: pointer;
+        }
+        .config-card:hover { border-color: #3f3f46; transform: translateY(-2px); }
+        .config-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .config-icon { width: 2.5rem; height: 2.5rem; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; }
+        .config-title { font-weight: 600; font-size: 1.125rem; }
+        .config-value { color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem; }
+        
+        /* Specific Colors */
+        .bg-free { background-color: rgba(34, 197, 94, 0.1); color: #4ade80; }
+        .bg-lock { background-color: rgba(245, 158, 11, 0.1); color: #fbbf24; }
+        .bg-stripe { background-color: rgba(139, 92, 246, 0.1); color: #a78bfa; }
+
+        /* Media Upload Zone */
+        .upload-zone {
+            border: 2px dashed #3f3f46; border-radius: 1rem; padding: 3rem;
+            text-align: center; color: var(--text-muted); transition: border-color 0.2s;
+            cursor: pointer; background-color: #18181b; margin-top: 2rem;
+        }
+        .upload-zone:hover { border-color: var(--rose-500); color: white; }
+        .upload-zone i { width: 3rem; height: 3rem; margin-bottom: 1rem; color: var(--rose-500); opacity: 0.8; }
+        
+        /* Album Media Grid */
+        .album-media-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; margin-top: 1.5rem;
+        }
+        .media-thumbnail {
+            aspect-ratio: 1; background-color: #000; border-radius: 0.5rem; overflow: hidden; position: relative;
+        }
+        .media-thumbnail img { width: 100%; height: 100%; object-fit: cover; }
+        .delete-media-btn {
+            position: absolute; top: 0.5rem; right: 0.5rem; background: rgba(239, 68, 68, 0.8);
+            border: none; color: white; border-radius: 50%; width: 1.5rem; height: 1.5rem;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: opacity 0.2s;
+        }
+        .media-thumbnail:hover .delete-media-btn { opacity: 1; }
+
+        /* Login Overlay Plugin */
+        #authOverlay {
+            position: fixed; inset: 0; background: #09090b; z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .login-box {
+            background: #18181b; border: 1px solid #27272a; border-radius: 1rem; padding: 2.5rem;
+            width: 100%; max-width: 400px; text-align: center;
+        }
+        .login-input {
+            width: 100%; padding: 0.75rem; background: #000; border: 1px solid #3f3f46;
+            color: white; border-radius: 0.5rem; margin-bottom: 1rem; outline: none;
+        }
+        .login-input:focus { border-color: var(--rose-500); }
+
+    </style>
+</head>
+<body>
+
+    <!-- Fake Auth Overlay (Removido quando o Supabase conectar) -->
+    <div id="authOverlay">
+        <div class="login-box">
+            <h2 class="sidebar-logo justify-center mb-6">Only<span>Lenses</span> CMS</h2>
+            <p class="text-muted mb-6">Acesso restrito à administração.</p>
+            <input type="password" id="adminPwd" class="login-input" placeholder="Senha do Sistema">
+            <button id="loginBtn" class="btn btn-rose btn-full" onclick="login()">Entrar no Painel</button>
+        </div>
+    </div>
+
+    <!-- Admin Layout -->
+    <div class="admin-layout">
+        
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <i data-feather="camera"></i> Only<span>Lenses</span>
+            </div>
+            <nav class="sidebar-menu">
+                <div class="menu-item active"><i data-feather="grid"></i> Visão Geral</div>
+                <div class="menu-item"><i data-feather="folder"></i> Álbuns (Ensaios)</div>
+                <div class="menu-item"><i data-feather="users"></i> Assinantes</div>
+                <div class="menu-item"><i data-feather="credit-card"></i> Faturamento</div>
+                <div class="menu-item" style="margin-top: auto;"><i data-feather="settings"></i> Configurações</div>
+                <div class="menu-item" onclick="logout()"><i data-feather="log-out"></i> Sair</div>
+            </nav>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            <div class="main-header">
+                <h1 class="header-title">Bem-vindo, Bruno!</h1>
+                <div class="header-actions">
+                    <button class="btn btn-outline" onclick="alert('Criar novo Álbum na v2')"><i data-feather="plus" class="mr-2"></i> Novo Ensaio</button>
+                    <button class="btn btn-rose" onclick="loadAlbums()">Atualizar <i data-feather="refresh-cw" class="ml-2 icon-sm"></i></button>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                
+                <!-- Left Column (Selector + Global Stats) -->
+                <div class="stats-col">
+                    <div class="stat-card">
+                        <div class="stat-label">Álbum Selecionado</div>
+                        <select id="albumSelector" class="album-selector mt-2">
+                            <option value="">Carregando...</option>
+                        </select>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Visualizações Totais</div>
+                        <div class="stat-value">12.4k</div>
+                        <div class="text-xs" style="color: #4ade80;"><i data-feather="trending-up" style="width: 12px; display: inline-block;"></i> +15% este mês</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-label">Receita Avulsa (Stripe)</div>
+                        <div class="stat-value text-rose">R$ 450</div>
+                    </div>
+                </div>
+
+                <!-- Right Column (Hero Album UI + Controls) -->
+                <div class="hero-col">
+                    
+                    <!-- The Big Hero Image -->
+                    <div class="hero-cover">
+                        <!-- Botão de trocar a capa -->
+                        <div class="edit-cover-btn" title="Alterar Capa" onclick="alert('Trocar Capa')"><i data-feather="camera"></i></div>
+                        
+                        <img id="heroCover" src="" alt="Album Cover">
+                        
+                        <div class="hero-overlay">
+                            <h2 id="heroTitle" class="hero-title">Carregando...</h2>
+                        </div>
+                    </div>
+
+                    <!-- Config Grid (The Core V0 logic ported to Content Access) -->
+                    <div class="config-grid">
+                        
+                        <!-- Access Type Control -->
+                        <div class="config-card" onclick="alert('Mudar regra de acesso (Free/Senha/Stripe)')">
+                            <div class="config-header">
+                                <div class="config-icon bg-stripe"><i data-feather="shield"></i></div>
+                                <i data-feather="chevron-right" class="text-muted"></i>
+                            </div>
+                            <div>
+                                <h3 class="config-title">Regra de Acesso</h3>
+                                <p id="configType" class="config-value text-rose">Monetizado via Stripe</p>
+                            </div>
+                        </div>
+
+                        <!-- Price Control -->
+                        <div class="config-card" onclick="alert('Alterar preço avulso')">
+                            <div class="config-header">
+                                <div class="config-icon" style="background: rgba(255,255,255,0.1);"><i data-feather="dollar-sign"></i></div>
+                                <i data-feather="edit-2" class="text-muted"></i>
+                            </div>
+                            <div>
+                                <h3 class="config-title">Preço Avulso</h3>
+                                <p id="configPrice" class="config-value">R$ 0,00</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload and Gallery Mgt -->
+                    <div style="margin-top: 1rem;">
+                        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Gerenciar Mídia</h3>
+                        <p class="text-muted">Faça upload arrastando os arquivos do seu Mac. Eles subirão direto para o seu pacote do Supabase.</p>
+                        
+                        <!-- File Input (Hidden) & Dropzone -->
+                        <input type="file" id="mediaUpload" multiple accept="image/*,video/*" style="display: none;" onchange="handleFileUpload(event)">
+                        <div class="upload-zone" onclick="document.getElementById('mediaUpload').click()" id="dropZone">
+                            <i data-feather="upload-cloud"></i>
+                            <h4 id="uploadStatusText" style="font-size: 1.125rem; font-weight: 500; color: white;">Drag & Drop</h4>
+                            <p>Arraste fotos e vídeos aqui, ou clique para procurar no Mac.</p>
+                        </div>
+
+                        <!-- Tiny Gallery Preview of current album -->
+                        <div id="mediaGrid" class="album-media-grid">
+                            <!-- JS Insere Aqui -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Supabase & App Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        feather.replace();
+
+        // 1. Supabase Initialization (Keys from B Lenses ecosystem)
+        const SUPABASE_URL = 'https://pqeqccbtqrmsvivnisuc.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentUser = null;
+        let currentAlbums = [];
+        let selectedAlbumId = null;
+
+        // 2. Authentication Logic
+        async function checkAuth() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                currentUser = session.user;
+                document.getElementById('authOverlay').style.display = 'none';
+                loadAlbums();
+            } else {
+                document.getElementById('authOverlay').style.display = 'flex';
+            }
+        }
+
+        async function login() {
+            const email = 'brunolenses@gmail.com'; // Hardcoded for Bruno
+            const pwd = document.getElementById('adminPwd').value;
+            if(!pwd) return alert('Digite a senha.');
+
+            const btn = document.getElementById('loginBtn');
+            const originalText = btn.innerText;
+            btn.innerText = 'Autenticando...';
+            btn.disabled = true;
+
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password: pwd });
+            
+            if (error) {
+                alert('Erro ao logar: ' + error.message);
+                btn.innerText = originalText;
+                btn.disabled = false;
+            } else {
+                checkAuth(); // Will hide overlay and load data
+            }
+        }
+
+        async function logout() {
+            await supabase.auth.signOut();
+            window.location.reload();
+        }
+
+        // 3. Load Albums
+        async function loadAlbums() {
+            const { data: albums, error } = await supabase
+                .from('albums')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error("Erro ao puxar álbuns:", error);
+                return;
+            }
+
+            currentAlbums = albums;
+            const selector = document.getElementById('albumSelector');
+            selector.innerHTML = '';
+
+            if(albums.length === 0) {
+                selector.innerHTML = '<option value="">Nenhum álbum criado ainda</option>';
+                // Clear UI
+                return;
+            }
+
+            albums.forEach((album, index) => {
+                const opt = document.createElement('option');
+                opt.value = album.id;
+                opt.textContent = album.title;
+                selector.appendChild(opt);
+            });
+
+            // Select the first one by default
+            selectAlbum(albums[0].id);
+        }
+
+        // 4. Update UI when an album is selected
+        function selectAlbum(id) {
+            selectedAlbumId = id;
+            const album = currentAlbums.find(a => a.id === id);
+            if(!album) return;
+
+            // Update Hero
+            document.getElementById('heroCover').src = album.cover_image_url || 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1200&q=80';
+            document.getElementById('heroTitle').textContent = album.title;
+            
+            // Update Config Cards
+            document.getElementById('configType').textContent = 
+                album.access_type === 'stripe' ? 'Monetizado via Stripe' : 
+                album.access_type === 'password' ? 'Protegido com Senha' : 'Acesso Livre';
+
+            document.getElementById('configPrice').textContent = 
+                album.price > 0 ? `R$ ${album.price}` : 'Gratuito';
+
+            // TODO: Load Media for this album
+            loadMedia(id);
+        }
+
+        // Handle Selector Change
+        document.getElementById('albumSelector').addEventListener('change', (e) => {
+            selectAlbum(e.target.value);
+        });
+
+        // 5. Load Media (Stub for Drag n Drop)
+        async function loadMedia(albumId) {
+            const grid = document.getElementById('mediaGrid');
+            grid.innerHTML = '<p class="text-muted" style="grid-column: 1/-1;">Carregando mídias...</p>';
+            
+            const { data: media, error } = await supabase
+                .from('media')
+                .select('*')
+                .eq('album_id', albumId)
+                .order('sort_order', { ascending: true });
+
+            if (error || !media || media.length === 0) {
+                grid.innerHTML = '<p class="text-muted" style="grid-column: 1/-1;">Nenhuma foto neste álbum ainda.</p>';
+                return;
+            }
+
+            grid.innerHTML = '';
+            media.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'media-thumbnail';
+                div.innerHTML = `<img src="${item.url}"><button class="delete-media-btn" onclick="deleteMedia('${item.id}', '${item.url}')"><i data-feather="x" style="width: 12px;"></i></button>`;
+                grid.appendChild(div);
+            });
+            feather.replace();
+        }
+
+        // 6. Upload Logic
+        async function handleFileUpload(event) {
+            if(!selectedAlbumId) return alert('Selecione ou crie um álbum primeiro!');
+            
+            const files = event.target.files;
+            if(files.length === 0) return;
+
+            const statusText = document.getElementById('uploadStatusText');
+            statusText.textContent = `Enviando ${files.length} arquivo(s)... Aguarde.`;
+            statusText.style.color = 'var(--rose-500)';
+
+            let uploadCount = 0;
+
+            for(let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${selectedAlbumId}/${Date.now()}_${i}.${fileExt}`;
+
+                // 1. Upload to Storage
+                const { data: storageData, error: storageError } = await supabase.storage
+                    .from('onlylenses_media')
+                    .upload(fileName, file, { cacheControl: '3600', upsert: false });
+
+                if(storageError) {
+                    console.error("Upload error:", storageError);
+                    alert(`Erro ao subir ${file.name}`);
+                    continue;
+                }
+
+                // 2. Get Public URL
+                const { data: publicUrlData } = supabase.storage
+                    .from('onlylenses_media')
+                    .getPublicUrl(fileName);
+                
+                const url = publicUrlData.publicUrl;
+                const isVideo = file.type.startsWith('video/') ? 'video' : 'image';
+
+                // 3. Insert into Database
+                const { error: dbError } = await supabase
+                    .from('media')
+                    .insert([{ album_id: selectedAlbumId, url: url, media_type: isVideo }]);
+
+                if(!dbError) uploadCount++;
+            }
+
+            // Cleanup
+            document.getElementById('mediaUpload').value = '';
+            statusText.textContent = `Upload Concluído! (${uploadCount}/${files.length})`;
+            statusText.style.color = '#4ade80'; // green
+            
+            setTimeout(() => {
+                statusText.textContent = 'Drag & Drop';
+                statusText.style.color = 'white';
+            }, 3000);
+
+            loadMedia(selectedAlbumId);
+        }
+
+        // 7. Delete Logic
+        async function deleteMedia(mediaId, url) {
+            if(!confirm('Tem certeza que deseja apagar esta mídia?')) return;
+
+            // Extract file path from URL
+            // example URL: https://pqeqcc.../storage/v1/object/public/onlylenses_media/album_id/filename.jpg
+            const pathParts = url.split('/onlylenses_media/');
+            if(pathParts.length === 2) {
+                const filePath = pathParts[1];
+                // Delete from Storage
+                await supabase.storage.from('onlylenses_media').remove([filePath]);
+            }
+
+            // Delete from Database
+            await supabase.from('media').delete().eq('id', mediaId);
+            
+            // Reload grid
+            loadMedia(selectedAlbumId);
+        }
+
+        // Start
+        checkAuth();
+
+    </script>
+</body>
+</html>

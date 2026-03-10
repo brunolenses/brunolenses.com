@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área de Membros - OnlyLenses</title>
+    <!-- Google Fonts: DM Sans and Playfair Display -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+    <!-- Feather Icons for lightweight SVGs -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Dashboard Specific Styles (Extending styles.css) */
+        .member-header {
+            background-color: var(--bg-zinc-900);
+            border-bottom: 1px solid #27272a;
+            padding: 1rem 0;
+            position: sticky; top: 0; z-index: 40;
+        }
+        .member-nav {
+            display: flex; gap: 1.5rem; overflow-x: auto;
+            border-bottom: 1px solid #27272a;
+            margin-bottom: 2rem;
+            padding-bottom: 1px;
+            scrollbar-width: none; /* Firefox */
+        }
+        .member-nav::-webkit-scrollbar { display: none; } /* Chrome */
+        
+        .tab-btn {
+            background: transparent; border: none; color: var(--text-muted);
+            font-size: 1rem; font-weight: 500; padding: 0.75rem 0;
+            cursor: pointer; position: relative;
+            transition: color 0.2s;
+            white-space: nowrap;
+        }
+        .tab-btn:hover { color: white; }
+        .tab-btn.active { color: var(--rose-500); }
+        .tab-btn.active::after {
+            content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+            height: 2px; background-color: var(--rose-500);
+        }
+
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Unblurred Gallery */
+        .gallery-grid-clear {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        @media (min-width: 768px) { .gallery-grid-clear { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 1024px) { .gallery-grid-clear { grid-template-columns: repeat(4, 1fr); } }
+
+        .gallery-item-clear {
+            position: relative;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            aspect-ratio: 3/4;
+            background: #000;
+            cursor: pointer;
+        }
+        .gallery-item-clear img {
+            width: 100%; height: 100%; object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .gallery-item-clear:hover img { transform: scale(1.05); }
+        .gallery-hover-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent 50%);
+            opacity: 0; transition: opacity 0.3s ease;
+            display: flex; align-items: flex-end; justify-content: space-between;
+            padding: 1rem;
+            pointer-events: none;
+        }
+        .gallery-item-clear:hover .gallery-hover-overlay { opacity: 1; }
+        .like-btn { cursor: pointer; pointer-events: auto; }
+        .like-btn.liked { color: var(--rose-500); fill: var(--rose-500); }
+
+        /* Lightbox Modal */
+        .lightbox {
+            position: fixed; inset: 0; z-index: 100;
+            background: rgba(0,0,0,0.95);
+            display: flex; flex-direction: column;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .lightbox.active { opacity: 1; pointer-events: auto; }
+        .lightbox-close {
+            position: absolute; top: 1.5rem; right: 1.5rem;
+            color: white; cursor: pointer; background: rgba(255,255,255,0.1);
+            border-radius: 50%; padding: 0.5rem; transition: background 0.3s;
+        }
+        .lightbox-close:hover { background: rgba(255,255,255,0.2); }
+        .lightbox-content {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            padding: 2rem;
+        }
+        .lightbox-img {
+            max-width: 100%; max-height: 80vh; border-radius: 0.25rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .lightbox-footer {
+            padding: 1.5rem; border-top: 1px solid #27272a;
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--bg-zinc-900);
+        }
+
+        /* Account Card */
+        .account-card {
+            background-color: var(--bg-zinc-900);
+            border: 1px solid #27272a; border-radius: 0.5rem;
+            padding: 1.5rem;
+        }
+        .account-grid {
+            display: grid; grid-template-columns: 1fr; gap: 1rem; margin-top: 1rem;
+        }
+        @media (min-width: 768px) { .account-grid { grid-template-columns: 1fr 1fr; } }
+        .meta-label { font-size: 0.875rem; color: var(--text-muted); font-weight: 500; }
+        .meta-value { font-size: 1.125rem; font-weight: 500; }
+        .badge-green { background: rgba(34, 197, 94, 0.2); color: #4ade80; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; display: inline-block;}
+    </style>
+</head>
+<body class="bg-black text-white antialiased">
+
+    <!-- Member Header -->
+    <header class="member-header">
+        <div class="container flex justify-between items-center" style="display: flex;">
+            <a href="index.html" class="logo">Only<span>Lenses</span></a>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <span class="text-muted text-sm" style="font-size: 0.875rem; color: var(--text-muted);">Membro VIP</span>
+                <div style="width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--rose-500); display: flex; align-items: center; justify-content: center; font-weight: bold;">BL</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mb-12" style="margin-top: 2rem;">
+        <div class="mb-8">
+            <h1 class="section-title" style="font-size: 2rem;">Área do Assinante</h1>
+            <p class="section-subtitle" style="margin: 0;">Bem-vindo à área exclusiva. Aproveite o conteúdo premium.</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="member-nav">
+            <button class="tab-btn active" data-tab="fotos">Fotos</button>
+            <button class="tab-btn" data-tab="videos">Vídeos <span style="font-size: 0.65rem; background: var(--rose-500); color: white; padding: 2px 6px; border-radius: 10px; margin-left: 4px; vertical-align: super;">NOVO</span></button>
+            <button class="tab-btn" data-tab="mensagens">Mensagens</button>
+            <button class="tab-btn" data-tab="conta">Minha Conta</button>
+        </div>
+
+        <!-- TAB CONTENT: FOTOS -->
+        <div id="fotos" class="tab-content active">
+            <div class="gallery-grid-clear" id="memberGallery">
+                <!-- Javascript will populate clear images here -->
+            </div>
+        </div>
+
+        <!-- TAB CONTENT: VIDEOS -->
+        <div id="videos" class="tab-content">
+            <div class="account-card text-center" style="padding: 4rem 2rem;">
+                <i data-feather="video" class="text-rose opacity-50 mb-8" style="width: 3rem; height: 3rem; margin: 0 auto 1.5rem auto; display: block;"></i>
+                <h3 class="meta-value">Nenhum vídeo disponível</h3>
+                <p class="meta-label" style="margin-top: 0.5rem;">Os vídeos exclusivos serão adicionados em breve. Fique de olho nas atualizações semanais.</p>
+            </div>
+        </div>
+
+        <!-- TAB CONTENT: MENSAGENS -->
+        <div id="mensagens" class="tab-content">
+            <div class="account-card text-center" style="padding: 4rem 2rem;">
+                <i data-feather="message-circle" class="text-rose opacity-50 mb-8" style="width: 3rem; height: 3rem; margin: 0 auto 1.5rem auto; display: block;"></i>
+                <h3 class="meta-value">Caixa de entrada vazia</h3>
+                <p class="meta-label" style="margin-top: 0.5rem;">Envie mensagens diretas para pedidos personalizados ou dúvidas.</p>
+                <button class="btn btn-rose btn-sm" style="margin-top: 1.5rem;">Nova Mensagem</button>
+            </div>
+        </div>
+
+        <!-- TAB CONTENT: CONTA -->
+        <div id="conta" class="tab-content">
+            <div class="account-card">
+                <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">Detalhes da Assinatura</h2>
+                
+                <div class="account-grid">
+                    <div>
+                        <div class="meta-label">Plano atual</div>
+                        <div class="meta-value">Trimestral</div>
+                    </div>
+                    <div>
+                        <div class="meta-label">Status</div>
+                        <div class="meta-value"><span class="badge-green">Ativo</span></div>
+                    </div>
+                    <div>
+                        <div class="meta-label">Próxima cobrança</div>
+                        <div class="meta-value">15/08/2026</div>
+                    </div>
+                    <div>
+                        <div class="meta-label">Valor</div>
+                        <div class="meta-value">R$ 99,90</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #27272a;">
+                    <div class="meta-label" style="margin-bottom: 0.5rem;">Método de pagamento</div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="background: #27272a; padding: 0.5rem; border-radius: 0.25rem;">
+                            <i data-feather="credit-card"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 500;">Cartão de crédito</div>
+                            <div class="meta-label">Termina em 4242</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #27272a; display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button class="btn btn-outline btn-rose-outline btn-sm">Alterar plano</button>
+                    <button class="btn btn-outline btn-sm">Atualizar forma de pagamento</button>
+                    <button class="btn btn-outline btn-sm" style="margin-left: auto;">Cancelar assinatura</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="footer" style="margin-top: 4rem;">
+        <div class="container">
+            <p>&copy; 2026 OnlyLenses Premium. Área Restrita.</p>
+        </div>
+    </footer>
+
+    <!-- Lightbox Modal Overlay -->
+    <div id="lightbox" class="lightbox">
+        <div class="lightbox-close" onclick="closeLightbox()"><i data-feather="x"></i></div>
+        <div class="lightbox-content" onclick="closeLightbox()">
+            <img id="lightboxImg" src="" class="lightbox-img" alt="Fullscreen View" onclick="event.stopPropagation()">
+        </div>
+        <div class="lightbox-footer">
+            <div style="display: flex; gap: 1rem;">
+                <i data-feather="heart" class="text-white" style="cursor: pointer;" onclick="this.classList.toggle('text-rose'); this.style.fill = this.classList.contains('text-rose') ? 'var(--rose-500)' : 'none';"></i>
+                <i data-feather="message-circle" class="text-muted" style="cursor: pointer;"></i>
+                <i data-feather="share" class="text-muted" style="cursor: pointer;"></i>
+            </div>
+            <i data-feather="download" class="text-muted" style="cursor: pointer;"></i>
+        </div>
+    </div>
+
+    <!-- Init Scripts -->
+    <script>
+        feather.replace();
+
+        // 1. Tab Switching Logic
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active from all
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                // Add active to clicked
+                btn.classList.add('active');
+                const targetId = btn.getAttribute('data-tab');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+
+        // 2. Populate Clear Gallery
+        const galleryGrid = document.getElementById('memberGallery');
+        const clearPhotos = [
+            'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&q=80',
+            'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&q=80',
+            'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80',
+            'https://images.unsplash.com/photo-1492446845049-9c50cc313f00?w=800&q=80',
+            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80',
+            'https://images.unsplash.com/photo-1529139574466-a303027c1fe8?w=800&q=80',
+            'https://images.unsplash.com/photo-1506956191951-7a88da4435e5?w=800&q=80',
+            'https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?w=800&q=80',
+            'https://images.unsplash.com/photo-1485230405346-71acb9518d9c?w=800&q=80',
+            'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&q=80',
+            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&q=80',
+            'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&q=80',
+        ];
+
+        clearPhotos.forEach((url, i) => {
+            const item = document.createElement('div');
+            item.className = 'gallery-item-clear';
+            item.onclick = () => openLightbox(url); // Attach Lightbox
+            
+            item.innerHTML = `
+                <img src="${url}" alt="Premium Content ${i + 1}" loading="lazy" />
+                <div class="gallery-hover-overlay">
+                    <span class="text-white text-sm">Imagem ${i + 1}</span>
+                    <i data-feather="heart" class="like-btn text-white w-5 h-5" onclick="toggleLike(event, this)"></i>
+                </div>
+            `;
+            galleryGrid.appendChild(item);
+        });
+        feather.replace();
+
+        // Prevent Lightbox if Like button clicked
+        function toggleLike(e, el) {
+            e.stopPropagation();
+            el.classList.toggle('text-rose');
+            el.style.fill = el.classList.contains('text-rose') ? 'var(--rose-500)' : 'none';
+        }
+
+        // 3. Lightbox Logic
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+
+        function openLightbox(src) {
+            lightboxImg.src = src;
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden'; // prevent bg scroll
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+            setTimeout(() => { lightboxImg.src = ''; }, 300); // clear after fade
+        }
+        
+        // Close on ESC key
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+                closeLightbox();
+            }
+        });
+    </script>
+</body>
+</html>
