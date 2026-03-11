@@ -132,11 +132,13 @@
         #card-me { bottom: 10%; right: 15%; transform: translateZ(180px) rotateY(-10deg) rotateX(-5deg); width: 340px; }
 
         @media (max-width: 1024px) {
-            /* Fallback layout for tablets / smaller screens */
-            body { overflow-y: auto; overflow-x: hidden; height: auto; padding-bottom: 100px; }
-            #scene { position: relative; height: auto; padding: 100px 20px; flex-direction: column; transform: none !important; }
-            .scene-center { position: relative; transform: none; margin-bottom: 60px; pointer-events: none; }
-            .card { position: relative; top: auto; left: auto; right: auto; bottom: auto; transform: none !important; width: 100%; max-width: 400px; margin-bottom: 24px; }
+            /* Fallback layout for tablets / smaller screens (Flattened 3D) */
+            body, html { overflow-y: auto !important; overflow-x: hidden !important; height: auto !important; min-height: 100%; position: static !important; }
+            body { padding-bottom: 50px; }
+            .bg-glow { height: 100%; position: fixed; } /* Fix glow to viewport */
+            #scene { position: relative !important; height: auto !important; min-height: 100vh; padding: 100px 20px; flex-direction: column; transform: none !important; perspective: none !important; }
+            .scene-center { position: relative !important; transform: none !important; margin-bottom: 40px; pointer-events: none !important; z-index: 1; }
+            .card { position: relative !important; top: auto !important; left: auto !important; right: auto !important; bottom: auto !important; transform: none !important; width: 100% !important; max-width: 400px; margin: 0 auto 24px auto !important; z-index: 10 !important; pointer-events: auto !important; }
         }
 
     </style>

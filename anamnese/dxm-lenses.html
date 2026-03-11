@@ -513,7 +513,12 @@
     </div>
 
     <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        const SUPABASE_URL = 'https://pqeqccbtqrmsvivnisuc.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
         const EMAIL_RECEIVER = "brunolenses@gmail.com";
         const FORMSUBMIT_URL = `https://formsubmit.co/ajax/${EMAIL_RECEIVER}`;
         
@@ -523,7 +528,69 @@
         const progressBar = document.getElementById('progressBar');
         const introScreen = document.getElementById('introScreen');
 
-        // Auto-resize
+        // ==== LOCAL STORAGE LOGIC ====
+        function getFormData() {
+            let rawData = {};
+            document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea').forEach(el => {
+                if(el.value.trim()) rawData[el.name] = el.value.trim();
+            });
+            document.querySelectorAll('input[type="radio"]:checked').forEach(el => {
+                rawData[el.name] = el.value;
+            });
+            document.querySelectorAll('input[type="hidden"]').forEach(el => {
+                if(el.value) rawData[el.name] = el.value;
+            });
+            return rawData;
+        }
+
+        function saveDraft() {
+            const rawData = getFormData();
+            localStorage.setItem('dxm_draft', JSON.stringify(rawData));
+            localStorage.setItem('dxm_block', currentBlock);
+        }
+
+        function restoreDraft() {
+            const draft = localStorage.getItem('dxm_draft');
+            const savedBlock = localStorage.getItem('dxm_block');
+            if(draft) {
+                const data = JSON.parse(draft);
+                document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea').forEach(el => {
+                    if(data[el.name]) {
+                        el.value = data[el.name];
+                        if(el.tagName === 'TEXTAREA') el.style.height = (el.scrollHeight) + 'px';
+                    }
+                });
+                document.querySelectorAll('.radio-group').forEach(group => {
+                    const cards = group.querySelectorAll('.radio-card');
+                    cards.forEach(card => {
+                        const input = card.querySelector('input');
+                        if(input && data[input.name] === input.value) {
+                            card.classList.add('selected');
+                            input.checked = true;
+                        }
+                    });
+                });
+                document.querySelectorAll('.scale-group').forEach(group => {
+                    const hiddenInput = group.querySelector('input[type="hidden"]');
+                    if(hiddenInput && data[hiddenInput.name]) {
+                        hiddenInput.value = data[hiddenInput.name];
+                        const btn = group.querySelector(`.scale-btn[data-val="${data[hiddenInput.name]}"]`);
+                        if(btn) btn.classList.add('selected');
+                    }
+                });
+            }
+            if(savedBlock) {
+                currentBlock = parseInt(savedBlock);
+                updateView();
+            }
+        }
+        
+        window.addEventListener('DOMContentLoaded', restoreDraft);
+        document.addEventListener('input', (e) => {
+            if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') saveDraft();
+        });
+
+        // Auto-resize Textareas
         document.querySelectorAll('textarea').forEach(el => {
             el.addEventListener('input', function() {
                 this.style.height = '40px';
@@ -540,6 +607,7 @@
                     card.classList.add('selected');
                     const input = card.querySelector('input');
                     if(input) input.checked = true;
+                    saveDraft();
                 });
             });
         });
@@ -553,6 +621,7 @@
                     btns.forEach(b => b.classList.remove('selected'));
                     btn.classList.add('selected');
                     if(hiddenInput) hiddenInput.value = btn.dataset.val;
+                    saveDraft();
                 });
             });
         });
@@ -566,7 +635,6 @@
             }, 800);
         }
 
-        // Custom Validator for Block 1 only (which has required fields)
         function validateNext(blockIndex) {
             if (blockIndex === 0) {
                 const b1 = document.getElementById('b1-validator-zone');
@@ -575,15 +643,11 @@
                 const errorSpan = document.getElementById('b1-error');
                 
                 let valid = true;
-                
-                reqInputs.forEach(el => {
-                    if(!el.value.trim()) valid = false;
-                });
-
+                reqInputs.forEach(el => { if(!el.value.trim()) valid = false; });
                 radioGroups.forEach(rg => {
                     const checked = rg.querySelector('input[type="radio"]:checked');
                     if(!checked) valid = false;
-                })
+                });
 
                 if(!valid) {
                     errorSpan.style.display = "block";
@@ -619,21 +683,22 @@
             });
             const pct = ((currentBlock + 1) / blocks.length) * 100;
             progressBar.style.width = `${pct}%`;
+            saveDraft();
         }
 
-        // Submissão AJAX e WhatsApp
+        // Submissão AJAX, Supabase e WhatsApp
         document.getElementById('btnSubmitForm').addEventListener('click', async () => {
-            let rawData = {};
+            let rawData = getFormData();
             
-            document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea').forEach(el => {
-                if(el.value.trim()) rawData[el.name] = el.value.trim();
-            });
-            document.querySelectorAll('input[type="radio"]:checked').forEach(el => {
-                rawData[el.name] = el.value;
-            });
-            document.querySelectorAll('input[type="hidden"]').forEach(el => {
-                if(el.value) rawData[el.name] = el.value;
-            });
+            // Separa os dados de Contato e Diagnóstico para o Supabase
+            const contactInfoKeys = ['context_name', 'context_email', 'context_whatsapp', 'context_social_media', 'context_role', 'context_time', 'context_business_name'];
+            let contactInfo = {};
+            let diagnosisData = {};
+
+            for(let key in rawData) {
+                if(contactInfoKeys.includes(key)) contactInfo[key] = rawData[key];
+                else diagnosisData[key] = rawData[key];
+            }
 
             rawData['_subject'] = "🔥 LENSES PRIME - DXM LENSES / Entrevista de Posicionamento";
             rawData['_template'] = "box"; 
@@ -643,25 +708,45 @@
             loader.classList.add('show');
 
             try {
-                // Email via FormSubmit
-                await fetch(FORMSUBMIT_URL, {
+                // 1. Supabase Storage Insert
+                const { error } = await supabase.from('dxm_leads').insert([
+                    { contact_info: contactInfo, diagnosis_data: diagnosisData }
+                ]);
+                if(error) console.error("Supabase Error:", error);
+
+                // 2. Email via FormSubmit (Silencioso)
+                fetch(FORMSUBMIT_URL, {
                     method: "POST",
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                     body: JSON.stringify(rawData)
-                });
+                }).catch(e => console.log(e));
 
-                // WhatsApp via CallMeBot
+                // 3. WhatsApp via CallMeBot (Silencioso)
                 const phone = "5515997730671";
                 const apikey = "8684363";
-                const text = encodeURIComponent("🚨 *DXM LENSES SYSTEM* 🚨\nUm novo Diagnóstico Profundo (DXM Lenses) acabou de ser capturado!\n\nVerifique os dados brutos no seu e-mail: brunolenses@gmail.com");
+                const text = encodeURIComponent(`🚨 *DXM LENSES SYSTEM* 🚨\nUm novo Diagnóstico Profundo (DXM Lenses) de ${contactInfo.context_name || 'Alguém'} acabou de ser capturado e salvo no Banco de Dados (Supabase)!\n\nConfira o painel ou email: brunolenses@gmail.com`);
                 const callMeBotUrl = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${text}&apikey=${apikey}`;
-
                 fetch(callMeBotUrl, { mode: 'no-cors' }).catch(e => console.log(e));
 
+                // 4. Limpar o cache
+                localStorage.removeItem('dxm_draft');
+                localStorage.removeItem('dxm_block');
+
+                // 5. Novo CTA de Conversão Estratégica
                 loader.innerHTML = `
-                    <h2 style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:10px;">Leitura Inicial Completa.</h2>
-                    <p style="color:#888;">Os dados foram empacotados e disparados para o Lenses Lab.</p>
-                    <a href="index.html" class="btn btn-primary" style="margin-top:30px;text-decoration:none;">Retornar à Base</a>
+                    <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 50px 40px; border-radius: 12px; max-width: 600px; text-align: center; margin: 0 20px;">
+                        <h2 style="font-family:'Playfair Display',serif; font-size:32px; margin-bottom:15px; font-weight: 400; color: #fff;">Diagnóstico Criptografado.</h2>
+                        <p style="color:var(--text-muted); font-size: 16px; margin-bottom: 30px; line-height: 1.6;">
+                            Seus dados foram submetidos com segurança ao Lenses Lab.<br><br>
+                            Você não precisa tatear no escuro. Acabamos de extrair o mapa da sua mente. Se quiser acelerar sua evolução, <strong>agende agora uma Sessão Estratégica</strong> para decodificarmos juntos os padrões ocultos da sua marca.
+                        </p>
+                        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                            <a href="https://wa.me/5515997730671?text=Ol%C3%A1%20Bruno!%20Acabei%20de%20preencher%20o%20Diagn%C3%B3stico%20DXM%20e%20gostaria%20de%20agendar%20minha%20Sess%C3%A3o%20Estrat%C3%A9gica." target="_blank" class="btn btn-primary" style="text-decoration:none; padding: 16px 30px; font-size: 12px; letter-spacing: 0.1em; width: 100%; justify-content: center;">
+                                AGENDAR SESSÃO ESTRATÉGICA
+                            </a>
+                            <a href="index.html" class="btn" style="text-decoration:none; padding: 16px 30px; font-size: 12px; letter-spacing: 0.1em; width: 100%; justify-content: center;">← RETORNAR À BASE</a>
+                        </div>
+                    </div>
                 `;
 
             } catch (err) {
