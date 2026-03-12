@@ -452,16 +452,22 @@
 
     <!-- SCRIPTS -->
     <script>
+        // CONFIG
         const EMAIL_RECEIVER = "brunolenses@gmail.com";
         const FORMSUBMIT_URL = `https://formsubmit.co/ajax/${EMAIL_RECEIVER}`;
         
+        // Supabase Config (Secure — No API Keys exposed)
+        const SUPABASE_URL = "https://pqeqccbtqrmsvivnisuc.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0";
+        const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/analyze-lenses`;
+
         let currentBlock = 0;
         const blocks = document.querySelectorAll('.block');
         const wrapper = document.getElementById('formWrapper');
         const progressBar = document.getElementById('progressBar');
         const introScreen = document.getElementById('introScreen');
 
-        // Auto-resize
+        // Auto-resize textareas
         document.querySelectorAll('textarea').forEach(el => {
             el.addEventListener('input', function() {
                 this.style.height = '40px';
@@ -476,7 +482,8 @@
                 card.addEventListener('click', () => {
                     cards.forEach(c => c.classList.remove('selected'));
                     card.classList.add('selected');
-                    card.querySelector('input').checked = true;
+                    const input = card.querySelector('input');
+                    if(input) input.checked = true;
                 });
             });
         });
@@ -494,7 +501,6 @@
             });
         });
 
-        // Flow
         function startForm() {
             introScreen.style.opacity = '0';
             introScreen.style.transform = 'translateY(-50px)';
@@ -508,6 +514,7 @@
             if(currentBlock < blocks.length - 1) {
                 currentBlock++;
                 updateView();
+                window.scrollTo(0, 0);
             }
         }
 
@@ -515,6 +522,7 @@
             if(currentBlock > 0) {
                 currentBlock--;
                 updateView();
+                window.scrollTo(0, 0);
             }
         }
 
@@ -528,61 +536,117 @@
             progressBar.style.width = `${pct}%`;
         }
 
-        // Submissão AJAX
+        // ============================================
+        // AI DIAGNOSTIC ENGINE (LENSES O.S.)
+        // ============================================
+
+        async function generateAIDiagnosis(answers) {
+            try {
+                const response = await fetch(EDGE_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    },
+                    body: JSON.stringify({ answers, type: 'social' })
+                });
+                return await response.json();
+            } catch (e) {
+                console.error("AI Error:", e);
+                return { teaser: "Sua marca possui uma frequência única. O DNA sugere um posicionamento de alta diferenciação focado na história visceral do fundador.", full_diagnosis: "Erro ao gerar diagnóstico completo.", brand_archetype_score: {} };
+            }
+        }
+
+        // Submissão Final
         document.getElementById('btnSubmitForm').addEventListener('click', async () => {
             let rawData = {};
+            let answersOnly = {};
             
             document.querySelectorAll('input[type="text"], textarea').forEach(el => {
-                if(el.value.trim()) rawData[el.name] = el.value.trim();
+                if(el.value.trim()) {
+                    rawData[el.name] = el.value.trim();
+                    if(el.name.startsWith('b')) answersOnly[el.name] = el.value.trim();
+                }
             });
             document.querySelectorAll('input[type="radio"]:checked').forEach(el => {
                 rawData[el.name] = el.value;
+                answersOnly[el.name] = el.value;
             });
             document.querySelectorAll('input[type="hidden"]').forEach(el => {
-                if(el.value) rawData[el.name] = el.value;
+                if(el.value) {
+                    rawData[el.name] = el.value;
+                    answersOnly[el.name] = el.value;
+                }
             });
-
-            rawData['_subject'] = "🔥 LENSES PRIME - Entrevista Cognitiva Completa!";
-            rawData['_template'] = "box"; 
-            rawData['_captcha'] = "false";
 
             const loader = document.getElementById('loader');
             const loaderText = document.getElementById('loaderText');
             loader.classList.add('show');
 
-            try {
-                await fetch(FORMSUBMIT_URL, {
-                    method: "POST",
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify(rawData)
-                });
-
-                loader.innerHTML = `
-                    <h2 style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:10px;">Diagnóstico Capturado Concluído.</h2>
-                    <p style="color:#888;">Os dados da sua percepção de marca foram enviados ao Lenses Lab.</p>
-                    <a href="index.html" class="btn btn-primary" style="margin-top:30px;text-decoration:none;">Retornar à Base</a>
-                `;
-
-                // WhatsApp Notification via CallMeBot
-                const phone = "5515997730671";
-                const apikey = "8684363";
-                const text = encodeURIComponent("🚨 *B LENSES SYSTEM* 🚨\nUma nova Anamnese Estratégica (Social Lenses) acabou de ser preenchida no site!\n\nVerifique as respostas da entrevista cognitiva no seu e-mail: brunolenses@gmail.com");
-                const callMeBotUrl = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${text}&apikey=${apikey}`;
-
-                // Fire and forget (no-cors to avoid browser blocking the cross-origin request)
-                fetch(callMeBotUrl, { mode: 'no-cors' }).catch(e => console.log("CallMeBot Note:", e));
-
-                console.log("Transmission and Notifications sent.");
-
-            } catch (err) {
-                loader.innerHTML = `
-                    <h2 style="font-family:'Playfair Display',serif;font-size:24px;margin-bottom:10px;color:red;">Falha na Transmissão</h2>
-                    <p style="color:#888;">Verifique sua conexão. Os dados não puderam ser enviados.</p>
-                    <a href="#" class="btn btn-primary" style="margin-top:30px;text-decoration:none;" onclick="location.reload()">Tentar Novamente</a>
-                `;
+            // 1. Loader Gamification
+            const steps = [
+                "Descriptografando Malha Cognitiva...",
+                "Mapeando DNA de Posicionamento...",
+                "Construindo Atmosfera Visceral...",
+                "Lenses O.S. Finalizando Análise..."
+            ];
+            
+            for(let i=0; i<steps.length; i++) {
+                loaderText.textContent = steps[i];
+                await new Promise(r => setTimeout(r, 1500));
             }
-        });
 
+            // 2. AI Generation
+            const diagnosis = await generateAIDiagnosis(answersOnly);
+
+            // 3. Supabase Storage
+            try {
+                if(window.supabase) {
+                    await window.supabase.from('social_leads').insert([{
+                        contact_info: { name: rawData.b1_q1 },
+                        answers: answersOnly,
+                        ai_analysis: diagnosis,
+                        status_analise: 'concluido'
+                    }]);
+                }
+            } catch(e) { console.log("Supabase error:", e); }
+
+            // 4. Notifications
+            rawData['_subject'] = "🔥 LENSES PRIME - Social Lenses AI Captured!";
+            fetch(FORMSUBMIT_URL, {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify(rawData)
+            });
+
+            // WhatsApp
+            const phone = "5515997730671";
+            const apikey = "8684363";
+            const msg = encodeURIComponent(`🚨 *LENSES O.S.* 🚨\nNovo diagnóstico Social Lenses gerado pela IA!\n\nCliente: ${rawData.b1_q1}\n\nTeaser IA: ${diagnosis.teaser}`);
+            fetch(`https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${msg}&apikey=${apikey}`, { mode: 'no-cors' });
+
+            // 5. Success Screen (The Hook)
+            loader.innerHTML = `
+                <div style="max-width:600px; padding: 40px; text-align:left;">
+                    <h2 style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:20px; color:var(--accent);">Diagnóstico Processado.</h2>
+                    <div style="background:rgba(255,255,255,0.03); border-left: 2px solid var(--accent); padding: 25px; margin-bottom: 30px;">
+                        <p style="font-family:'Playfair Display',serif; font-style:italic; font-size:22px; line-height:1.4; color:#fff;">
+                            "${diagnosis.teaser}"
+                        </p>
+                    </div>
+                    <p style="color:#888; margin-bottom: 40px; font-size: 14px; line-height:1.6;">
+                        O seu **Mapa Estratégico Completo (Social Lenses O.S.)** foi gerado com sucesso e enviado para a banca de análise do Lenses Lab. Para desbloquear o dossiê completo de 10 passos e planejar sua execução, agende sua sessão estratégica abaixo.
+                    </p>
+                    <a href="https://wa.me/5515997730671" class="btn btn-primary" style="display:inline-flex; text-decoration:none; padding: 18px 40px;">
+                        Desbloquear Mapa Completo
+                    </a>
+                    <br><br>
+                    <a href="index.html" style="color:rgba(255,255,255,0.3); font-size:11px; text-decoration:none; text-transform:uppercase; letter-spacing:0.1em;">Retornar à Base</a>
+                </div>
+            `;
+        });
     </script>
+</body>
+</html>
 </body>
 </html>

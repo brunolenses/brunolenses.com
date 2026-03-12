@@ -182,10 +182,7 @@
                 <i data-feather="camera"></i> Only<span>Lenses</span>
             </div>
             <nav class="sidebar-menu">
-                <div class="menu-item active"><i data-feather="grid"></i> Visão Geral</div>
-                <div class="menu-item"><i data-feather="folder"></i> Álbuns (Ensaios)</div>
-                <div class="menu-item"><i data-feather="users"></i> Assinantes</div>
-                <div class="menu-item"><i data-feather="credit-card"></i> Faturamento</div>
+                <div class="menu-item" onclick="showSection('leads')" id="menu-leads"><i data-feather="brain"></i> Inteligência (Leads)</div>
                 <div class="menu-item" style="margin-top: auto;"><i data-feather="settings"></i> Configurações</div>
                 <div class="menu-item" onclick="logout()"><i data-feather="log-out"></i> Sair</div>
             </nav>
@@ -201,93 +198,37 @@
                 </div>
             </div>
 
-            <div class="dashboard-grid">
-                
-                <!-- Left Column (Selector + Global Stats) -->
-                <div class="stats-col">
-                    <div class="stat-card">
-                        <div class="stat-label">Álbum Selecionado</div>
-                        <select id="albumSelector" class="album-selector mt-2">
-                            <option value="">Carregando...</option>
-                        </select>
+                <!-- LEADS INTELLIGENCE VIEW (HIDDEN BY DEFAULT) -->
+                <div id="leadsSection" style="display: none; flex-direction: column; gap: 2rem;">
+                    <div class="config-grid" style="grid-template-columns: repeat(2, 1fr);">
+                        <div class="stat-card" onclick="loadLeads('social_leads')" style="cursor:pointer; border-bottom: 2px solid var(--rose-500);">
+                            <div class="stat-label">Social Lenses</div>
+                            <div class="stat-value" id="countSocial">0</div>
+                        </div>
+                        <div class="stat-card" onclick="loadLeads('dxm_leads')" style="cursor:pointer;">
+                            <div class="stat-label">DXM Lenses</div>
+                            <div class="stat-value" id="countDXM">0</div>
+                        </div>
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-label">Visualizações Totais</div>
-                        <div class="stat-value">12.4k</div>
-                        <div class="text-xs" style="color: #4ade80;"><i data-feather="trending-up" style="width: 12px; display: inline-block;"></i> +15% este mês</div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-label">Receita Avulsa (Stripe)</div>
-                        <div class="stat-value text-rose">R$ 450</div>
+                        <div class="sidebar-logo" style="font-size: 1.2rem; margin-bottom: 1.5rem;">Lista de Capturas Cognitivas</div>
+                        <div id="leadsTable" style="display: flex; flex-direction: column; gap: 1rem;">
+                            <!-- Leads dynamically loaded here -->
+                        </div>
                     </div>
                 </div>
 
-                <!-- Right Column (Hero Album UI + Controls) -->
-                <div class="hero-col">
-                    
-                    <!-- The Big Hero Image -->
-                    <div class="hero-cover">
-                        <!-- Botão de trocar a capa -->
-                        <div class="edit-cover-btn" title="Alterar Capa" onclick="alert('Trocar Capa')"><i data-feather="camera"></i></div>
-                        
-                        <img id="heroCover" src="" alt="Album Cover">
-                        
-                        <div class="hero-overlay">
-                            <h2 id="heroTitle" class="hero-title">Carregando...</h2>
+                <!-- LEAD DETAIL MODAL -->
+                <div id="leadModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:2000; align-items:center; justify-content:center; padding:2rem;">
+                    <div style="background:#18181b; border:1px solid #3f3f46; border-radius:1rem; width:100%; max-width:800px; max-height:90vh; overflow-y:auto; padding:2rem; position:relative;">
+                        <button onclick="closeLeadModal()" style="position:absolute; top:1rem; right:1rem; background:none; border:none; color:white; cursor:pointer;"><i data-feather="x"></i></button>
+                        <h2 id="modalTitle" style="font-size:1.5rem; margin-bottom:1rem; color:var(--rose-500);">Dossiê do Cliente</h2>
+                        <div id="modalContent" style="color:white; line-height:1.6;">
+                            <!-- AI Content -->
                         </div>
                     </div>
-
-                    <!-- Config Grid (The Core V0 logic ported to Content Access) -->
-                    <div class="config-grid">
-                        
-                        <!-- Access Type Control -->
-                        <div class="config-card" onclick="alert('Mudar regra de acesso (Free/Senha/Stripe)')">
-                            <div class="config-header">
-                                <div class="config-icon bg-stripe"><i data-feather="shield"></i></div>
-                                <i data-feather="chevron-right" class="text-muted"></i>
-                            </div>
-                            <div>
-                                <h3 class="config-title">Regra de Acesso</h3>
-                                <p id="configType" class="config-value text-rose">Monetizado via Stripe</p>
-                            </div>
-                        </div>
-
-                        <!-- Price Control -->
-                        <div class="config-card" onclick="alert('Alterar preço avulso')">
-                            <div class="config-header">
-                                <div class="config-icon" style="background: rgba(255,255,255,0.1);"><i data-feather="dollar-sign"></i></div>
-                                <i data-feather="edit-2" class="text-muted"></i>
-                            </div>
-                            <div>
-                                <h3 class="config-title">Preço Avulso</h3>
-                                <p id="configPrice" class="config-value">R$ 0,00</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Upload and Gallery Mgt -->
-                    <div style="margin-top: 1rem;">
-                        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Gerenciar Mídia</h3>
-                        <p class="text-muted">Faça upload arrastando os arquivos do seu Mac. Eles subirão direto para o seu pacote do Supabase.</p>
-                        
-                        <!-- File Input (Hidden) & Dropzone -->
-                        <input type="file" id="mediaUpload" multiple accept="image/*,video/*" style="display: none;" onchange="handleFileUpload(event)">
-                        <div class="upload-zone" onclick="document.getElementById('mediaUpload').click()" id="dropZone">
-                            <i data-feather="upload-cloud"></i>
-                            <h4 id="uploadStatusText" style="font-size: 1.125rem; font-weight: 500; color: white;">Drag & Drop</h4>
-                            <p>Arraste fotos e vídeos aqui, ou clique para procurar no Mac.</p>
-                        </div>
-
-                        <!-- Tiny Gallery Preview of current album -->
-                        <div id="mediaGrid" class="album-media-grid">
-                            <!-- JS Insere Aqui -->
-                        </div>
-                    </div>
-
                 </div>
-            </div>
         </main>
     </div>
 
@@ -507,9 +448,92 @@
             loadMedia(selectedAlbumId);
         }
 
+        // 8. Navigation & Leads Intelligence
+        function showSection(section) {
+            const overview = document.querySelector('.dashboard-grid');
+            const leads = document.getElementById('leadsSection');
+            
+            if(section === 'leads') {
+                overview.style.display = 'none';
+                leads.style.display = 'flex';
+                loadLeadsCount();
+                loadLeads('social_leads');
+            } else {
+                overview.style.display = 'grid';
+                leads.style.display = 'none';
+            }
+        }
+
+        async function loadLeadsCount() {
+            const { count: sCount } = await supabase.from('social_leads').select('*', { count: 'exact', head: true });
+            const { count: dCount } = await supabase.from('dxm_leads').select('*', { count: 'exact', head: true });
+            document.getElementById('countSocial').textContent = sCount || 0;
+            document.getElementById('countDXM').textContent = dCount || 0;
+        }
+
+        async function loadLeads(table) {
+            const tableEl = document.getElementById('leadsTable');
+            tableEl.innerHTML = '<p class="text-muted">Carregando capturas...</p>';
+            
+            const { data, error } = await supabase.from(table).select('*').order('created_at', { ascending: false });
+            
+            if(error || !data) {
+                tableEl.innerHTML = '<p class="text-muted">Nenhum dado encontrado.</p>';
+                return;
+            }
+
+            tableEl.innerHTML = data.map(lead => {
+                const name = table === 'social_leads' ? (lead.contact_info?.name || 'Anônimo') : (lead.contact_info?.context_name || 'Anônimo');
+                const date = new Date(lead.created_at).toLocaleDateString('pt-BR');
+                return `
+                    <div style="background:#000; padding:1.2rem; border-radius:0.75rem; border:1px solid #27272a; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div style="font-weight:600; color:white;">${name}</div>
+                            <div style="font-size:0.8rem; color:var(--text-muted);">${date} • ${table === 'social_leads' ? 'Social Lenses' : 'DXM Lenses'}</div>
+                        </div>
+                        <button class="btn btn-outline btn-sm" onclick="viewLeadDetail('${table}', '${lead.id}')">Ver Inteligência</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function viewLeadDetail(table, id) {
+            const { data, error } = await supabase.from(table).select('*').eq('id', id).single();
+            if(error || !data) return alert("Erro ao carregar detalhes.");
+
+            const modal = document.getElementById('leadModal');
+            const content = document.getElementById('modalContent');
+            const name = table === 'social_leads' ? (data.contact_info?.name) : (data.contact_info?.context_name);
+            
+            document.getElementById('modalTitle').textContent = `Dossiê: ${name}`;
+            
+            let aiHtml = '';
+            if(data.ai_analysis) {
+                const ai = data.ai_analysis;
+                aiHtml = `
+                    <div style="margin-bottom:2rem; padding:1.5rem; background:rgba(225, 29, 72, 0.05); border-left:3px solid var(--rose-500);">
+                        <h4 style="color:var(--rose-500); margin-bottom:0.5rem;">Teaser da Marca:</h4>
+                        <p style="font-style:italic; font-size:1.1rem;">"${ai.teaser}"</p>
+                    </div>
+                    <div style="white-space: pre-line;">
+                        <h4 style="color:var(--rose-500); margin-bottom:0.5rem;">Diagnóstico Completo:</h4>
+                        ${ai.full_diagnosis}
+                    </div>
+                `;
+            } else {
+                aiHtml = '<p class="text-muted">Aguardando processamento de IA...</p>';
+            }
+
+            content.innerHTML = aiHtml;
+            modal.style.display = 'flex';
+        }
+
+        function closeLeadModal() {
+            document.getElementById('leadModal').style.display = 'none';
+        }
+
         // Start
         checkAuth();
-
     </script>
 </body>
 </html>

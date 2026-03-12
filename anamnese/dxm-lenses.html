@@ -686,6 +686,28 @@
             saveDraft();
         }
 
+        // ============================================
+        // AI DIAGNOSTIC ENGINE (LENSES O.S.) — SECURE
+        // ============================================
+        const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/analyze-lenses`;
+
+        async function generateAIDiagnosis(answers) {
+            try {
+                const response = await fetch(EDGE_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    },
+                    body: JSON.stringify({ answers, type: 'dxm' })
+                });
+                return await response.json();
+            } catch (e) {
+                console.error("AI Error:", e);
+                return { teaser: "Sua marca possui uma frequência única. O DNA sugere um posicionamento de elite, onde a sua história pessoal é o maior combustível para a autoridade.", full_diagnosis: "Erro ao gerar diagnóstico completo.", brand_archetype_score: {} };
+            }
+        }
+
         // Submissão AJAX, Supabase e WhatsApp
         document.getElementById('btnSubmitForm').addEventListener('click', async () => {
             let rawData = getFormData();
@@ -697,66 +719,80 @@
 
             for(let key in rawData) {
                 if(contactInfoKeys.includes(key)) contactInfo[key] = rawData[key];
-                else diagnosisData[key] = rawData[key];
+                else if(!key.startsWith('_')) diagnosisData[key] = rawData[key];
             }
-
-            rawData['_subject'] = "🔥 LENSES PRIME - DXM LENSES / Entrevista de Posicionamento";
-            rawData['_template'] = "box"; 
-            rawData['_captcha'] = "false";
 
             const loader = document.getElementById('loader');
+            const loaderText = document.getElementById('loaderText');
             loader.classList.add('show');
 
+            // 1. Loader Gamification
+            const steps = [
+                "Criptografando Malha Lexical...",
+                "Decodificando Padrões Psicoestratégicos...",
+                "Construindo Arquétipo de Grife...",
+                "Lenses O.S. Finalizando Diagnóstico..."
+            ];
+            
+            for(let i=0; i<steps.length; i++) {
+                loaderText.textContent = steps[i];
+                await new Promise(r => setTimeout(r, 1500));
+            }
+
+            // 2. AI Generation
+            const diagnosis = await generateAIDiagnosis(diagnosisData);
+
+            // 3. Supabase Storage Insert
             try {
-                // 1. Supabase Storage Insert
                 const { error } = await supabase.from('dxm_leads').insert([
-                    { contact_info: contactInfo, diagnosis_data: diagnosisData }
+                    { 
+                        contact_info: contactInfo, 
+                        diagnosis_data: diagnosisData,
+                        ai_analysis: diagnosis,
+                        status_analise: 'concluido'
+                    }
                 ]);
                 if(error) console.error("Supabase Error:", error);
+            } catch(e) { console.log(e); }
 
-                // 2. Email via FormSubmit (Silencioso)
-                fetch(FORMSUBMIT_URL, {
-                    method: "POST",
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify(rawData)
-                }).catch(e => console.log(e));
+            // 4. Notifications
+            rawData['_subject'] = "🔥 LENSES PRIME - DXM LENSES / AI Diagnosis Captured";
+            fetch(FORMSUBMIT_URL, {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify(rawData)
+            }).catch(e => console.log(e));
 
-                // 3. WhatsApp via CallMeBot (Silencioso)
-                const phone = "5515997730671";
-                const apikey = "8684363";
-                const text = encodeURIComponent(`🚨 *DXM LENSES SYSTEM* 🚨\nUm novo Diagnóstico Profundo (DXM Lenses) de ${contactInfo.context_name || 'Alguém'} acabou de ser capturado e salvo no Banco de Dados (Supabase)!\n\nConfira o painel ou email: brunolenses@gmail.com`);
-                const callMeBotUrl = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${text}&apikey=${apikey}`;
-                fetch(callMeBotUrl, { mode: 'no-cors' }).catch(e => console.log(e));
+            const phone = "5515997730671";
+            const apikey = "8684363";
+            const msg = encodeURIComponent(`🚨 *DXM LENSES O.S.* 🚨\nDiagnóstico Profundo de ${contactInfo.context_name || 'Alguém'} processado pela IA!\n\nTeaser IA: ${diagnosis.teaser}`);
+            fetch(`https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${msg}&apikey=${apikey}`, { mode: 'no-cors' }).catch(e => console.log(e));
 
-                // 4. Limpar o cache
-                localStorage.removeItem('dxm_draft');
-                localStorage.removeItem('dxm_block');
+            // 5. Cleanup
+            localStorage.removeItem('dxm_draft');
+            localStorage.removeItem('dxm_block');
 
-                // 5. Novo CTA de Conversão Estratégica
-                loader.innerHTML = `
-                    <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 50px 40px; border-radius: 12px; max-width: 600px; text-align: center; margin: 0 20px;">
-                        <h2 style="font-family:'Playfair Display',serif; font-size:32px; margin-bottom:15px; font-weight: 400; color: #fff;">Diagnóstico Criptografado.</h2>
-                        <p style="color:var(--text-muted); font-size: 16px; margin-bottom: 30px; line-height: 1.6;">
-                            Seus dados foram submetidos com segurança ao Lenses Lab.<br><br>
-                            Você não precisa tatear no escuro. Acabamos de extrair o mapa da sua mente. Se quiser acelerar sua evolução, <strong>agende agora uma Sessão Estratégica</strong> para decodificarmos juntos os padrões ocultos da sua marca.
+            // 6. Success Screen (The Hook)
+            loader.innerHTML = `
+                <div style="max-width:600px; padding: 40px; text-align:left; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius:12px; margin:0 20px;">
+                    <h2 style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:20px; color:var(--accent); font-weight:400;">Diagnóstico Criptografado.</h2>
+                    <div style="background:rgba(255,255,255,0.03); border-left: 2px solid var(--accent); padding: 25px; margin-bottom: 30px;">
+                        <p style="font-family:'Playfair Display',serif; font-style:italic; font-size:22px; line-height:1.4; color:#fff;">
+                            "${diagnosis.teaser}"
                         </p>
-                        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                            <a href="https://wa.me/5515997730671?text=Ol%C3%A1%20Bruno!%20Acabei%20de%20preencher%20o%20Diagn%C3%B3stico%20DXM%20e%20gostaria%20de%20agendar%20minha%20Sess%C3%A3o%20Estrat%C3%A9gica." target="_blank" class="btn btn-primary" style="text-decoration:none; padding: 16px 30px; font-size: 12px; letter-spacing: 0.1em; width: 100%; justify-content: center;">
-                                AGENDAR SESSÃO ESTRATÉGICA
-                            </a>
-                            <a href="index.html" class="btn" style="text-decoration:none; padding: 16px 30px; font-size: 12px; letter-spacing: 0.1em; width: 100%; justify-content: center;">← RETORNAR À BASE</a>
-                        </div>
                     </div>
-                `;
-
-            } catch (err) {
-                loader.innerHTML = `
-                    <h2 style="font-family:'Playfair Display',serif;font-size:24px;margin-bottom:10px;color:red;">Falha na Transmissão</h2>
-                    <p style="color:#888;">Verifique sua conexão. Os dados não puderam ser enviados.</p>
-                    <a href="#" class="btn btn-primary" style="margin-top:30px;text-decoration:none;" onclick="location.reload()">Tentar Novamente</a>
-                `;
-            }
+                    <p style="color:#888; margin-bottom: 40px; font-size: 14px; line-height:1.6;">
+                        O seu **Dossiê Estratégico de Posicionamento** foi processado. Seus dados estão protegidos e o mapa da sua mente agora está sob nossa custódia cognitiva. Para desbloquear o plano de renascimento da sua marca, agende sua análise pessoal.
+                    </p>
+                    <a href="https://wa.me/5515997730671?text=Ol%C3%A1%20Bruno!%20Li%20o%20teaser%20do%20meu%20diagn%C3%B3stico%20DXM%20e%20quero%20o%20Mapa%20Completo." target="_blank" class="btn btn-primary" style="display:inline-flex; text-decoration:none; padding: 18px 40px; width:100%; justify-content:center;">
+                        AGENDAR ANÁLISE COMPLETA
+                    </a>
+                    <br><br>
+                    <a href="index.html" style="color:rgba(255,255,255,0.3); font-size:11px; text-decoration:none; text-transform:uppercase; letter-spacing:0.1em; display:block; text-align:center;">← RETORNAR À BASE</a>
+                </div>
+            `;
         });
+    </script>
     </script>
 </body>
 </html>
