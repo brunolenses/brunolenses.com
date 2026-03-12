@@ -451,6 +451,7 @@
     </div>
 
     <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // CONFIG
         const EMAIL_RECEIVER = "brunolenses@gmail.com";
@@ -460,6 +461,7 @@
         const SUPABASE_URL = "https://pqeqccbtqrmsvivnisuc.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0";
         const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/analyze-lenses`;
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentBlock = 0;
         const blocks = document.querySelectorAll('.block');
@@ -601,14 +603,13 @@
 
             // 3. Supabase Storage
             try {
-                if(window.supabase) {
-                    await window.supabase.from('social_leads').insert([{
-                        contact_info: { name: rawData.b1_q1 },
-                        answers: answersOnly,
-                        ai_analysis: diagnosis,
-                        status_analise: 'concluido'
-                    }]);
-                }
+                const { error } = await supabase.from('social_leads').insert([{
+                    contact_info: { name: rawData.b1_q1 },
+                    answers: answersOnly,
+                    ai_analysis: diagnosis,
+                    status_analise: 'concluido'
+                }]);
+                if(error) console.error("Supabase error:", error);
             } catch(e) { console.log("Supabase error:", e); }
 
             // 4. Notifications
