@@ -581,6 +581,10 @@
             }
             if(savedBlock) {
                 currentBlock = parseInt(savedBlock);
+                if (currentBlock > 0) {
+                    const introScreen = document.getElementById('introScreen');
+                    if(introScreen) introScreen.style.display = 'none';
+                }
                 updateView();
             }
         }

@@ -528,6 +528,68 @@
             }
         }
 
+        // ============================================
+        // DRAFT SAVING & SAFETY NET
+        // ============================================
+        function getFormData() {
+            let rawData = {};
+            document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea').forEach(el => {
+                if(el.value.trim()) rawData[el.name] = el.value.trim();
+            });
+            document.querySelectorAll('input[type="radio"]:checked').forEach(el => {
+                rawData[el.name] = el.value;
+            });
+            document.querySelectorAll('input[type="hidden"]').forEach(el => {
+                if(el.value) rawData[el.name] = el.value;
+            });
+            return rawData;
+        }
+
+        function saveDraft() {
+            const rawData = getFormData();
+            localStorage.setItem('social_lenses_draft', JSON.stringify(rawData));
+            localStorage.setItem('social_lenses_block', currentBlock);
+        }
+
+        function loadDraft() {
+            const draft = localStorage.getItem('social_lenses_draft');
+            const savedBlock = localStorage.getItem('social_lenses_block');
+            if (draft) {
+                const data = JSON.parse(draft);
+                for (let key in data) {
+                    const el = document.querySelector(`[name="${key}"]`);
+                    if (el) {
+                        if (el.type === 'radio') {
+                            const radio = document.querySelector(`input[name="${key}"][value="${data[key]}"]`);
+                            if (radio) {
+                                radio.checked = true;
+                                radio.closest('.radio-card').classList.add('selected');
+                            }
+                        } else {
+                            el.value = data[key];
+                            // Trigger resize for textareas
+                            if (el.tagName === 'TEXTAREA') {
+                                el.style.height = '40px';
+                                el.style.height = (el.scrollHeight) + 'px';
+                            }
+                        }
+                    }
+                    // Handle scales
+                    if (key.includes('_q')) {
+                        const scaleBtn = document.querySelector(`.scale-btn[data-val="${data[key]}"]`);
+                        if (scaleBtn && scaleBtn.closest('.scale-group').querySelector(`input[name="${key}"]`)) {
+                            scaleBtn.classList.add('selected');
+                        }
+                    }
+                }
+                if (savedBlock) currentBlock = parseInt(savedBlock);
+                if (currentBlock > 0) {
+                    introScreen.style.display = 'none';
+                    updateView();
+                }
+            }
+        }
+
         function updateView() {
             wrapper.style.transform = `translateX(-${currentBlock * 100}vw)`;
             blocks.forEach((b, i) => {
@@ -536,7 +598,16 @@
             });
             const pct = ((currentBlock + 1) / blocks.length) * 100;
             progressBar.style.width = `${pct}%`;
+            saveDraft();
         }
+
+        // Auto-save on input
+        document.addEventListener('input', (e) => {
+            if (e.target.name) saveDraft();
+        });
+
+        // Initialize draft loading
+        window.addEventListener('load', loadDraft);
 
         // ============================================
         // AI DIAGNOSTIC ENGINE (LENSES O.S.)
