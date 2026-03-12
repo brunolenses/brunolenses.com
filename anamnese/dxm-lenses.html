@@ -551,11 +551,38 @@
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         }
 
-        // Initialize interactions and draft
-        initInteractions();
-        restoreDraft();
+        let initialized = false;
+        function ensureInitialized() {
+            if (initialized) return;
+            initInteractions();
+            restoreDraft();
+            initialized = true;
+        }
 
         // Functions
+        function updateView() {
+            if (!wrapper || !blocks.length) {
+                blocks = document.querySelectorAll('.block');
+                wrapper = document.getElementById('formWrapper');
+                progressBar = document.getElementById('progressBar');
+            }
+            if (!wrapper) return;
+
+            ensureInitialized();
+
+            wrapper.style.transform = `translateX(-${currentBlock * 100}vw)`;
+            blocks.forEach((b, i) => {
+                if(i === currentBlock) b.classList.add('active');
+                else b.classList.remove('active');
+            });
+            
+            if (progressBar) {
+                const pct = ((currentBlock + 1) / blocks.length) * 100;
+                progressBar.style.width = `${pct}%`;
+            }
+            if (typeof saveDraft === 'function') saveDraft();
+        }
+
         window.startForm = startForm; // Force global
 
         // ==== LOCAL STORAGE LOGIC ====
@@ -702,16 +729,6 @@
             }
         }
 
-        function updateView() {
-            wrapper.style.transform = `translateX(-${currentBlock * 100}vw)`;
-            blocks.forEach((b, i) => {
-                if(i === currentBlock) b.classList.add('active');
-                else b.classList.remove('active');
-            });
-            const pct = ((currentBlock + 1) / blocks.length) * 100;
-            progressBar.style.width = `${pct}%`;
-            if (typeof saveDraft === 'function') saveDraft();
-        }
 
         // ============================================
         // AI DIAGNOSTIC ENGINE (LENSES O.S.) — SECURE

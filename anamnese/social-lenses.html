@@ -480,7 +480,7 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0";
         const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/analyze-lenses`;
 
-        // Initial Elements Mapping (Scripts at end of body)
+        // Initial Elements Mapping
         blocks = document.querySelectorAll('.block');
         wrapper = document.getElementById('formWrapper');
         progressBar = document.getElementById('progressBar');
@@ -490,9 +490,37 @@
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         }
 
-        // Initialize interactions and draft
-        initInteractions();
-        loadDraft();
+        let initialized = false;
+        function ensureInitialized() {
+            if (initialized) return;
+            initInteractions();
+            loadDraft();
+            initialized = true;
+        }
+
+        // Functions
+        function updateView() {
+            if (!wrapper || !blocks.length) {
+                blocks = document.querySelectorAll('.block');
+                wrapper = document.getElementById('formWrapper');
+                progressBar = document.getElementById('progressBar');
+            }
+            if (!wrapper) return;
+
+            ensureInitialized();
+
+            wrapper.style.transform = `translateX(-${currentBlock * 100}vw)`;
+            blocks.forEach((b, i) => {
+                if(i === currentBlock) b.classList.add('active');
+                else b.classList.remove('active');
+            });
+            
+            if (progressBar) {
+                const pct = ((currentBlock + 1) / blocks.length) * 100;
+                progressBar.style.width = `${pct}%`;
+            }
+            saveDraft();
+        }
 
         function initInteractions() {
             // Auto-resize textareas
@@ -615,16 +643,6 @@
             }
         }
 
-        function updateView() {
-            wrapper.style.transform = `translateX(-${currentBlock * 100}vw)`;
-            blocks.forEach((b, i) => {
-                if(i === currentBlock) b.classList.add('active');
-                else b.classList.remove('active');
-            });
-            const pct = ((currentBlock + 1) / blocks.length) * 100;
-            progressBar.style.width = `${pct}%`;
-            saveDraft();
-        }
 
         // Auto-save on input
         document.addEventListener('input', (e) => {
