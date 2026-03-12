@@ -626,12 +626,23 @@
                 return await response.json();
             } catch (e) {
                 console.error("AI Error:", e);
-                return { teaser: "Sua marca possui uma frequência única. O DNA sugere um posicionamento de alta diferenciação focado na história visceral do fundador.", full_diagnosis: "Erro ao gerar diagnóstico completo.", brand_archetype_score: {} };
+                return { 
+                    teaser: "Sua marca possui uma frequência única. O DNA sugere um posicionamento de alta diferenciação focado na história visceral do fundador.", 
+                    full_diagnosis: "Erro ao gerar diagnóstico completo.", 
+                    brand_archetype_score: {},
+                    debug_error: e.message || String(e)
+                };
             }
         }
 
         // Submissão Final
-        document.getElementById('btnSubmitForm').addEventListener('click', async () => {
+        document.getElementById('btnSubmitForm').addEventListener('click', async (e) => {
+            const btn = e.currentTarget;
+            if(btn.disabled) return;
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+            btn.textContent = 'PROCESSANDO...';
             let rawData = {};
             let answersOnly = {};
             
@@ -670,31 +681,42 @@
             }
 
             // 2. AI Generation
+            console.log("Starting AI Generation...");
             const diagnosis = await generateAIDiagnosis(answersOnly);
+            console.log("AI Diagnosis received:", diagnosis);
 
             // 3. Supabase Storage
             try {
-                const { error } = await supabase.from('social_leads').insert([{
-                    contact_info: { name: rawData.b1_q1 },
+                console.log("Inserting to Supabase...");
+                const { data, error } = await supabase.from('social_leads').insert([{
+                    contact_info: { name: rawData.b1_q1 || "Sem Nome" },
                     answers: answersOnly,
                     ai_analysis: diagnosis,
                     status_analise: 'concluido'
                 }]);
-                if(error) console.error("Supabase error:", error);
-            } catch(e) { console.log("Supabase error:", e); }
+                if(error) console.error("Supabase insert error:", error);
+                else console.log("Supabase insert success:", data);
+            } catch(e) { console.error("Supabase critical error:", e); }
 
             // 4. Notifications
-            rawData['_subject'] = "🔥 LENSES PRIME - Social Lenses AI Captured!";
+            rawData['_subject'] = `🔥 LENSES PRIME - Social Lenses AI Captured: ${rawData.b1_q1 || 'Novo Lead'}`;
+            rawData['_captcha'] = "false"; // Crucial: desativar captcha para o AJAX funcionar
+            rawData['_template'] = "table";
+
+            console.log("Sending email via FormSubmit...");
             fetch(FORMSUBMIT_URL, {
                 method: "POST",
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify(rawData)
-            });
+            })
+            .then(res => res.json())
+            .then(data => console.log("FormSubmit response:", data))
+            .catch(err => console.error("FormSubmit error:", err));
 
             // WhatsApp
             const phone = "5515997730671";
             const apikey = "8684363";
-            const msg = encodeURIComponent(`🚨 *LENSES O.S.* 🚨\nNovo diagnóstico Social Lenses gerado pela IA!\n\nCliente: ${rawData.b1_q1}\n\nTeaser IA: ${diagnosis.teaser}`);
+            const msg = encodeURIComponent(`🚨 *LENSES O.S.* 🚨\nNovo diagnóstico Social Lenses gerado pela IA!\n\nCliente: ${rawData.b1_q1 || 'Não Identificado'}\n\nTeaser IA: ${diagnosis.teaser}`);
             fetch(`https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${msg}&apikey=${apikey}`, { mode: 'no-cors' });
 
             // 5. Success Screen (The Hook)
@@ -702,23 +724,24 @@
                 <div style="max-width:600px; padding: 40px; text-align:left;">
                     <h2 style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:20px; color:var(--accent);">Diagnóstico Processado.</h2>
                     <div style="background:rgba(255,255,255,0.03); border-left: 2px solid var(--accent); padding: 25px; margin-bottom: 30px;">
-                        <p style="font-family:'Playfair Display',serif; font-style:italic; font-size:22px; line-height:1.4; color:#fff;">
+                        <p style="font-family:'Playfair Display',serif; font-style:italic; font-size:22px; line-height:1.4; color:#fff;" id="teaserText">
                             "${diagnosis.teaser}"
                         </p>
                     </div>
                     <p style="color:#888; margin-bottom: 40px; font-size: 14px; line-height:1.6;">
                         O seu **Mapa Estratégico Completo (Social Lenses O.S.)** foi gerado com sucesso e enviado para a banca de análise do Lenses Lab. Para desbloquear o dossiê completo de 10 passos e planejar sua execução, agende sua sessão estratégica abaixo.
                     </p>
-                    <a href="https://wa.me/5515997730671" class="btn btn-primary" style="display:inline-flex; text-decoration:none; padding: 18px 40px;">
-                        Desbloquear Mapa Completo
-                    </a>
-                    <br><br>
-                    <a href="index.html" style="color:rgba(255,255,255,0.3); font-size:11px; text-decoration:none; text-transform:uppercase; letter-spacing:0.1em;">Retornar à Base</a>
+                    <div style="display:flex; gap:15px; flex-wrap:wrap;">
+                        <a href="https://wa.me/5515997730671" class="btn btn-primary" style="display:inline-flex; text-decoration:none; padding: 18px 40px;">
+                            Desbloquear Mapa Completo
+                        </a>
+                        <a href="../index.html" class="btn" style="display:inline-flex; border:1px solid rgba(255,255,255,0.1); text-decoration:none; padding: 18px 30px; font-size:12px; color:rgba(255,255,255,0.5);">
+                            Retornar à Home
+                        </a>
+                    </div>
                 </div>
             `;
         });
     </script>
-</body>
-</html>
 </body>
 </html>

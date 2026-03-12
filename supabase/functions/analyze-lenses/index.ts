@@ -145,7 +145,7 @@ serve(async (req: Request) => {
     const systemPrompt = type === "dxm" ? DXM_LENSES_PROMPT : SOCIAL_LENSES_PROMPT;
 
     const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -159,7 +159,7 @@ serve(async (req: Request) => {
           ],
           generationConfig: {
             temperature: 0.8,
-            maxOutputTokens: 4096,
+            maxOutputTokens: 2000,
           },
         }),
       }

@@ -687,7 +687,7 @@
             });
             const pct = ((currentBlock + 1) / blocks.length) * 100;
             progressBar.style.width = `${pct}%`;
-            saveDraft();
+            if (typeof saveDraft === 'function') saveDraft();
         }
 
         // ============================================
@@ -708,13 +708,28 @@
                 return await response.json();
             } catch (e) {
                 console.error("AI Error:", e);
-                return { teaser: "Sua marca possui uma frequência única. O DNA sugere um posicionamento de elite, onde a sua história pessoal é o maior combustível para a autoridade.", full_diagnosis: "Erro ao gerar diagnóstico completo.", brand_archetype_score: {} };
+                return { 
+                    teaser: "Sua marca possui uma frequência única. O DNA sugere um posicionamento de elite, onde a sua história pessoal é o maior combustível para a autoridade.", 
+                    full_diagnosis: "Erro ao gerar diagnóstico completo.", 
+                    brand_archetype_score: {},
+                    debug_error: e.message || String(e)
+                };
             }
         }
 
         // Submissão AJAX, Supabase e WhatsApp
-        document.getElementById('btnSubmitForm').addEventListener('click', async () => {
+        document.getElementById('btnSubmitForm').addEventListener('click', async (e) => {
+            const btn = e.currentTarget;
+            if(btn.disabled) return;
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+            btn.textContent = 'PROCESSANDO...';
+
             let rawData = getFormData();
+            rawData['_captcha'] = "false";
+            rawData['_template'] = "table";
+            rawData['_subject'] = `💎 DXM LENSES - Diagnóstico Prime: ${rawData.context_name || 'Novo Lead'}`;
             
             // Separa os dados de Contato e Diagnóstico para o Supabase
             const contactInfoKeys = ['context_name', 'context_email', 'context_whatsapp', 'context_social_media', 'context_role', 'context_time', 'context_business_name'];
