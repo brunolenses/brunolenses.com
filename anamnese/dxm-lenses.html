@@ -9,7 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #030303;
+            --bg-base: #0a0a0a;
+            --bg-gradient: radial-gradient(circle at center, #2c2c2c 0%, #0a0a0a 100%);
+            --bg: var(--bg-base);
             --text: #ffffff;
             --text-muted: #888888;
             --accent: #D4AF37;
@@ -23,8 +25,12 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            background-color: var(--bg); color: var(--text);
-            font-family: var(--font-body); overflow: hidden; line-height: 1.6;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text);
+            font-family: var(--font-body);
+            overflow: hidden; 
+            line-height: 1.6;
         }
 
         .progress-container {
@@ -144,7 +150,7 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         .intro-screen {
-            position: absolute; inset: 0; z-index: 50; background: var(--bg);
+            position: absolute; inset: 0; z-index: 50; background: var(--bg-gradient);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             text-align: center; padding: 0 20px; transition: transform 0.8s ease, opacity 0.8s ease;
         }
