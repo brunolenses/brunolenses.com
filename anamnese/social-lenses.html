@@ -78,7 +78,6 @@
             max-width: 800px; width: 100%; margin: 0 auto;
             opacity: 0; transform: translateY(30px);
             transition: opacity 0.6s ease, transform 0.6s ease;
-            transition-delay: 0.3s;
         }
         .block.active .block-inner { opacity: 1; transform: translateY(0); }
 
@@ -502,20 +501,30 @@
         }
 
         // Functions
-        function updateView() {
-            if (!wrapper || !blocks.length) {
+        function updateView(fromDraft = false) {
+            // Force re-mapping if elements are missing
+            if (!wrapper || !blocks || blocks.length === 0) {
                 blocks = document.querySelectorAll('.block');
                 wrapper = document.getElementById('formWrapper');
                 progressBar = document.getElementById('progressBar');
             }
-            if (!wrapper) return;
+            if (!wrapper || !blocks.length) return;
 
-            ensureInitialized();
+            // Only initialize once, and NOT if called from loadDraft to prevent recursion
+            if (!initialized && !fromDraft) {
+                ensureInitialized();
+            }
 
             wrapper.style.transform = `translateX(-${currentBlock * 100}vw)`;
             blocks.forEach((b, i) => {
-                if(i === currentBlock) b.classList.add('active');
-                else b.classList.remove('active');
+                if(i === currentBlock) {
+                    b.classList.add('active');
+                    // Force visibility for the first block if it gets stuck
+                    const inner = b.querySelector('.block-inner');
+                    if (inner) inner.style.opacity = '1';
+                } else {
+                    b.classList.remove('active');
+                }
             });
             
             if (progressBar) {
@@ -640,8 +649,9 @@
                 }
                 if (savedBlock) currentBlock = parseInt(savedBlock);
                 if (currentBlock > 0) {
-                    introScreen.style.display = 'none';
-                    updateView();
+                    const intro = document.getElementById('introScreen');
+                    if (intro) intro.style.display = 'none';
+                    updateView(true); // Pass flag to prevent re-initialization loop
                 }
             }
         }
