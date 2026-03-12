@@ -526,24 +526,24 @@
         const EMAIL_RECEIVER = "brunolenses@gmail.com";
         const FORMSUBMIT_URL = `https://formsubmit.co/ajax/${EMAIL_RECEIVER}`;
 
-        // Wait for DOM and SDK
-        window.addEventListener('DOMContentLoaded', () => {
+        // Initialize when window is ready
+        window.addEventListener('load', () => {
+            blocks = document.querySelectorAll('.block');
+            wrapper = document.getElementById('formWrapper');
+            progressBar = document.getElementById('progressBar');
+            introScreen = document.getElementById('introScreen');
+
             if (window.supabase) {
                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             } else {
                 console.error("Supabase SDK not found!");
             }
 
-            blocks = document.querySelectorAll('.block');
-            wrapper = document.getElementById('formWrapper');
-            progressBar = document.getElementById('progressBar');
-            introScreen = document.getElementById('introScreen');
-
-            // Initialize interactions
             initInteractions();
             restoreDraft();
         });
 
+        // Functions
         function startForm() {
             if (!introScreen) return;
             introScreen.style.opacity = '0';
@@ -553,7 +553,7 @@
                 updateView();
             }, 800);
         }
-        window.startForm = startForm; // Explicitly global
+        window.startForm = startForm; // Force global
 
         // ==== LOCAL STORAGE LOGIC ====
         function getFormData() {

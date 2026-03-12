@@ -465,24 +465,24 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0";
         const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/analyze-lenses`;
 
-        // Wait for DOM and SDK
-        window.addEventListener('DOMContentLoaded', () => {
+        // Initialize when window is ready
+        window.addEventListener('load', () => {
+            blocks = document.querySelectorAll('.block');
+            wrapper = document.getElementById('formWrapper');
+            progressBar = document.getElementById('progressBar');
+            introScreen = document.getElementById('introScreen');
+
             if (window.supabase) {
                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             } else {
                 console.error("Supabase SDK not found!");
             }
 
-            blocks = document.querySelectorAll('.block');
-            wrapper = document.getElementById('formWrapper');
-            progressBar = document.getElementById('progressBar');
-            introScreen = document.getElementById('introScreen');
-
-            // Initialize interactions
             initInteractions();
             loadDraft();
         });
 
+        // Functions
         function startForm() {
             if (!introScreen) return;
             introScreen.style.opacity = '0';
@@ -492,7 +492,7 @@
                 updateView();
             }, 800);
         }
-        window.startForm = startForm; // Explicitly global
+        window.startForm = startForm; // Force global
 
         function initInteractions() {
             // Auto-resize textareas
