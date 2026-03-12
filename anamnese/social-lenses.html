@@ -453,63 +453,88 @@
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // CONFIG
+        // Global variables
+        let supabase;
+        let currentBlock = 0;
+        let blocks, wrapper, progressBar, introScreen;
+
+        // Configuration
         const EMAIL_RECEIVER = "brunolenses@gmail.com";
         const FORMSUBMIT_URL = `https://formsubmit.co/ajax/${EMAIL_RECEIVER}`;
-        
-        // Supabase Config (Secure — No API Keys exposed)
         const SUPABASE_URL = "https://pqeqccbtqrmsvivnisuc.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0";
         const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/analyze-lenses`;
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let currentBlock = 0;
-        const blocks = document.querySelectorAll('.block');
-        const wrapper = document.getElementById('formWrapper');
-        const progressBar = document.getElementById('progressBar');
-        const introScreen = document.getElementById('introScreen');
+        // Wait for DOM and SDK
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.supabase) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            } else {
+                console.error("Supabase SDK not found!");
+            }
 
-        // Auto-resize textareas
-        document.querySelectorAll('textarea').forEach(el => {
-            el.addEventListener('input', function() {
-                this.style.height = '40px';
-                this.style.height = (this.scrollHeight) + 'px';
-            });
-        });
+            blocks = document.querySelectorAll('.block');
+            wrapper = document.getElementById('formWrapper');
+            progressBar = document.getElementById('progressBar');
+            introScreen = document.getElementById('introScreen');
 
-        // Radios
-        document.querySelectorAll('.radio-group').forEach(group => {
-            const cards = group.querySelectorAll('.radio-card');
-            cards.forEach(card => {
-                card.addEventListener('click', () => {
-                    cards.forEach(c => c.classList.remove('selected'));
-                    card.classList.add('selected');
-                    const input = card.querySelector('input');
-                    if(input) input.checked = true;
-                });
-            });
-        });
-
-        // Scales
-        document.querySelectorAll('.scale-group').forEach(group => {
-            const btns = group.querySelectorAll('.scale-btn');
-            const hiddenInput = group.querySelector('input[type="hidden"]');
-            btns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    btns.forEach(b => b.classList.remove('selected'));
-                    btn.classList.add('selected');
-                    hiddenInput.value = btn.dataset.val;
-                });
-            });
+            // Initialize interactions
+            initInteractions();
+            loadDraft();
         });
 
         function startForm() {
+            if (!introScreen) return;
             introScreen.style.opacity = '0';
             introScreen.style.transform = 'translateY(-50px)';
             setTimeout(() => {
                 introScreen.style.display = 'none';
                 updateView();
             }, 800);
+        }
+        window.startForm = startForm; // Explicitly global
+
+        function initInteractions() {
+            // Auto-resize textareas
+            document.querySelectorAll('textarea').forEach(el => {
+                el.addEventListener('input', function() {
+                    this.style.height = '40px';
+                    this.style.height = (this.scrollHeight) + 'px';
+                });
+            });
+
+            // Radios
+            document.querySelectorAll('.radio-group').forEach(group => {
+                const cards = group.querySelectorAll('.radio-card');
+                cards.forEach(card => {
+                    card.addEventListener('click', () => {
+                        cards.forEach(c => c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        const input = card.querySelector('input');
+                        if(input) input.checked = true;
+                        saveDraft();
+                    });
+                });
+            });
+
+            // Scales
+            document.querySelectorAll('.scale-group').forEach(group => {
+                const btns = group.querySelectorAll('.scale-btn');
+                const hiddenInput = group.querySelector('input[type="hidden"]');
+                btns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        btns.forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        if(hiddenInput) hiddenInput.value = btn.dataset.val;
+                        saveDraft();
+                    });
+                });
+            });
+
+            // Auto-save on input
+            document.addEventListener('input', (e) => {
+                if (e.target.name) saveDraft();
+            });
         }
 
         function nextBlock() {

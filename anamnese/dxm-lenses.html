@@ -515,18 +515,45 @@
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        // Global variables
+        let supabase;
+        let currentBlock = 0;
+        let blocks, wrapper, progressBar, introScreen;
+
+        // Configuration
         const SUPABASE_URL = 'https://pqeqccbtqrmsvivnisuc.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
         const EMAIL_RECEIVER = "brunolenses@gmail.com";
         const FORMSUBMIT_URL = `https://formsubmit.co/ajax/${EMAIL_RECEIVER}`;
-        
-        let currentBlock = 0;
-        const blocks = document.querySelectorAll('.block');
-        const wrapper = document.getElementById('formWrapper');
-        const progressBar = document.getElementById('progressBar');
-        const introScreen = document.getElementById('introScreen');
+
+        // Wait for DOM and SDK
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.supabase) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            } else {
+                console.error("Supabase SDK not found!");
+            }
+
+            blocks = document.querySelectorAll('.block');
+            wrapper = document.getElementById('formWrapper');
+            progressBar = document.getElementById('progressBar');
+            introScreen = document.getElementById('introScreen');
+
+            // Initialize interactions
+            initInteractions();
+            restoreDraft();
+        });
+
+        function startForm() {
+            if (!introScreen) return;
+            introScreen.style.opacity = '0';
+            introScreen.style.transform = 'translateY(-50px)';
+            setTimeout(() => {
+                introScreen.style.display = 'none';
+                updateView();
+            }, 800);
+        }
+        window.startForm = startForm; // Explicitly global
 
         // ==== LOCAL STORAGE LOGIC ====
         function getFormData() {
@@ -589,54 +616,47 @@
             }
         }
         
-        window.addEventListener('DOMContentLoaded', restoreDraft);
-        document.addEventListener('input', (e) => {
-            if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') saveDraft();
-        });
-
-        // Auto-resize Textareas
-        document.querySelectorAll('textarea').forEach(el => {
-            el.addEventListener('input', function() {
-                this.style.height = '40px';
-                this.style.height = (this.scrollHeight) + 'px';
-            });
-        });
-
-        // Radios
-        document.querySelectorAll('.radio-group').forEach(group => {
-            const cards = group.querySelectorAll('.radio-card');
-            cards.forEach(card => {
-                card.addEventListener('click', () => {
-                    cards.forEach(c => c.classList.remove('selected'));
-                    card.classList.add('selected');
-                    const input = card.querySelector('input');
-                    if(input) input.checked = true;
-                    saveDraft();
+        function initInteractions() {
+            // Auto-resize Textareas
+            document.querySelectorAll('textarea').forEach(el => {
+                el.addEventListener('input', function() {
+                    this.style.height = '40px';
+                    this.style.height = (this.scrollHeight) + 'px';
                 });
             });
-        });
 
-        // Scales
-        document.querySelectorAll('.scale-group').forEach(group => {
-            const btns = group.querySelectorAll('.scale-btn');
-            const hiddenInput = group.querySelector('input[type="hidden"]');
-            btns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    btns.forEach(b => b.classList.remove('selected'));
-                    btn.classList.add('selected');
-                    if(hiddenInput) hiddenInput.value = btn.dataset.val;
-                    saveDraft();
+            // Radios
+            document.querySelectorAll('.radio-group').forEach(group => {
+                const cards = group.querySelectorAll('.radio-card');
+                cards.forEach(card => {
+                    card.addEventListener('click', () => {
+                        cards.forEach(c => c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        const input = card.querySelector('input');
+                        if (input) input.checked = true;
+                        saveDraft();
+                    });
                 });
             });
-        });
 
-        function startForm() {
-            introScreen.style.opacity = '0';
-            introScreen.style.transform = 'translateY(-50px)';
-            setTimeout(() => {
-                introScreen.style.display = 'none';
-                updateView();
-            }, 800);
+            // Scales
+            document.querySelectorAll('.scale-group').forEach(group => {
+                const btns = group.querySelectorAll('.scale-btn');
+                const hiddenInput = group.querySelector('input[type="hidden"]');
+                btns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        btns.forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        if (hiddenInput) hiddenInput.value = btn.dataset.val;
+                        saveDraft();
+                    });
+                });
+            });
+
+            // Auto-save on input
+            document.addEventListener('input', (e) => {
+                if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') saveDraft();
+            });
         }
 
         function validateNext(blockIndex) {
