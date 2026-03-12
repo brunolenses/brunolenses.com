@@ -188,6 +188,21 @@
         <button class="btn btn-primary" onclick="startForm()">INICIAR AVALIAÇÃO</button>
     </div>
 
+    <script>
+        // Failsafe: startForm must be defined immediately for the button to work
+        function startForm() {
+            const intro = document.getElementById('introScreen');
+            if (!intro) return;
+            intro.style.opacity = '0';
+            intro.style.transform = 'translateY(-50px)';
+            setTimeout(() => {
+                intro.style.display = 'none';
+                if (typeof updateView === 'function') updateView();
+            }, 800);
+        }
+        window.startForm = startForm;
+    </script>
+
     <div class="form-wrapper" id="formWrapper">
 
         <!-- BLOCO 1: IDENTIDADE DO NEGÓCIO -->
@@ -465,34 +480,19 @@
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0";
         const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/analyze-lenses`;
 
-        // Initialize when window is ready
-        window.addEventListener('load', () => {
-            blocks = document.querySelectorAll('.block');
-            wrapper = document.getElementById('formWrapper');
-            progressBar = document.getElementById('progressBar');
-            introScreen = document.getElementById('introScreen');
+        // Initial Elements Mapping (Scripts at end of body)
+        blocks = document.querySelectorAll('.block');
+        wrapper = document.getElementById('formWrapper');
+        progressBar = document.getElementById('progressBar');
+        introScreen = document.getElementById('introScreen');
 
-            if (window.supabase) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            } else {
-                console.error("Supabase SDK not found!");
-            }
-
-            initInteractions();
-            loadDraft();
-        });
-
-        // Functions
-        function startForm() {
-            if (!introScreen) return;
-            introScreen.style.opacity = '0';
-            introScreen.style.transform = 'translateY(-50px)';
-            setTimeout(() => {
-                introScreen.style.display = 'none';
-                updateView();
-            }, 800);
+        if (window.supabase) {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         }
-        window.startForm = startForm; // Force global
+
+        // Initialize interactions and draft
+        initInteractions();
+        loadDraft();
 
         function initInteractions() {
             // Auto-resize textareas
@@ -631,8 +631,6 @@
             if (e.target.name) saveDraft();
         });
 
-        // Initialize draft loading
-        window.addEventListener('load', loadDraft);
 
         // ============================================
         // AI DIAGNOSTIC ENGINE (LENSES O.S.)

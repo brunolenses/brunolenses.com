@@ -169,6 +169,21 @@
         <button class="btn btn-primary" onclick="startForm()">INICIAR AVALIAÇÃO</button>
     </div>
 
+    <script>
+        // Failsafe: startForm must be defined immediately for the button to work
+        function startForm() {
+            const intro = document.getElementById('introScreen');
+            if (!intro) return;
+            intro.style.opacity = '0';
+            intro.style.transform = 'translateY(-50px)';
+            setTimeout(() => {
+                intro.style.display = 'none';
+                if (typeof updateView === 'function') updateView();
+            }, 800);
+        }
+        window.startForm = startForm;
+    </script>
+
     <div class="form-wrapper" id="formWrapper">
 
         <!-- BLOCO 1: IDENTIFICAÇÃO E CONTEXTO -->
@@ -526,33 +541,21 @@
         const EMAIL_RECEIVER = "brunolenses@gmail.com";
         const FORMSUBMIT_URL = `https://formsubmit.co/ajax/${EMAIL_RECEIVER}`;
 
-        // Initialize when window is ready
-        window.addEventListener('load', () => {
-            blocks = document.querySelectorAll('.block');
-            wrapper = document.getElementById('formWrapper');
-            progressBar = document.getElementById('progressBar');
-            introScreen = document.getElementById('introScreen');
+        // Initialize elements immediately (Scripts are at end of <body>)
+        blocks = document.querySelectorAll('.block');
+        wrapper = document.getElementById('formWrapper');
+        progressBar = document.getElementById('progressBar');
+        introScreen = document.getElementById('introScreen');
 
-            if (window.supabase) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            } else {
-                console.error("Supabase SDK not found!");
-            }
+        if (window.supabase) {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
 
-            initInteractions();
-            restoreDraft();
-        });
+        // Initialize interactions and draft
+        initInteractions();
+        restoreDraft();
 
         // Functions
-        function startForm() {
-            if (!introScreen) return;
-            introScreen.style.opacity = '0';
-            introScreen.style.transform = 'translateY(-50px)';
-            setTimeout(() => {
-                introScreen.style.display = 'none';
-                updateView();
-            }, 800);
-        }
         window.startForm = startForm; // Force global
 
         // ==== LOCAL STORAGE LOGIC ====
