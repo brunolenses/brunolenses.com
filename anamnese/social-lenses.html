@@ -449,17 +449,13 @@
     <!-- LOADER -->
     <div id="loader">
         <div class="spinner"></div>
-        <p style="text-transform:uppercase; letter-spacing:0.2em; font-size:12px; color:var(--accent)" id="loaderText">Transmitindo Malha Cognitiva...</p>
-    </div>
-
-    <!-- SCRIPTS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        // ==========================================
-        // LENSES O.S. - KERNEL ESTABILIZADO v4 ("TANQUE DE GUERRA")
-        // ==========================================
+        <p style="text-transform:uppercase; letter-spacing:0.2    <script>
+        /**
+         * LENSES O.S. - KERNEL ESTABILIZADO v5
+         * Foco: Social Lenses - Estabilidade Total
+         */
         
-        // 1. Definições Globais Imediatas
+        // 1. Variáveis de Estado
         window.FORM_PREFIX = 'social_lenses_'; 
         window.DRAFT_KEY = window.FORM_PREFIX + 'draft';
         window.BLOCK_KEY = window.FORM_PREFIX + 'block';
@@ -473,73 +469,7 @@
         let blocks, wrapper, progressBar;
         let initialized = false;
 
-        // 2. Funções de Controle (Anexadas ao window para o onclick funcionar 100%)
-        window.startForm = function() {
-            console.log("Motor: Iniciando Avaliação...");
-            const intro = document.getElementById('introScreen');
-            if (intro) {
-                intro.style.opacity = '0';
-                intro.style.transform = 'translateY(-50px)';
-                setTimeout(() => {
-                    intro.style.display = 'none';
-                    window.updateView();
-                }, 800);
-            }
-        };
-
-        window.updateView = function(fromDraft = false) {
-            if (!wrapper || !blocks || blocks.length === 0) {
-                blocks = document.querySelectorAll('.block');
-                wrapper = document.getElementById('formWrapper');
-                progressBar = document.getElementById('progressBar');
-            }
-            if (!wrapper || !blocks.length) return;
-
-            // Garante inicialização apenas uma vez
-            if (!initialized) {
-                window.initInteractions();
-                initialized = true;
-            }
-
-            // Posicionamento do Wrapper
-            wrapper.style.transform = `translateX(-${currentBlock * 100}vw)`;
-            
-            // Ativação do bloco atual
-            blocks.forEach((b, i) => {
-                b.classList.toggle('active', i === currentBlock);
-                const inner = b.querySelector('.block-inner');
-                if (inner) inner.style.opacity = (i === currentBlock) ? '1' : '0';
-            });
-            
-            // Barra de Progresso
-            if (progressBar) {
-                const pct = ((currentBlock + 1) / blocks.length) * 100;
-                progressBar.style.width = `${pct}%`;
-            }
-            if (!fromDraft) window.saveDraft();
-        };
-
-        window.nextBlock = function() {
-            if(currentBlock < (blocks?.length || 0) - 1) {
-                currentBlock++;
-                window.updateView();
-                window.scrollTo(0, 0);
-            }
-        };
-
-        window.prevBlock = function() {
-            if(currentBlock > 0) {
-                currentBlock--;
-                window.updateView();
-                window.scrollTo(0, 0);
-            }
-        };
-
-        window.validateNext = function() {
-            window.nextBlock();
-        };
-
-        // 3. Persistência de Dados
+        // 2. Motor de Persistência (Definido ANTES de ser usado)
         window.getFormData = function() {
             let rawData = {};
             document.querySelectorAll('input[type="text"], textarea').forEach(el => {
@@ -560,50 +490,8 @@
             localStorage.setItem(window.BLOCK_KEY, currentBlock);
         };
 
-        window.loadDraft = function() {
-            const draft = localStorage.getItem(window.DRAFT_KEY);
-            const savedBlock = localStorage.getItem(window.BLOCK_KEY);
-            
-            if (draft) {
-                const data = JSON.parse(draft);
-                for (let key in data) {
-                    const el = document.querySelector(`[name="${key}"]`);
-                    if (el) {
-                        if (el.type === 'radio') {
-                            const radio = document.querySelector(`input[name="${key}"][value="${data[key]}"]`);
-                            if (radio) {
-                                radio.checked = true;
-                                const card = radio.closest('.radio-card');
-                                if (card) card.classList.add('selected');
-                            }
-                        } else {
-                            el.value = data[key];
-                        }
-                    }
-                    // Escalas de 1-10
-                    if (key.includes('_q')) {
-                        const btn = document.querySelector(`.scale-btn[data-val="${data[key]}"]`);
-                        if (btn) btn.classList.add('selected');
-                    }
-                }
-            }
-            
-            if (savedBlock) {
-                currentBlock = parseInt(savedBlock);
-                if (currentBlock > 0) {
-                    const intro = document.getElementById('introScreen');
-                    if (intro) intro.style.display = 'none';
-                    window.updateView(true);
-                }
-            } else {
-                // Se não houver rascunho, garante que as interações funcionem no bloco 0
-                window.updateView(true);
-            }
-        };
-
         window.initInteractions = function() {
-            console.log("Ativando cliques e gestos...");
-            // Cards de Rádio
+            console.log("Kernel: Ativando Interações...");
             document.querySelectorAll('.radio-card').forEach(card => {
                 card.onclick = () => {
                     const group = card.closest('.radio-group');
@@ -615,7 +503,6 @@
                 };
             });
 
-            // Escalas de Botões
             document.querySelectorAll('.scale-btn').forEach(btn => {
                 btn.onclick = () => {
                     const group = btn.closest('.scale-group');
@@ -627,22 +514,126 @@
                 };
             });
 
-            // Inputs de Texto
             document.addEventListener('input', (e) => {
                 if (e.target.name) window.saveDraft();
                 if (e.target.tagName === 'TEXTAREA') {
-                    e.target.style.height = '40px';
+                    e.target.style.height = 'auto';
                     e.target.style.height = (e.target.scrollHeight) + 'px';
                 }
             });
 
-            // Inicializa Supabase Client
             if (window.supabase) {
                 supabase = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
             }
         };
 
-        // 4. Mecanismo de IA
+        window.updateView = function(fromDraft = false) {
+            blocks = document.querySelectorAll('.block');
+            wrapper = document.getElementById('formWrapper');
+            progressBar = document.getElementById('progressBar');
+
+            if (!wrapper || !blocks.length) return;
+
+            if (!initialized) {
+                window.initInteractions();
+                initialized = true;
+            }
+
+            wrapper.style.transform = `translateX(-${currentBlock * 100}vw)`;
+            
+            blocks.forEach((b, i) => {
+                b.classList.toggle('active', i === currentBlock);
+                const inner = b.querySelector('.block-inner');
+                if (inner) {
+                    inner.style.opacity = (i === currentBlock) ? '1' : '0';
+                    inner.style.transition = 'opacity 0.5s ease-out';
+                }
+            });
+            
+            if (progressBar) {
+                const pct = ((currentBlock + 1) / blocks.length) * 100;
+                progressBar.style.width = `${pct}%`;
+            }
+            if (!fromDraft) window.saveDraft();
+        };
+
+        window.loadDraft = function() {
+            const draft = localStorage.getItem(window.DRAFT_KEY);
+            const savedBlock = localStorage.getItem(window.BLOCK_KEY);
+            
+            if (draft) {
+                try {
+                    const data = JSON.parse(draft);
+                    for (let key in data) {
+                        const el = document.querySelector(`[name="${key}"]`);
+                        if (el) {
+                            if (el.type === 'radio') {
+                                const radio = document.querySelector(`input[name="${key}"][value="${data[key]}"]`);
+                                if (radio) {
+                                    radio.checked = true;
+                                    const card = radio.closest('.radio-card');
+                                    if (card) card.classList.add('selected');
+                                }
+                            } else {
+                                el.value = data[key];
+                            }
+                        }
+                        if (key.includes('_q')) {
+                            const btn = document.querySelector(`.scale-btn[data-val="${data[key]}"]`);
+                            if (btn) btn.classList.add('selected');
+                        }
+                    }
+                } catch(e) { console.error("Draft error", e); }
+            }
+            
+            if (savedBlock) {
+                currentBlock = parseInt(savedBlock);
+                if (currentBlock > 0) {
+                    const intro = document.getElementById('introScreen');
+                    if (intro) intro.style.display = 'none';
+                    window.updateView(true);
+                    return;
+                }
+            }
+            // Inicialização padrão se não houver rascunho avançado
+            window.updateView(true);
+        };
+
+        // 3. Funções de Navegação (Anexadas ao window para o onclick)
+        window.startForm = function() {
+            console.log("Kernel: startForm chamado.");
+            const intro = document.getElementById('introScreen');
+            if (intro) {
+                intro.style.opacity = '0';
+                intro.style.transition = 'opacity 0.6s ease-out';
+                setTimeout(() => {
+                    intro.style.display = 'none';
+                    window.updateView();
+                }, 600);
+            }
+        };
+
+        window.nextBlock = function() {
+            if(currentBlock < (document.querySelectorAll('.block').length) - 1) {
+                currentBlock++;
+                window.updateView();
+                window.scrollTo(0, 0);
+            }
+        };
+
+        window.prevBlock = function() {
+            if(currentBlock > 0) {
+                currentBlock--;
+                window.updateView();
+                window.scrollTo(0, 0);
+            }
+        };
+
+        window.validateNext = function() {
+            window.nextBlock();
+        };
+
+        // 4. IA Engine
         async function generateAIDiagnosis(answers) {
             try {
                 const response = await fetch(window.EDGE_FUNCTION_URL, {
@@ -655,24 +646,17 @@
                 });
                 return await response.json();
             } catch (e) {
-                console.error("AI Error:", e);
-                return { 
-                    teaser: "Sua marca possui uma frequência única. O DNA sugere um posicionamento de alta diferenciação focado na história visceral do fundador.", 
-                    full_diagnosis: "Erro ao gerar diagnóstico completo.", 
-                    archetype_score: {}
-                };
+                return { teaser: "Sua marca possui uma frequência única.", full_diagnosis: "Erro.", archetype_score: {} };
             }
         }
 
-        // 5. Submissão Final
+        // 5. Submissão
         const btnSubmit = document.getElementById('btnSubmitForm');
         if (btnSubmit) {
-            btnSubmit.addEventListener('click', async (e) => {
-                const btn = e.currentTarget;
-                if(btn.disabled) return;
-                btn.disabled = true;
-                btn.style.opacity = '0.5';
-                btn.textContent = 'PROCESSANDO...';
+            btnSubmit.onclick = async () => {
+                if(btnSubmit.disabled) return;
+                btnSubmit.disabled = true;
+                btnSubmit.textContent = 'PROCESSANDO...';
                 
                 let rawData = window.getFormData();
                 let answersOnly = {};
@@ -682,44 +666,55 @@
                 const loaderText = document.getElementById('loaderText');
                 if (loader) loader.classList.add('show');
 
-                const steps = ["Descriptografando Malha Cognitiva...", "Mapeando DNA de Posicionamento...", "Construindo Atmosfera Visceral...", "Lenses O.S. Finalizando Análise..."];
+                const steps = ["Sincronizando Malha Cognitiva...", "Mapeando DNA de Marca...", "Lenses O.S. Gerando Diagnóstico..."];
                 for(let t of steps) {
                     if(loaderText) loaderText.textContent = t;
-                    await new Promise(r => setTimeout(r, 1200));
+                    await new Promise(r => setTimeout(r, 1500));
                 }
 
                 const diagnosis = await generateAIDiagnosis(answersOnly);
 
-                // Supabase
+                // Supabase (Silent)
                 try {
                     await supabase.from('social_leads').insert([{
-                        contact_info: { name: rawData.b1_q1 || "Sem Nome" },
+                        contact_info: { name: rawData.b1_q1 || "Anon" },
                         answers: answersOnly,
                         ai_analysis: diagnosis,
                         status_analise: 'concluido'
                     }]);
-                } catch(e) { console.error(e); }
+                } catch(e) {}
 
-                // FormSubmit & WhatsApp
-                rawData['_subject'] = `🔥 LENSES SOCIAL: ${rawData.b1_q1 || 'Novo Lead'}`;
-                rawData['_captcha'] = "false";
+                // Email & WA (Silent)
+                rawData['_subject'] = `🔥 LENSES SOCIAL: ${rawData.b1_q1 || 'Lead'}`;
                 fetch(window.FORMSUBMIT_URL, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(rawData) }).catch(e => e);
-
-                const msg = encodeURIComponent(`🚨 *LENSES O.S.* 🚨\nNovo diagnóstico Social Lenses!\n\nCliente: ${rawData.b1_q1 || 'NI'}\n\nTeaser: ${diagnosis.teaser}`);
+                const msg = encodeURIComponent(`🚨 *SOCIAL LENSES* 🚨\nLead: ${rawData.b1_q1 || '?'}\nTeaser: ${diagnosis.teaser}`);
                 fetch(`https://api.callmebot.com/whatsapp.php?phone=5515997730671&text=${msg}&apikey=8684363`, { mode: 'no-cors' }).catch(e => e);
 
-                // Sucesso
+                // Final
                 if(loader) {
                     loader.innerHTML = `
                         <div style="max-width:600px; padding: 40px; text-align:left;">
-                            <h2 style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:20px; color:var(--accent);">Diagnóstico Concluído.</h2>
+                            <h2 style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:20px; color:var(--accent);">Análise Concluída.</h2>
                             <div style="background:rgba(255,255,255,0.03); border-left: 2px solid var(--accent); padding: 25px; margin-bottom: 30px;">
                                 <p style="font-family:'Playfair Display',serif; font-style:italic; font-size:22px; color:#fff;">"${diagnosis.teaser}"</p>
                             </div>
-                            <p style="color:#888; margin-bottom: 40px; font-size: 14px;">O dossiê completo foi gerado. Agende sua sessão abaixo para desbloquear o Mapa Estratégico.</p>
-                            <a href="https://wa.me/5515997730671" class="btn btn-primary" style="text-decoration:none; padding: 18px 40px;">Desbloquear Mapa Completo</a>
+                            <p style="color:#888; margin-bottom: 40px; font-size: 14px;">Para o dossiê completo de posicionamento, agende sua sessão estratégica.</p>
+                            <a href="https://wa.me/5515997730671" class="btn btn-primary" style="text-decoration:none; padding: 18px 40px;">Solicitar Mapa Completo</a>
                         </div>
                     `;
+                }
+                localStorage.removeItem(window.DRAFT_KEY);
+                localStorage.removeItem(window.BLOCK_KEY);
+            };
+        }
+
+        // FOGO!
+        window.addEventListener('load', () => {
+            console.log("Kernel v5 Online.");
+            window.loadDraft();
+        });
+    </script>
+     `;
                 }
             });
         }
