@@ -456,31 +456,33 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // ==========================================
-        // 1. CONFIGURAÇÕES E MOTOR DE INTERFACE (PRIORIDADE)
+        // LENSES O.S. - KERNEL ESTABILIZADO v4 ("TANQUE DE GUERRA")
         // ==========================================
-        const FORM_PREFIX = 'social_lenses_'; 
-        const DRAFT_KEY = FORM_PREFIX + 'draft';
-        const BLOCK_KEY = FORM_PREFIX + 'block';
-        const SUPABASE_URL = "https://pqeqccbtqrmsvivnisuc.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0";
-        const FORMSUBMIT_URL = `https://formsubmit.co/ajax/brunolenses@gmail.com`;
-        const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/analyze-lenses`;
+        
+        // 1. Definições Globais Imediatas
+        window.FORM_PREFIX = 'social_lenses_'; 
+        window.DRAFT_KEY = window.FORM_PREFIX + 'draft';
+        window.BLOCK_KEY = window.FORM_PREFIX + 'block';
+        window.SUPABASE_URL = "https://pqeqccbtqrmsvivnisuc.supabase.co";
+        window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0";
+        window.FORMSUBMIT_URL = `https://formsubmit.co/ajax/brunolenses@gmail.com`;
+        window.EDGE_FUNCTION_URL = `${window.SUPABASE_URL}/functions/v1/analyze-lenses`;
 
         let supabase;
         let currentBlock = 0;
         let blocks, wrapper, progressBar;
         let initialized = false;
 
-        // FUNÇÕES GLOBAIS (Anexadas IMEDIATAMENTE ao window)
+        // 2. Funções de Controle (Anexadas ao window para o onclick funcionar 100%)
         window.startForm = function() {
-            console.log("startForm triggered");
+            console.log("Motor: Iniciando Avaliação...");
             const intro = document.getElementById('introScreen');
             if (intro) {
                 intro.style.opacity = '0';
                 intro.style.transform = 'translateY(-50px)';
                 setTimeout(() => {
                     intro.style.display = 'none';
-                    updateView();
+                    window.updateView();
                 }, 800);
             }
         };
@@ -492,28 +494,35 @@
                 progressBar = document.getElementById('progressBar');
             }
             if (!wrapper || !blocks.length) return;
-            if (!initialized) ensureInitialized();
 
+            // Garante inicialização apenas uma vez
+            if (!initialized) {
+                window.initInteractions();
+                initialized = true;
+            }
+
+            // Posicionamento do Wrapper
             wrapper.style.transform = `translateX(-${currentBlock * 100}vw)`;
+            
+            // Ativação do bloco atual
             blocks.forEach((b, i) => {
                 b.classList.toggle('active', i === currentBlock);
-                if (i === currentBlock) {
-                    const inner = b.querySelector('.block-inner');
-                    if (inner) inner.style.opacity = '1';
-                }
+                const inner = b.querySelector('.block-inner');
+                if (inner) inner.style.opacity = (i === currentBlock) ? '1' : '0';
             });
             
+            // Barra de Progresso
             if (progressBar) {
                 const pct = ((currentBlock + 1) / blocks.length) * 100;
                 progressBar.style.width = `${pct}%`;
             }
-            if (!fromDraft) saveDraft();
+            if (!fromDraft) window.saveDraft();
         };
 
         window.nextBlock = function() {
             if(currentBlock < (blocks?.length || 0) - 1) {
                 currentBlock++;
-                updateView();
+                window.updateView();
                 window.scrollTo(0, 0);
             }
         };
@@ -521,20 +530,17 @@
         window.prevBlock = function() {
             if(currentBlock > 0) {
                 currentBlock--;
-                updateView();
+                window.updateView();
                 window.scrollTo(0, 0);
             }
         };
 
-        // Validação (Específica do Social Lenses)
-        window.validateNext = function(blockIndex) {
-            nextBlock(); // Simplificando para garantir fluidez total
+        window.validateNext = function() {
+            window.nextBlock();
         };
 
-        // ==========================================
-        // 2. LÓGICA DE DADOS E INTERAÇÕES
-        // ==========================================
-        function getFormData() {
+        // 3. Persistência de Dados
+        window.getFormData = function() {
             let rawData = {};
             document.querySelectorAll('input[type="text"], textarea').forEach(el => {
                 if(el.value.trim()) rawData[el.name] = el.value.trim();
@@ -546,16 +552,18 @@
                 if(el.value) rawData[el.name] = el.value;
             });
             return rawData;
-        }
+        };
 
-        function saveDraft() {
-            localStorage.setItem(DRAFT_KEY, JSON.stringify(getFormData()));
-            localStorage.setItem(BLOCK_KEY, currentBlock);
-        }
+        window.saveDraft = function() {
+            const data = window.getFormData();
+            localStorage.setItem(window.DRAFT_KEY, JSON.stringify(data));
+            localStorage.setItem(window.BLOCK_KEY, currentBlock);
+        };
 
-        function loadDraft() {
-            const draft = localStorage.getItem(DRAFT_KEY);
-            const savedBlock = localStorage.getItem(BLOCK_KEY);
+        window.loadDraft = function() {
+            const draft = localStorage.getItem(window.DRAFT_KEY);
+            const savedBlock = localStorage.getItem(window.BLOCK_KEY);
+            
             if (draft) {
                 const data = JSON.parse(draft);
                 for (let key in data) {
@@ -572,77 +580,76 @@
                             el.value = data[key];
                         }
                     }
+                    // Escalas de 1-10
                     if (key.includes('_q')) {
                         const btn = document.querySelector(`.scale-btn[data-val="${data[key]}"]`);
                         if (btn) btn.classList.add('selected');
                     }
                 }
             }
+            
             if (savedBlock) {
                 currentBlock = parseInt(savedBlock);
                 if (currentBlock > 0) {
                     const intro = document.getElementById('introScreen');
                     if (intro) intro.style.display = 'none';
-                    updateView(true);
+                    window.updateView(true);
                 }
+            } else {
+                // Se não houver rascunho, garante que as interações funcionem no bloco 0
+                window.updateView(true);
             }
-        }
+        };
 
-        function ensureInitialized() {
-            if (initialized) return;
-            initInteractions();
-            initialized = true;
-        }
-
-        function initInteractions() {
+        window.initInteractions = function() {
+            console.log("Ativando cliques e gestos...");
+            // Cards de Rádio
             document.querySelectorAll('.radio-card').forEach(card => {
                 card.onclick = () => {
                     const group = card.closest('.radio-group');
-                    group.querySelectorAll('.radio-card').forEach(c => c.classList.remove('selected'));
+                    if(group) group.querySelectorAll('.radio-card').forEach(c => c.classList.remove('selected'));
                     card.classList.add('selected');
                     const input = card.querySelector('input');
                     if(input) input.checked = true;
-                    saveDraft();
+                    window.saveDraft();
                 };
             });
 
+            // Escalas de Botões
             document.querySelectorAll('.scale-btn').forEach(btn => {
                 btn.onclick = () => {
                     const group = btn.closest('.scale-group');
-                    group.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
+                    if(group) group.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
                     btn.classList.add('selected');
-                    const hidden = group.querySelector('input[type="hidden"]');
+                    const hidden = group?.querySelector('input[type="hidden"]');
                     if(hidden) hidden.value = btn.dataset.val;
-                    saveDraft();
+                    window.saveDraft();
                 };
             });
 
+            // Inputs de Texto
             document.addEventListener('input', (e) => {
-                if (e.target.name) saveDraft();
+                if (e.target.name) window.saveDraft();
+                if (e.target.tagName === 'TEXTAREA') {
+                    e.target.style.height = '40px';
+                    e.target.style.height = (e.target.scrollHeight) + 'px';
+                }
             });
 
+            // Inicializa Supabase Client
             if (window.supabase) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                supabase = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
             }
-        }
+        };
 
-        window.addEventListener('load', () => {
-            console.log("Page loaded, restoring draft...");
-            loadDraft();
-        });
-
-
-        // ============================================
-        // AI DIAGNOSTIC ENGINE (LENSES O.S.)
-        // ============================================
-
+        // 4. Mecanismo de IA
         async function generateAIDiagnosis(answers) {
             try {
-                const response = await fetch(EDGE_FUNCTION_URL, {
+                const response = await fetch(window.EDGE_FUNCTION_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        'Authorization': `Bearer ${window.SUPABASE_ANON_KEY}`
                     },
                     body: JSON.stringify({ answers, type: 'social' })
                 });
@@ -652,118 +659,75 @@
                 return { 
                     teaser: "Sua marca possui uma frequência única. O DNA sugere um posicionamento de alta diferenciação focado na história visceral do fundador.", 
                     full_diagnosis: "Erro ao gerar diagnóstico completo.", 
-                    brand_archetype_score: {},
-                    debug_error: e.message || String(e)
+                    archetype_score: {}
                 };
             }
         }
 
-        // Submissão Final
-        document.getElementById('btnSubmitForm').addEventListener('click', async (e) => {
-            const btn = e.currentTarget;
-            if(btn.disabled) return;
-            btn.disabled = true;
-            btn.style.opacity = '0.5';
-            btn.style.cursor = 'not-allowed';
-            btn.textContent = 'PROCESSANDO...';
-            let rawData = {};
-            let answersOnly = {};
-            
-            document.querySelectorAll('input[type="text"], textarea').forEach(el => {
-                if(el.value.trim()) {
-                    rawData[el.name] = el.value.trim();
-                    if(el.name.startsWith('b')) answersOnly[el.name] = el.value.trim();
+        // 5. Submissão Final
+        const btnSubmit = document.getElementById('btnSubmitForm');
+        if (btnSubmit) {
+            btnSubmit.addEventListener('click', async (e) => {
+                const btn = e.currentTarget;
+                if(btn.disabled) return;
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.textContent = 'PROCESSANDO...';
+                
+                let rawData = window.getFormData();
+                let answersOnly = {};
+                for(let key in rawData) if(key.startsWith('b')) answersOnly[key] = rawData[key];
+
+                const loader = document.getElementById('loader');
+                const loaderText = document.getElementById('loaderText');
+                if (loader) loader.classList.add('show');
+
+                const steps = ["Descriptografando Malha Cognitiva...", "Mapeando DNA de Posicionamento...", "Construindo Atmosfera Visceral...", "Lenses O.S. Finalizando Análise..."];
+                for(let t of steps) {
+                    if(loaderText) loaderText.textContent = t;
+                    await new Promise(r => setTimeout(r, 1200));
+                }
+
+                const diagnosis = await generateAIDiagnosis(answersOnly);
+
+                // Supabase
+                try {
+                    await supabase.from('social_leads').insert([{
+                        contact_info: { name: rawData.b1_q1 || "Sem Nome" },
+                        answers: answersOnly,
+                        ai_analysis: diagnosis,
+                        status_analise: 'concluido'
+                    }]);
+                } catch(e) { console.error(e); }
+
+                // FormSubmit & WhatsApp
+                rawData['_subject'] = `🔥 LENSES SOCIAL: ${rawData.b1_q1 || 'Novo Lead'}`;
+                rawData['_captcha'] = "false";
+                fetch(window.FORMSUBMIT_URL, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(rawData) }).catch(e => e);
+
+                const msg = encodeURIComponent(`🚨 *LENSES O.S.* 🚨\nNovo diagnóstico Social Lenses!\n\nCliente: ${rawData.b1_q1 || 'NI'}\n\nTeaser: ${diagnosis.teaser}`);
+                fetch(`https://api.callmebot.com/whatsapp.php?phone=5515997730671&text=${msg}&apikey=8684363`, { mode: 'no-cors' }).catch(e => e);
+
+                // Sucesso
+                if(loader) {
+                    loader.innerHTML = `
+                        <div style="max-width:600px; padding: 40px; text-align:left;">
+                            <h2 style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:20px; color:var(--accent);">Diagnóstico Concluído.</h2>
+                            <div style="background:rgba(255,255,255,0.03); border-left: 2px solid var(--accent); padding: 25px; margin-bottom: 30px;">
+                                <p style="font-family:'Playfair Display',serif; font-style:italic; font-size:22px; color:#fff;">"${diagnosis.teaser}"</p>
+                            </div>
+                            <p style="color:#888; margin-bottom: 40px; font-size: 14px;">O dossiê completo foi gerado. Agende sua sessão abaixo para desbloquear o Mapa Estratégico.</p>
+                            <a href="https://wa.me/5515997730671" class="btn btn-primary" style="text-decoration:none; padding: 18px 40px;">Desbloquear Mapa Completo</a>
+                        </div>
+                    `;
                 }
             });
-            document.querySelectorAll('input[type="radio"]:checked').forEach(el => {
-                rawData[el.name] = el.value;
-                answersOnly[el.name] = el.value;
-            });
-            document.querySelectorAll('input[type="hidden"]').forEach(el => {
-                if(el.value) {
-                    rawData[el.name] = el.value;
-                    answersOnly[el.name] = el.value;
-                }
-            });
+        }
 
-            const loader = document.getElementById('loader');
-            const loaderText = document.getElementById('loaderText');
-            loader.classList.add('show');
-
-            // 1. Loader Gamification
-            const steps = [
-                "Descriptografando Malha Cognitiva...",
-                "Mapeando DNA de Posicionamento...",
-                "Construindo Atmosfera Visceral...",
-                "Lenses O.S. Finalizando Análise..."
-            ];
-            
-            for(let i=0; i<steps.length; i++) {
-                loaderText.textContent = steps[i];
-                await new Promise(r => setTimeout(r, 1500));
-            }
-
-            // 2. AI Generation
-            console.log("Starting AI Generation...");
-            const diagnosis = await generateAIDiagnosis(answersOnly);
-            console.log("AI Diagnosis received:", diagnosis);
-
-            // 3. Supabase Storage
-            try {
-                console.log("Inserting to Supabase...");
-                const { data, error } = await supabase.from('social_leads').insert([{
-                    contact_info: { name: rawData.b1_q1 || "Sem Nome" },
-                    answers: answersOnly,
-                    ai_analysis: diagnosis,
-                    status_analise: 'concluido'
-                }]);
-                if(error) console.error("Supabase insert error:", error);
-                else console.log("Supabase insert success:", data);
-            } catch(e) { console.error("Supabase critical error:", e); }
-
-            // 4. Notifications
-            rawData['_subject'] = `🔥 LENSES PRIME - Social Lenses AI Captured: ${rawData.b1_q1 || 'Novo Lead'}`;
-            rawData['_captcha'] = "false"; // Crucial: desativar captcha para o AJAX funcionar
-            rawData['_template'] = "table";
-
-            console.log("Sending email via FormSubmit...");
-            fetch(FORMSUBMIT_URL, {
-                method: "POST",
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify(rawData)
-            })
-            .then(res => res.json())
-            .then(data => console.log("FormSubmit response:", data))
-            .catch(err => console.error("FormSubmit error:", err));
-
-            // WhatsApp
-            const phone = "5515997730671";
-            const apikey = "8684363";
-            const msg = encodeURIComponent(`🚨 *LENSES O.S.* 🚨\nNovo diagnóstico Social Lenses gerado pela IA!\n\nCliente: ${rawData.b1_q1 || 'Não Identificado'}\n\nTeaser IA: ${diagnosis.teaser}`);
-            fetch(`https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${msg}&apikey=${apikey}`, { mode: 'no-cors' });
-
-            // 5. Success Screen (The Hook)
-            loader.innerHTML = `
-                <div style="max-width:600px; padding: 40px; text-align:left;">
-                    <h2 style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:20px; color:var(--accent);">Diagnóstico Processado.</h2>
-                    <div style="background:rgba(255,255,255,0.03); border-left: 2px solid var(--accent); padding: 25px; margin-bottom: 30px;">
-                        <p style="font-family:'Playfair Display',serif; font-style:italic; font-size:22px; line-height:1.4; color:#fff;" id="teaserText">
-                            "${diagnosis.teaser}"
-                        </p>
-                    </div>
-                    <p style="color:#888; margin-bottom: 40px; font-size: 14px; line-height:1.6;">
-                        O seu **Mapa Estratégico Completo (Social Lenses O.S.)** foi gerado com sucesso e enviado para a banca de análise do Lenses Lab. Para desbloquear o dossiê completo de 10 passos e planejar sua execução, agende sua sessão estratégica abaixo.
-                    </p>
-                    <div style="display:flex; gap:15px; flex-wrap:wrap;">
-                        <a href="https://wa.me/5515997730671" class="btn btn-primary" style="display:inline-flex; text-decoration:none; padding: 18px 40px;">
-                            Desbloquear Mapa Completo
-                        </a>
-                        <a href="../index.html" class="btn" style="display:inline-flex; border:1px solid rgba(255,255,255,0.1); text-decoration:none; padding: 18px 30px; font-size:12px; color:rgba(255,255,255,0.5);">
-                            Retornar à Home
-                        </a>
-                    </div>
-                </div>
-            `;
+        // Ignition
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log("Kernel v4: Sistema Online.");
+            window.loadDraft();
         });
     </script>
 </body>
