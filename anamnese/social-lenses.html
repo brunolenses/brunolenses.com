@@ -501,7 +501,14 @@
             const SUPABASE_URL = "https://pqeqccbtqrmsvivnisuc.supabase.co";
             const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0";
             const FORMSUBMIT_URL = "https://formsubmit.co/ajax/brunolenses@gmail.com";
-            const EDGE_F            // Mapeamento de Perguntas para o Email
+            const EDGE_FUNCTION_URL = SUPABASE_URL + "/functions/v1/analyze-lenses";
+
+            var supabaseClient = null;
+            var currentBlock = 0;
+            var blocks, wrapper, progressBar;
+            var initialized = false;
+
+            // Mapeamento de Perguntas para o Email
             const QUESTION_MAP = {
                 "lead_name": "Nome do Lead", "lead_email": "E-mail de Contato", "lead_whatsapp": "WhatsApp", "lead_social": "Rede Social/Link",
                 
@@ -545,11 +552,6 @@
                 // Bloco 10
                 "b10_q57": "57. Sentimento ao ver a marca", "b10_q58": "58. Objetivo do marketing hoje", "b10_q59": "59. Crescimento e vida particular", 
                 "b10_q60": "60. Legado Filosófico"
-            };
-   "b6_q37": "37. Por que escolher vcs?",
-                "b7_q45": "45. Atmosfera da marca",
-                "b9_q53": "53. Tres palavras definitivas",
-                "b10_q60": "60. Legado Filosofico"
             };
 
             // ==========================================
