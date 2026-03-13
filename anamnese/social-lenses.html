@@ -192,6 +192,36 @@
 
     <div class="form-wrapper" id="formWrapper">
 
+        <!-- BLOCO 0: INFORMAÇÕES DE CONTATO -->
+        <div class="block">
+            <div class="block-inner">
+                <div class="block-counter">Passo Inicial</div>
+                <h2 class="block-title">Identificação Proporcional</h2>
+                <p style="color: var(--text-muted); margin-bottom: 30px;">Para que sua análise seja vinculada corretamente e possamos enviar seu dossiê completo.</p>
+                
+                <div class="question">
+                    <label>Seu Nome Completo *</label>
+                    <input type="text" name="lead_name" placeholder="Como devemos te chamar?" required>
+                </div>
+                <div class="question">
+                    <label>E-mail Corporativo ou Pessoal *</label>
+                    <input type="text" name="lead_email" placeholder="Para envio do dossiê estratégico" required>
+                </div>
+                <div class="question">
+                    <label>WhatsApp (com DDD) *</label>
+                    <input type="text" name="lead_whatsapp" placeholder="Ex: 11 99999-9999" required>
+                </div>
+                <div class="question">
+                    <label>Instagram ou Perfil Profissional</label>
+                    <input type="text" name="lead_social" placeholder="@seuusuario ou link">
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="nextBlock()">Começar Entrevista →</button>
+                </div>
+            </div>
+        </div>
+
         <!-- BLOCO 1: IDENTIDADE DO NEGÓCIO -->
         <div class="block">
             <div class="block-inner">
@@ -224,7 +254,7 @@
                 <div class="question"><label>9. Se esse negócio deixasse de existir amanhã, qual parte da sua história pessoal desapareceria junto?</label><textarea name="b1_q9"></textarea></div>
                 <div class="question"><label>10. Existe algum momento marcante que você considera o verdadeiro início da empresa?</label><textarea name="b1_q10"></textarea></div>
 
-                <div class="controls"><button class="btn btn-primary" onclick="nextBlock()">Avançar para História →</button></div>
+                <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar para História →</button></div>
             </div>
         </div>
 
@@ -455,12 +485,12 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         /**
-         * LENSES O.S. - KERNEL ESTABILIZADO v6 (BLINDADO)
+         * LENSES O.S. - KERNEL ESTABILIZADO v7 (lead tracking)
          * Encapsulamento IIFE para evitar colisao de variaveis globais
          */
         (() => {
             "use strict";
-            console.log("Kernel v6: Iniciando boot seguro...");
+            console.log("Kernel v7: Iniciando boot blindado...");
 
             // ==========================================
             // 1. CONFIGURACOES E ESTADO (Privados)
@@ -477,6 +507,34 @@
             var currentBlock = 0;
             var blocks, wrapper, progressBar;
             var initialized = false;
+
+            // Mapeamento de Perguntas para o Email
+            const QUESTION_MAP = {
+                "lead_name": "Nome do Lead",
+                "lead_email": "E-mail de Contato",
+                "lead_whatsapp": "WhatsApp",
+                "lead_social": "Rede Social/Link",
+                "b1_q1": "1. Nome da Marca",
+                "b1_q2": "2. Cidade/Regiao",
+                "b1_q3": "3. Segmento de Atuacao",
+                "b1_q4": "4. O que vende/oferece",
+                "b1_q5": "5. Explicacao em uma frase",
+                "b1_q6": "6. Tempo de existencia",
+                "b1_q7": "7. Origem (Oportunidade/Necessidade/Sonho)",
+                "b1_q8": "8. Existia antes formalmente?",
+                "b1_q9": "9. Se deixasse de existir hoje?",
+                "b1_q10": "10. Momento marcante do inicio",
+                "b2_q11": "11. Quem fundou?",
+                "b2_q12": "12. Trajetoria do fundador",
+                "b2_q13": "13. Vocacao ou Acaso?",
+                "b3_q18": "18. Principais produtos",
+                "b4_q26": "26. Fluidez da experiencia (1-5)",
+                "b5_q31": "31. Publico principal",
+                "b6_q37": "37. Por que escolher vcs?",
+                "b7_q45": "45. Atmosfera da marca",
+                "b9_q53": "53. Tres palavras definitivas",
+                "b10_q60": "60. Legado Filosofico"
+            };
 
             // ==========================================
             // 2. MOTOR INTERNO (Privado)
@@ -495,6 +553,16 @@
                 return rawData;
             }
 
+            function getFormattedAnswers() {
+                var raw = getFormData();
+                var formatted = {};
+                for(var key in raw) {
+                    var label = QUESTION_MAP[key] || key;
+                    formatted[label] = raw[key];
+                }
+                return formatted;
+            }
+
             function saveDraft() {
                 var data = getFormData();
                 localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
@@ -502,7 +570,7 @@
             }
 
             function initInteractions() {
-                console.log("Kernel v6: Lincando interacoes do DOM...");
+                console.log("Kernel v7: Lincando interacoes...");
 
                 document.querySelectorAll('.radio-card').forEach(function(card) {
                     card.onclick = function() {
@@ -533,10 +601,6 @@
                         e.target.style.height = (e.target.scrollHeight) + 'px';
                     }
                 });
-
-                if (window.supabase) {
-                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                }
             }
 
             function updateView(fromDraft) {
@@ -635,7 +699,7 @@
             // 3. EXPOSICAO PARA O HTML (A Ponte)
             // ==========================================
             window.startForm = function() {
-                console.log("Kernel v6: startForm chamado.");
+                console.log("Kernel v7: startForm iniciado.");
                 var intro = document.getElementById('introScreen');
                 if (intro) {
                     intro.style.opacity = '0';
@@ -663,15 +727,20 @@
                 }
             };
 
-            window.validateNext = function() {
-                window.nextBlock();
-            };
+            window.validateNext = function() { window.nextBlock(); };
 
             // ==========================================
             // 4. INICIALIZACAO E SUBMISSAO
             // ==========================================
             window.addEventListener('load', function() {
-                console.log("Kernel v6 Online. Carregando UI...");
+                console.log("Kernel v7 Online. Bootstrapping...");
+                
+                // Inicializa Supabase aqui dentro para garantir que ja carregou
+                if (window.supabase) {
+                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    console.log("Supabase Client Ready.");
+                }
+
                 loadDraft();
 
                 var btnSubmit = document.getElementById('btnSubmitForm');
@@ -701,20 +770,36 @@
                                 setTimeout(runStep, 1500);
                             } else {
                                 generateAIDiagnosis(answersOnly).then(function(diagnosis) {
+                                    // 1. Enviar para Supabase
                                     if(supabaseClient) {
-                                        try {
-                                            supabaseClient.from('social_leads').insert([{
-                                                contact_info: { name: rawData.b1_q1 || "Anon" },
-                                                answers: answersOnly,
-                                                ai_analysis: diagnosis,
-                                                status_analise: 'concluido'
-                                            }]);
-                                        } catch(e) { console.error("Supabase Error", e); }
+                                        supabaseClient.from('social_leads').insert([{
+                                            contact_info: { 
+                                                name: rawData.lead_name || rawData.b1_q1 || "Anon",
+                                                email: rawData.lead_email || "",
+                                                whatsapp: rawData.lead_whatsapp || "",
+                                                social: rawData.lead_social || ""
+                                            },
+                                            answers: answersOnly,
+                                            ai_analysis: diagnosis,
+                                            status_analise: 'concluido'
+                                        }]).then(function(res) {
+                                            console.log("Supabase Success", res);
+                                        }).catch(function(e) {
+                                            console.error("Supabase Error", e);
+                                        });
                                     }
 
-                                    rawData['_subject'] = '🔥 LENSES SOCIAL: ' + (rawData.b1_q1 || 'Lead');
-                                    fetch(FORMSUBMIT_URL, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(rawData) }).catch(function(e) { return e; });
-                                    var msg = encodeURIComponent('🚨 *SOCIAL LENSES* 🚨\nLead: ' + (rawData.b1_q1 || '?') + '\nTeaser: ' + diagnosis.teaser);
+                                    // 2. Enviar para FormSubmit (Email Formatado)
+                                    var formattedPayload = getFormattedAnswers();
+                                    formattedPayload['_subject'] = '🔥 LENSES SOCIAL: ' + (rawData.lead_name || rawData.b1_q1 || 'Lead');
+                                    fetch(FORMSUBMIT_URL, { 
+                                        method: "POST", 
+                                        headers: { 'Content-Type': 'application/json' }, 
+                                        body: JSON.stringify(formattedPayload) 
+                                    }).catch(function(e) { return e; });
+
+                                    // 3. Enviar para WhatsApp (Lead Name)
+                                    var msg = encodeURIComponent('🚨 *SOCIAL LENSES* 🚨\nLead: ' + (rawData.lead_name || '?') + '\nTeaser: ' + diagnosis.teaser);
                                     fetch('https://api.callmebot.com/whatsapp.php?phone=5515997730671&text=' + msg + '&apikey=8684363', { mode: 'no-cors' }).catch(function(e) { return e; });
 
                                     if(loader) {
