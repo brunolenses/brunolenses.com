@@ -432,11 +432,10 @@
                 <div class="question"><label>57. O que você gostaria que as pessoas sentissem no peito quando veem sua marca nas redes sociais?</label><textarea name="b10_q57"></textarea></div>
                 <div class="question"><label>58. Qual é o principal objetivo do marketing da empresa hoje?</label><input type="text" name="b10_q58"></div>
                 <div class="question"><label>59. Se esse negócio crescer absurdamente nos próximos anos, o que ele vai permitir que você realize na sua vida particular?</label><textarea name="b10_q59"></textarea></div>
-                <div class="question"><label>60. Se sua marca pudesse deixar uma única mensagem (Legado Filosófico) para o mundo, qual seria?</label><textarea name="b10_q60"></textarea></div>
+                <div class="question"><label>60. Se sua marca pudescde deixar uma única mensagem (Legado Filosófico) para o mundo, qual seria?</label><textarea name="b10_q60"></textarea></div>
 
                 <div class="controls" style="margin-top:20px;">
                     <button class="btn" onclick="prevBlock()">← Revisar</button>
-                    <!-- ACTION BOTÃO FINAL -->
                     <button class="btn btn-primary" id="btnSubmitForm" style="box-shadow: 0 0 30px rgba(212,175,55,0.4);">
                         Descriptografar Diagnóstico (Finalizar)
                     </button>
@@ -449,281 +448,295 @@
     <!-- LOADER -->
     <div id="loader">
         <div class="spinner"></div>
-        <p style="text-transform:uppercase; letter-spacing:0.2    <script>
+        <p style="text-transform:uppercase; letter-spacing:0.2em; font-size:12px; color:var(--accent)" id="loaderText">Transmitindo Malha Cognitiva...</p>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
         /**
-         * LENSES O.S. - KERNEL ESTABILIZADO v5
-         * Foco: Social Lenses - Estabilidade Total
+         * LENSES O.S. - KERNEL ESTABILIZADO v6 (BLINDADO)
+         * Encapsulamento IIFE para evitar colisao de variaveis globais
          */
-        
-        // 1. Variáveis de Estado
-        window.FORM_PREFIX = 'social_lenses_'; 
-        window.DRAFT_KEY = window.FORM_PREFIX + 'draft';
-        window.BLOCK_KEY = window.FORM_PREFIX + 'block';
-        window.SUPABASE_URL = "https://pqeqccbtqrmsvivnisuc.supabase.co";
-        window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0";
-        window.FORMSUBMIT_URL = `https://formsubmit.co/ajax/brunolenses@gmail.com`;
-        window.EDGE_FUNCTION_URL = `${window.SUPABASE_URL}/functions/v1/analyze-lenses`;
+        (() => {
+            "use strict";
+            console.log("Kernel v6: Iniciando boot seguro...");
 
-        let supabase;
-        let currentBlock = 0;
-        let blocks, wrapper, progressBar;
-        let initialized = false;
+            // ==========================================
+            // 1. CONFIGURACOES E ESTADO (Privados)
+            // ==========================================
+            const FORM_PREFIX = 'social_lenses_';
+            const DRAFT_KEY = FORM_PREFIX + 'draft';
+            const BLOCK_KEY = FORM_PREFIX + 'block';
+            const SUPABASE_URL = "https://pqeqccbtqrmsvivnisuc.supabase.co";
+            const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0";
+            const FORMSUBMIT_URL = "https://formsubmit.co/ajax/brunolenses@gmail.com";
+            const EDGE_FUNCTION_URL = SUPABASE_URL + "/functions/v1/analyze-lenses";
 
-        // 2. Motor de Persistência (Definido ANTES de ser usado)
-        window.getFormData = function() {
-            let rawData = {};
-            document.querySelectorAll('input[type="text"], textarea').forEach(el => {
-                if(el.value.trim()) rawData[el.name] = el.value.trim();
-            });
-            document.querySelectorAll('input[type="radio"]:checked').forEach(el => {
-                rawData[el.name] = el.value;
-            });
-            document.querySelectorAll('input[type="hidden"]').forEach(el => {
-                if(el.value) rawData[el.name] = el.value;
-            });
-            return rawData;
-        };
+            var supabaseClient = null;
+            var currentBlock = 0;
+            var blocks, wrapper, progressBar;
+            var initialized = false;
 
-        window.saveDraft = function() {
-            const data = window.getFormData();
-            localStorage.setItem(window.DRAFT_KEY, JSON.stringify(data));
-            localStorage.setItem(window.BLOCK_KEY, currentBlock);
-        };
+            // ==========================================
+            // 2. MOTOR INTERNO (Privado)
+            // ==========================================
+            function getFormData() {
+                var rawData = {};
+                document.querySelectorAll('input[type="text"], textarea').forEach(function(el) {
+                    if(el.value.trim()) rawData[el.name] = el.value.trim();
+                });
+                document.querySelectorAll('input[type="radio"]:checked').forEach(function(el) {
+                    rawData[el.name] = el.value;
+                });
+                document.querySelectorAll('input[type="hidden"]').forEach(function(el) {
+                    if(el.value) rawData[el.name] = el.value;
+                });
+                return rawData;
+            }
 
-        window.initInteractions = function() {
-            console.log("Kernel: Ativando Interações...");
-            document.querySelectorAll('.radio-card').forEach(card => {
-                card.onclick = () => {
-                    const group = card.closest('.radio-group');
-                    if(group) group.querySelectorAll('.radio-card').forEach(c => c.classList.remove('selected'));
-                    card.classList.add('selected');
-                    const input = card.querySelector('input');
-                    if(input) input.checked = true;
-                    window.saveDraft();
-                };
-            });
+            function saveDraft() {
+                var data = getFormData();
+                localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+                localStorage.setItem(BLOCK_KEY, currentBlock.toString());
+            }
 
-            document.querySelectorAll('.scale-btn').forEach(btn => {
-                btn.onclick = () => {
-                    const group = btn.closest('.scale-group');
-                    if(group) group.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
-                    btn.classList.add('selected');
-                    const hidden = group?.querySelector('input[type="hidden"]');
-                    if(hidden) hidden.value = btn.dataset.val;
-                    window.saveDraft();
-                };
-            });
+            function initInteractions() {
+                console.log("Kernel v6: Lincando interacoes do DOM...");
 
-            document.addEventListener('input', (e) => {
-                if (e.target.name) window.saveDraft();
-                if (e.target.tagName === 'TEXTAREA') {
-                    e.target.style.height = 'auto';
-                    e.target.style.height = (e.target.scrollHeight) + 'px';
+                document.querySelectorAll('.radio-card').forEach(function(card) {
+                    card.onclick = function() {
+                        var group = card.closest('.radio-group');
+                        if(group) group.querySelectorAll('.radio-card').forEach(function(c) { c.classList.remove('selected'); });
+                        card.classList.add('selected');
+                        var input = card.querySelector('input');
+                        if(input) input.checked = true;
+                        saveDraft();
+                    };
+                });
+
+                document.querySelectorAll('.scale-btn').forEach(function(btn) {
+                    btn.onclick = function() {
+                        var group = btn.closest('.scale-group');
+                        if(group) group.querySelectorAll('.scale-btn').forEach(function(b) { b.classList.remove('selected'); });
+                        btn.classList.add('selected');
+                        var hidden = group ? group.querySelector('input[type="hidden"]') : null;
+                        if(hidden) hidden.value = btn.dataset.val;
+                        saveDraft();
+                    };
+                });
+
+                document.addEventListener('input', function(e) {
+                    if (e.target.name) saveDraft();
+                    if (e.target.tagName === 'TEXTAREA') {
+                        e.target.style.height = 'auto';
+                        e.target.style.height = (e.target.scrollHeight) + 'px';
+                    }
+                });
+
+                if (window.supabase) {
+                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 }
-            });
-
-            if (window.supabase) {
-                supabase = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
-            }
-        };
-
-        window.updateView = function(fromDraft = false) {
-            blocks = document.querySelectorAll('.block');
-            wrapper = document.getElementById('formWrapper');
-            progressBar = document.getElementById('progressBar');
-
-            if (!wrapper || !blocks.length) return;
-
-            if (!initialized) {
-                window.initInteractions();
-                initialized = true;
             }
 
-            wrapper.style.transform = `translateX(-${currentBlock * 100}vw)`;
-            
-            blocks.forEach((b, i) => {
-                b.classList.toggle('active', i === currentBlock);
-                const inner = b.querySelector('.block-inner');
-                if (inner) {
-                    inner.style.opacity = (i === currentBlock) ? '1' : '0';
-                    inner.style.transition = 'opacity 0.5s ease-out';
+            function updateView(fromDraft) {
+                if (fromDraft === undefined) fromDraft = false;
+                blocks = document.querySelectorAll('.block');
+                wrapper = document.getElementById('formWrapper');
+                progressBar = document.getElementById('progressBar');
+
+                if (!wrapper || !blocks.length) return;
+
+                if (!initialized) {
+                    initInteractions();
+                    initialized = true;
                 }
-            });
-            
-            if (progressBar) {
-                const pct = ((currentBlock + 1) / blocks.length) * 100;
-                progressBar.style.width = `${pct}%`;
-            }
-            if (!fromDraft) window.saveDraft();
-        };
 
-        window.loadDraft = function() {
-            const draft = localStorage.getItem(window.DRAFT_KEY);
-            const savedBlock = localStorage.getItem(window.BLOCK_KEY);
-            
-            if (draft) {
-                try {
-                    const data = JSON.parse(draft);
-                    for (let key in data) {
-                        const el = document.querySelector(`[name="${key}"]`);
-                        if (el) {
-                            if (el.type === 'radio') {
-                                const radio = document.querySelector(`input[name="${key}"][value="${data[key]}"]`);
-                                if (radio) {
-                                    radio.checked = true;
-                                    const card = radio.closest('.radio-card');
-                                    if (card) card.classList.add('selected');
+                wrapper.style.transform = 'translateX(-' + (currentBlock * 100) + 'vw)';
+
+                blocks.forEach(function(b, i) {
+                    if (i === currentBlock) {
+                        b.classList.add('active');
+                    } else {
+                        b.classList.remove('active');
+                    }
+                    var inner = b.querySelector('.block-inner');
+                    if (inner) {
+                        inner.style.opacity = (i === currentBlock) ? '1' : '0';
+                        inner.style.transition = 'opacity 0.5s ease-out';
+                    }
+                });
+
+                if (progressBar) {
+                    var pct = ((currentBlock + 1) / blocks.length) * 100;
+                    progressBar.style.width = pct + '%';
+                }
+
+                if (!fromDraft) saveDraft();
+            }
+
+            function loadDraft() {
+                var draft = localStorage.getItem(DRAFT_KEY);
+                var savedBlock = localStorage.getItem(BLOCK_KEY);
+
+                if (draft) {
+                    try {
+                        var data = JSON.parse(draft);
+                        for (var key in data) {
+                            var el = document.querySelector('[name="' + key + '"]');
+                            if (el) {
+                                if (el.type === 'radio') {
+                                    var radio = document.querySelector('input[name="' + key + '"][value="' + data[key] + '"]');
+                                    if (radio) {
+                                        radio.checked = true;
+                                        var card = radio.closest('.radio-card');
+                                        if (card) card.classList.add('selected');
+                                    }
+                                } else {
+                                    el.value = data[key];
                                 }
-                            } else {
-                                el.value = data[key];
+                            }
+                            if (key.indexOf('_q') !== -1) {
+                                var btn = document.querySelector('.scale-btn[data-val="' + data[key] + '"]');
+                                if (btn) btn.classList.add('selected');
                             }
                         }
-                        if (key.includes('_q')) {
-                            const btn = document.querySelector(`.scale-btn[data-val="${data[key]}"]`);
-                            if (btn) btn.classList.add('selected');
-                        }
-                    }
-                } catch(e) { console.error("Draft error", e); }
-            }
-            
-            if (savedBlock) {
-                currentBlock = parseInt(savedBlock);
-                if (currentBlock > 0) {
-                    const intro = document.getElementById('introScreen');
-                    if (intro) intro.style.display = 'none';
-                    window.updateView(true);
-                    return;
+                    } catch(e) { console.error("Falha ao ler rascunho", e); }
                 }
+
+                if (savedBlock) {
+                    currentBlock = parseInt(savedBlock);
+                    if (currentBlock > 0) {
+                        var intro = document.getElementById('introScreen');
+                        if (intro) intro.style.display = 'none';
+                        updateView(true);
+                        return;
+                    }
+                }
+                updateView(true);
             }
-            // Inicialização padrão se não houver rascunho avançado
-            window.updateView(true);
-        };
 
-        // 3. Funções de Navegação (Anexadas ao window para o onclick)
-        window.startForm = function() {
-            console.log("Kernel: startForm chamado.");
-            const intro = document.getElementById('introScreen');
-            if (intro) {
-                intro.style.opacity = '0';
-                intro.style.transition = 'opacity 0.6s ease-out';
-                setTimeout(() => {
-                    intro.style.display = 'none';
-                    window.updateView();
-                }, 600);
-            }
-        };
-
-        window.nextBlock = function() {
-            if(currentBlock < (document.querySelectorAll('.block').length) - 1) {
-                currentBlock++;
-                window.updateView();
-                window.scrollTo(0, 0);
-            }
-        };
-
-        window.prevBlock = function() {
-            if(currentBlock > 0) {
-                currentBlock--;
-                window.updateView();
-                window.scrollTo(0, 0);
-            }
-        };
-
-        window.validateNext = function() {
-            window.nextBlock();
-        };
-
-        // 4. IA Engine
-        async function generateAIDiagnosis(answers) {
-            try {
-                const response = await fetch(window.EDGE_FUNCTION_URL, {
+            function generateAIDiagnosis(answers) {
+                return fetch(EDGE_FUNCTION_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${window.SUPABASE_ANON_KEY}`
+                        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
                     },
-                    body: JSON.stringify({ answers, type: 'social' })
+                    body: JSON.stringify({ answers: answers, type: 'social' })
+                })
+                .then(function(response) { return response.json(); })
+                .catch(function() {
+                    return { teaser: "Sua marca possui uma frequencia unica.", full_diagnosis: "Erro na API.", archetype_score: {} };
                 });
-                return await response.json();
-            } catch (e) {
-                return { teaser: "Sua marca possui uma frequência única.", full_diagnosis: "Erro.", archetype_score: {} };
             }
-        }
 
-        // 5. Submissão
-        const btnSubmit = document.getElementById('btnSubmitForm');
-        if (btnSubmit) {
-            btnSubmit.onclick = async () => {
-                if(btnSubmit.disabled) return;
-                btnSubmit.disabled = true;
-                btnSubmit.textContent = 'PROCESSANDO...';
-                
-                let rawData = window.getFormData();
-                let answersOnly = {};
-                for(let key in rawData) if(key.startsWith('b')) answersOnly[key] = rawData[key];
-
-                const loader = document.getElementById('loader');
-                const loaderText = document.getElementById('loaderText');
-                if (loader) loader.classList.add('show');
-
-                const steps = ["Sincronizando Malha Cognitiva...", "Mapeando DNA de Marca...", "Lenses O.S. Gerando Diagnóstico..."];
-                for(let t of steps) {
-                    if(loaderText) loaderText.textContent = t;
-                    await new Promise(r => setTimeout(r, 1500));
+            // ==========================================
+            // 3. EXPOSICAO PARA O HTML (A Ponte)
+            // ==========================================
+            window.startForm = function() {
+                console.log("Kernel v6: startForm chamado.");
+                var intro = document.getElementById('introScreen');
+                if (intro) {
+                    intro.style.opacity = '0';
+                    intro.style.transition = 'opacity 0.6s ease-out';
+                    setTimeout(function() {
+                        intro.style.display = 'none';
+                        updateView();
+                    }, 600);
                 }
-
-                const diagnosis = await generateAIDiagnosis(answersOnly);
-
-                // Supabase (Silent)
-                try {
-                    await supabase.from('social_leads').insert([{
-                        contact_info: { name: rawData.b1_q1 || "Anon" },
-                        answers: answersOnly,
-                        ai_analysis: diagnosis,
-                        status_analise: 'concluido'
-                    }]);
-                } catch(e) {}
-
-                // Email & WA (Silent)
-                rawData['_subject'] = `🔥 LENSES SOCIAL: ${rawData.b1_q1 || 'Lead'}`;
-                fetch(window.FORMSUBMIT_URL, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(rawData) }).catch(e => e);
-                const msg = encodeURIComponent(`🚨 *SOCIAL LENSES* 🚨\nLead: ${rawData.b1_q1 || '?'}\nTeaser: ${diagnosis.teaser}`);
-                fetch(`https://api.callmebot.com/whatsapp.php?phone=5515997730671&text=${msg}&apikey=8684363`, { mode: 'no-cors' }).catch(e => e);
-
-                // Final
-                if(loader) {
-                    loader.innerHTML = `
-                        <div style="max-width:600px; padding: 40px; text-align:left;">
-                            <h2 style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:20px; color:var(--accent);">Análise Concluída.</h2>
-                            <div style="background:rgba(255,255,255,0.03); border-left: 2px solid var(--accent); padding: 25px; margin-bottom: 30px;">
-                                <p style="font-family:'Playfair Display',serif; font-style:italic; font-size:22px; color:#fff;">"${diagnosis.teaser}"</p>
-                            </div>
-                            <p style="color:#888; margin-bottom: 40px; font-size: 14px;">Para o dossiê completo de posicionamento, agende sua sessão estratégica.</p>
-                            <a href="https://wa.me/5515997730671" class="btn btn-primary" style="text-decoration:none; padding: 18px 40px;">Solicitar Mapa Completo</a>
-                        </div>
-                    `;
-                }
-                localStorage.removeItem(window.DRAFT_KEY);
-                localStorage.removeItem(window.BLOCK_KEY);
             };
-        }
 
-        // FOGO!
-        window.addEventListener('load', () => {
-            console.log("Kernel v5 Online.");
-            window.loadDraft();
-        });
-    </script>
-     `;
+            window.nextBlock = function() {
+                if(currentBlock < (document.querySelectorAll('.block').length) - 1) {
+                    currentBlock++;
+                    updateView();
+                    window.scrollTo(0, 0);
+                }
+            };
+
+            window.prevBlock = function() {
+                if(currentBlock > 0) {
+                    currentBlock--;
+                    updateView();
+                    window.scrollTo(0, 0);
+                }
+            };
+
+            window.validateNext = function() {
+                window.nextBlock();
+            };
+
+            // ==========================================
+            // 4. INICIALIZACAO E SUBMISSAO
+            // ==========================================
+            window.addEventListener('load', function() {
+                console.log("Kernel v6 Online. Carregando UI...");
+                loadDraft();
+
+                var btnSubmit = document.getElementById('btnSubmitForm');
+                if (btnSubmit) {
+                    btnSubmit.onclick = function() {
+                        if(btnSubmit.disabled) return;
+                        btnSubmit.disabled = true;
+                        btnSubmit.textContent = 'PROCESSANDO...';
+
+                        var rawData = getFormData();
+                        var answersOnly = {};
+                        for(var key in rawData) {
+                            if(key.indexOf('b') === 0) answersOnly[key] = rawData[key];
+                        }
+
+                        var loader = document.getElementById('loader');
+                        var loaderText = document.getElementById('loaderText');
+                        if (loader) loader.classList.add('show');
+
+                        var steps = ["Sincronizando Malha Cognitiva...", "Mapeando DNA de Marca...", "Lenses O.S. Gerando Diagnostico..."];
+                        var stepIndex = 0;
+
+                        function runStep() {
+                            if (stepIndex < steps.length) {
+                                if(loaderText) loaderText.textContent = steps[stepIndex];
+                                stepIndex++;
+                                setTimeout(runStep, 1500);
+                            } else {
+                                generateAIDiagnosis(answersOnly).then(function(diagnosis) {
+                                    if(supabaseClient) {
+                                        try {
+                                            supabaseClient.from('social_leads').insert([{
+                                                contact_info: { name: rawData.b1_q1 || "Anon" },
+                                                answers: answersOnly,
+                                                ai_analysis: diagnosis,
+                                                status_analise: 'concluido'
+                                            }]);
+                                        } catch(e) { console.error("Supabase Error", e); }
+                                    }
+
+                                    rawData['_subject'] = '🔥 LENSES SOCIAL: ' + (rawData.b1_q1 || 'Lead');
+                                    fetch(FORMSUBMIT_URL, { method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(rawData) }).catch(function(e) { return e; });
+                                    var msg = encodeURIComponent('🚨 *SOCIAL LENSES* 🚨\nLead: ' + (rawData.b1_q1 || '?') + '\nTeaser: ' + diagnosis.teaser);
+                                    fetch('https://api.callmebot.com/whatsapp.php?phone=5515997730671&text=' + msg + '&apikey=8684363', { mode: 'no-cors' }).catch(function(e) { return e; });
+
+                                    if(loader) {
+                                        loader.innerHTML = '<div style="max-width:600px; padding: 40px; text-align:left;">'
+                                            + '<h2 style="font-family:Playfair Display,serif;font-size:32px;margin-bottom:20px; color:var(--accent);">Analise Concluida.</h2>'
+                                            + '<div style="background:rgba(255,255,255,0.03); border-left: 2px solid var(--accent); padding: 25px; margin-bottom: 30px;">'
+                                            + '<p style="font-family:Playfair Display,serif; font-style:italic; font-size:22px; color:#fff;">"' + diagnosis.teaser + '"</p>'
+                                            + '</div>'
+                                            + '<p style="color:#888; margin-bottom: 40px; font-size: 14px;">Para o dossie completo de posicionamento, agende sua sessao estrategica.</p>'
+                                            + '<a href="https://wa.me/5515997730671" class="btn btn-primary" style="text-decoration:none; padding: 18px 40px; display: inline-block;">Solicitar Mapa Completo</a>'
+                                            + '</div>';
+                                    }
+                                    localStorage.removeItem(DRAFT_KEY);
+                                    localStorage.removeItem(BLOCK_KEY);
+                                });
+                            }
+                        }
+                        runStep();
+                    };
                 }
             });
-        }
-
-        // Ignition
-        window.addEventListener('DOMContentLoaded', () => {
-            console.log("Kernel v4: Sistema Online.");
-            window.loadDraft();
-        });
+        })();
     </script>
 </body>
 </html>
