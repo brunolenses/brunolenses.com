@@ -64,6 +64,10 @@
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
                         Capa Prompts & Ensaios
                     </button>
+                    <button class="nav-item" data-target="tab-leads">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        Leads & Diagnósticos
+                    </button>
                     <button class="nav-item" data-target="tab-config">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                         Setup Global
@@ -157,6 +161,18 @@
                                 <button class="btn btn-outline btn-sm">Substituir Vídeo</button>
                             </div>
                         </div>
+                    </div>
+                </section>
+
+                <!-- TAB: LEADS -->
+                <section class="tab-content" id="tab-leads">
+                    <div class="dashboard-header">
+                        <h2>Gestão de Leads</h2>
+                        <p style="color:var(--text-muted); margin-top:8px;">Visualize respostas e diagnósticos da IA em tempo real.</p>
+                    </div>
+                    
+                    <div class="leads-list" id="leadsList">
+                        <p style="color:var(--text-muted); text-align:center; padding:40px;">Carregando leads...</p>
                     </div>
                 </section>
 
@@ -255,6 +271,19 @@
                 </section>
                 
             </main>
+        </div>
+    </div>
+
+    <!-- MODAL: LEAD DETAIL -->
+    <div class="modal-overlay" id="leadModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="modalLeadName">Detalhes do Lead</h2>
+                <button class="modal-close" onclick="closeLeadModal()">✕</button>
+            </div>
+            <div class="modal-body" id="modalLeadBody">
+                <!-- Conteúdo gerado via JS -->
+            </div>
         </div>
     </div>
 
@@ -483,8 +512,107 @@
             await loadAboutPhoto();
             await loadSiteConfig();
             await loadAdminComments();
+            await loadLeads();
             hideLoading();
         }
+
+        // ============================================
+        // LEADS — LOAD & DISPLAY
+        // ============================================
+        async function loadLeads() {
+            const list = document.getElementById('leadsList');
+            const { data, error } = await sb.from('social_leads').select('*').order('created_at', { ascending: false });
+            
+            if (error) {
+                list.innerHTML = `<p style="color:#ff5555; text-align:center;">Erro ao carregar leads: ${error.message}</p>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                list.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding:40px;">Nenhum lead encontrado ainda.</p>`;
+                return;
+            }
+
+            list.innerHTML = data.map(lead => {
+                const info = lead.contact_info || {};
+                const name = info.lead_name || 'Sem nome';
+                const date = new Date(lead.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                const type = lead.type || 'Social Lenses';
+                
+                return `
+                    <div class="lead-card" onclick='openLeadModal(${JSON.stringify(lead).replace(/'/g, "&apos;")})'>
+                        <div class="lead-info-main">
+                            <div class="lead-name">${name}</div>
+                            <div class="lead-meta">
+                                <span>📅 ${date}</span>
+                                <span>📧 ${info.lead_email || '-'}</span>
+                                <span class="lead-badge">${type}</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm">Ver Relatório</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Add to QUESTION_MAP for leads view
+        const QUESTION_LABELS = {
+            "lead_name": "Nome", "lead_email": "E-mail", "lead_whatsapp": "WhatsApp", "lead_social": "Instagram",
+            "b1_q1": "Nome da marca", "b1_q4": "O que vende", "b1_q9": "Se desaparecesse amanhã?",
+            "b1_q10": "Momento marcante", "b2_q14": "Maior desafio", "b10_q60": "Legado"
+            // ... fallback to raw key if not here
+        };
+
+        window.openLeadModal = (lead) => {
+            const modal = document.getElementById('leadModal');
+            const body = document.getElementById('modalLeadBody');
+            const nameEl = document.getElementById('modalLeadName');
+            
+            const info = lead.contact_info || {};
+            const answers = lead.answers || {};
+            const ai = lead.ai_analysis || {};
+
+            nameEl.textContent = info.lead_name || 'Detalhes do Lead';
+            
+            let html = `
+                <div class="lead-details-grid">
+                    <div style="margin-bottom:20px;">
+                        <h3 style="margin-bottom:10px; color:var(--accent);">Informações de Contato</h3>
+                        <p><strong>WhatsApp:</strong> ${info.lead_whatsapp || '-'}</p>
+                        <p><strong>Instagram:</strong> ${info.lead_social || '-'}</p>
+                    </div>
+
+                    <div class="diagnosis-section">
+                        <div class="diagnosis-title">🧠 Diagnóstico da IA</div>
+                        ${ai.teaser ? `<div class="teaser-box">${ai.teaser}</div>` : '<p>IA não processada ainda.</p>'}
+                        
+                        ${ai.full_diagnosis ? Object.entries(ai.full_diagnosis).map(([key, value]) => `
+                            <div style="margin-bottom:15px;">
+                                <strong style="color:var(--accent); text-transform:uppercase; font-size:12px;">${key.replace(/_/g, ' ')}</strong>
+                                <p style="margin-top:5px; line-height:1.5;">${value}</p>
+                            </div>
+                        `).join('') : ''}
+                    </div>
+
+                    <div style="margin-top:30px;">
+                        <h3 style="margin-bottom:15px; border-bottom:1px solid var(--border); padding-bottom:8px;">Respostas do Questionário</h3>
+                        ${Object.entries(answers).map(([key, val]) => `
+                            <div class="qa-item">
+                                <div class="qa-q">${QUESTION_LABELS[key] || key}</div>
+                                <div class="qa-a">${val}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            body.innerHTML = html;
+            modal.classList.add('active');
+        };
+
+        window.closeLeadModal = () => {
+            document.getElementById('leadModal').classList.remove('active');
+        };
 
         // ============================================
         // PORTFOLIO — LOAD
