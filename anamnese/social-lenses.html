@@ -501,36 +501,52 @@
             const SUPABASE_URL = "https://pqeqccbtqrmsvivnisuc.supabase.co";
             const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0";
             const FORMSUBMIT_URL = "https://formsubmit.co/ajax/brunolenses@gmail.com";
-            const EDGE_FUNCTION_URL = SUPABASE_URL + "/functions/v1/analyze-lenses";
-
-            var supabaseClient = null;
-            var currentBlock = 0;
-            var blocks, wrapper, progressBar;
-            var initialized = false;
-
-            // Mapeamento de Perguntas para o Email
+            const EDGE_F            // Mapeamento de Perguntas para o Email
             const QUESTION_MAP = {
-                "lead_name": "Nome do Lead",
-                "lead_email": "E-mail de Contato",
-                "lead_whatsapp": "WhatsApp",
-                "lead_social": "Rede Social/Link",
-                "b1_q1": "1. Nome da Marca",
-                "b1_q2": "2. Cidade/Regiao",
-                "b1_q3": "3. Segmento de Atuacao",
-                "b1_q4": "4. O que vende/oferece",
-                "b1_q5": "5. Explicacao em uma frase",
-                "b1_q6": "6. Tempo de existencia",
-                "b1_q7": "7. Origem (Oportunidade/Necessidade/Sonho)",
-                "b1_q8": "8. Existia antes formalmente?",
-                "b1_q9": "9. Se deixasse de existir hoje?",
-                "b1_q10": "10. Momento marcante do inicio",
-                "b2_q11": "11. Quem fundou?",
-                "b2_q12": "12. Trajetoria do fundador",
-                "b2_q13": "13. Vocacao ou Acaso?",
-                "b3_q18": "18. Principais produtos",
-                "b4_q26": "26. Fluidez da experiencia (1-5)",
-                "b5_q31": "31. Publico principal",
-                "b6_q37": "37. Por que escolher vcs?",
+                "lead_name": "Nome do Lead", "lead_email": "E-mail de Contato", "lead_whatsapp": "WhatsApp", "lead_social": "Rede Social/Link",
+                
+                // Bloco 1
+                "b1_q1": "1. Nome da marca/empresa", "b1_q2": "2. Cidade e região", "b1_q3": "3. Área ou segmento", "b1_q4": "4. O que vende ou oferece",
+                "b1_q5": "5. O que faz em uma frase", "b1_q6": "6. Há quanto tempo existe", "b1_q7": "7. Nasceu de oportunidade, necessidade ou sonho?", 
+                "b1_q8": "8. Já existia na sua vida antes?", "b1_q9": "9. Se deixasse de existir amanhã?", "b1_q10": "10. Momento marcante de início",
+                
+                // Bloco 2
+                "b2_q11": "11. Quem fundou?", "b2_q12": "12. Trajetória anterior", "b2_q13": "13. Sempre quis ou acaso?", 
+                "b2_q14": "14. Maior desafio no início", "b2_q15": "15. Pensou em desistir?", "b2_q16": "16. O que fez continuar?", "b2_q17": "17. Maior orgulho",
+                
+                // Bloco 3
+                "b3_q18": "18. Principais produtos/serviços", "b3_q19": "19. Produto carro-chefe", "b3_q20": "20. Produto que representa a essência", 
+                "b3_q21": "21. Elogio frequente", "b3_q22": "22. O que surpreende os clientes", "b3_q23": "23. O que mais gosta de entregar",
+                
+                // Bloco 4
+                "b4_q24": "24. Como descobrem a empresa?", "b4_q25": "25. Jornada de contato até compra", "b4_q26": "26. Escala fluidez (1-5)", 
+                "b4_q27": "27. Atendimento rápido ou próximo?", "b4_q28": "28. Momento especial no atendimento", "b4_q29": "29. Motivo de retorno", "b4_q30": "30. Hábito curioso de cliente",
+                
+                // Bloco 5
+                "b5_q31": "31. Público principal", "b5_q32": "32. Faixa etária", "b5_q33": "33. Necessidade ou desejo?", 
+                "b5_q34": "34. Público secundário", "b5_q35": "35. Predominância de gênero", "b5_q36": "36. Motivação para procurar a empresa",
+                
+                // Bloco 6
+                "b6_q37": "37. Por que escolher sua empresa?", "b6_q38": "38. O que faz melhor que a maioria", "b6_q39": "39. Algo próprio e único", 
+                "b6_q40": "40. Detalhe importante para você", "b6_q41": "41. Recusa a fazer mesmo por dinheiro", "b6_q42": "42. Prática do mercado que não concorda",
+                
+                // Bloco 7
+                "b7_q43": "43. Espaço físico/percepção online", "b7_q44": "44. Sensação ao entrar no ecossistema", "b7_q45": "45. Atmosfera ideal", 
+                "b4_q46": "46. Detalhe visual representativo", "b7_q47": "47. Tempo de contato ideal",
+                
+                // Bloco 8
+                "b8_q48": "48. Principais concorrentes", "b8_q49": "49. O que os concorrentes fazem BEM", "b8_q50": "50. O que deixam a desejar", 
+                "b8_q51": "51. O que falta visceralmente no mercado",
+                
+                // Bloco 9
+                "b9_q52": "52. Marca como pessoa social", "b9_q53": "53. Três palavras que definem a marca", "b9_q54": "54. Três palavras nunca associadas (Ofensas)", 
+                "b9_q55": "55. Conversa escondida (O que gostaria de ouvir)", "b9_q56": "56. Medo profundo de ouvir",
+                
+                // Bloco 10
+                "b10_q57": "57. Sentimento ao ver a marca", "b10_q58": "58. Objetivo do marketing hoje", "b10_q59": "59. Crescimento e vida particular", 
+                "b10_q60": "60. Legado Filosófico"
+            };
+   "b6_q37": "37. Por que escolher vcs?",
                 "b7_q45": "45. Atmosfera da marca",
                 "b9_q53": "53. Tres palavras definitivas",
                 "b10_q60": "60. Legado Filosofico"
