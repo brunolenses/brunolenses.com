@@ -145,7 +145,7 @@ serve(async (req: Request) => {
     const systemPrompt = type === "dxm" ? DXM_LENSES_PROMPT : SOCIAL_LENSES_PROMPT;
 
     const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -153,13 +153,14 @@ serve(async (req: Request) => {
           contents: [
             {
               parts: [
-                { text: `${systemPrompt}\n\nRespostas do Cliente:\n${JSON.stringify(answers, null, 2)}\n\nResponda APENAS o JSON válido.` }
+                { text: `${systemPrompt}\n\nRespostas do Cliente:\n${JSON.stringify(answers, null, 2)}` }
               ],
             },
           ],
           generationConfig: {
             temperature: 0.8,
-            maxOutputTokens: 2000,
+            maxOutputTokens: 8192,
+            responseMimeType: "application/json",
           },
         }),
       }
@@ -186,7 +187,7 @@ serve(async (req: Request) => {
       diagnosis = {
         teaser: "Sua marca possui uma frequência única que merece uma análise mais profunda.",
         full_diagnosis: rawText,
-        brand_archetype_score: {},
+        archetype_score: {},
       };
     }
 

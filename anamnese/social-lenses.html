@@ -190,21 +190,6 @@
         <button class="btn btn-primary" onclick="startForm()">INICIAR AVALIAÇÃO</button>
     </div>
 
-    <script>
-        // Failsafe: startForm must be defined immediately for the button to work
-        function startForm() {
-            const intro = document.getElementById('introScreen');
-            if (!intro) return;
-            intro.style.opacity = '0';
-            intro.style.transform = 'translateY(-50px)';
-            setTimeout(() => {
-                intro.style.display = 'none';
-                if (typeof updateView === 'function') updateView();
-            }, 800);
-        }
-        window.startForm = startForm;
-    </script>
-
     <div class="form-wrapper" id="formWrapper">
 
         <!-- BLOCO 1: IDENTIDADE DO NEGÓCIO -->
@@ -470,135 +455,33 @@
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Global variables
+        // ==========================================
+        // 1. CONFIGURAÇÕES E VARIÁVEIS GERAIS
+        // ==========================================
+        const FORM_PREFIX = 'social_lenses_'; 
+        const DRAFT_KEY = FORM_PREFIX + 'draft';
+        const BLOCK_KEY = FORM_PREFIX + 'block';
+
+        const SUPABASE_URL = "https://pqeqccbtqrmsvivnisuc.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0";
+        const FORMSUBMIT_URL = `https://formsubmit.co/ajax/brunolenses@gmail.com`;
+        const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/analyze-lenses`;
+
         let supabase;
         let currentBlock = 0;
         let blocks, wrapper, progressBar, introScreen;
-
-        // Configuration
-        const EMAIL_RECEIVER = "brunolenses@gmail.com";
-        const FORMSUBMIT_URL = `https://formsubmit.co/ajax/${EMAIL_RECEIVER}`;
-        const SUPABASE_URL = "https://pqeqccbtqrmsvivnisuc.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0";
-        const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/analyze-lenses`;
-
-        // Initial Elements Mapping
-        blocks = document.querySelectorAll('.block');
-        wrapper = document.getElementById('formWrapper');
-        progressBar = document.getElementById('progressBar');
-        introScreen = document.getElementById('introScreen');
+        let initialized = false;
 
         if (window.supabase) {
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         }
 
-        let initialized = false;
-        function ensureInitialized() {
-            if (initialized) return;
-            initInteractions();
-            loadDraft();
-            initialized = true;
-        }
-
-        // Functions
-        function updateView(fromDraft = false) {
-            // Force re-mapping if elements are missing
-            if (!wrapper || !blocks || blocks.length === 0) {
-                blocks = document.querySelectorAll('.block');
-                wrapper = document.getElementById('formWrapper');
-                progressBar = document.getElementById('progressBar');
-            }
-            if (!wrapper || !blocks.length) return;
-
-            // Only initialize once, and NOT if called from loadDraft to prevent recursion
-            if (!initialized && !fromDraft) {
-                ensureInitialized();
-            }
-
-            wrapper.style.transform = `translateX(-${currentBlock * 100}vw)`;
-            blocks.forEach((b, i) => {
-                if(i === currentBlock) {
-                    b.classList.add('active');
-                    // Force visibility for the first block if it gets stuck
-                    const inner = b.querySelector('.block-inner');
-                    if (inner) inner.style.opacity = '1';
-                } else {
-                    b.classList.remove('active');
-                }
-            });
-            
-            if (progressBar) {
-                const pct = ((currentBlock + 1) / blocks.length) * 100;
-                progressBar.style.width = `${pct}%`;
-            }
-            saveDraft();
-        }
-
-        function initInteractions() {
-            // Auto-resize textareas
-            document.querySelectorAll('textarea').forEach(el => {
-                el.addEventListener('input', function() {
-                    this.style.height = '40px';
-                    this.style.height = (this.scrollHeight) + 'px';
-                });
-            });
-
-            // Radios
-            document.querySelectorAll('.radio-group').forEach(group => {
-                const cards = group.querySelectorAll('.radio-card');
-                cards.forEach(card => {
-                    card.addEventListener('click', () => {
-                        cards.forEach(c => c.classList.remove('selected'));
-                        card.classList.add('selected');
-                        const input = card.querySelector('input');
-                        if(input) input.checked = true;
-                        saveDraft();
-                    });
-                });
-            });
-
-            // Scales
-            document.querySelectorAll('.scale-group').forEach(group => {
-                const btns = group.querySelectorAll('.scale-btn');
-                const hiddenInput = group.querySelector('input[type="hidden"]');
-                btns.forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        btns.forEach(b => b.classList.remove('selected'));
-                        btn.classList.add('selected');
-                        if(hiddenInput) hiddenInput.value = btn.dataset.val;
-                        saveDraft();
-                    });
-                });
-            });
-
-            // Auto-save on input
-            document.addEventListener('input', (e) => {
-                if (e.target.name) saveDraft();
-            });
-        }
-
-        function nextBlock() {
-            if(currentBlock < blocks.length - 1) {
-                currentBlock++;
-                updateView();
-                window.scrollTo(0, 0);
-            }
-        }
-
-        function prevBlock() {
-            if(currentBlock > 0) {
-                currentBlock--;
-                updateView();
-                window.scrollTo(0, 0);
-            }
-        }
-
-        // ============================================
-        // DRAFT SAVING & SAFETY NET
-        // ============================================
+        // ==========================================
+        // 2. FUNÇÕES DE RASCUNHO (Sincronizadas)
+        // ==========================================
         function getFormData() {
             let rawData = {};
-            document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea').forEach(el => {
+            document.querySelectorAll('input[type="text"], textarea').forEach(el => {
                 if(el.value.trim()) rawData[el.name] = el.value.trim();
             });
             document.querySelectorAll('input[type="radio"]:checked').forEach(el => {
@@ -612,13 +495,14 @@
 
         function saveDraft() {
             const rawData = getFormData();
-            localStorage.setItem('social_lenses_draft', JSON.stringify(rawData));
-            localStorage.setItem('social_lenses_block', currentBlock);
+            localStorage.setItem(DRAFT_KEY, JSON.stringify(rawData));
+            localStorage.setItem(BLOCK_KEY, currentBlock);
         }
 
         function loadDraft() {
-            const draft = localStorage.getItem('social_lenses_draft');
-            const savedBlock = localStorage.getItem('social_lenses_block');
+            const draft = localStorage.getItem(DRAFT_KEY);
+            const savedBlock = localStorage.getItem(BLOCK_KEY);
+            
             if (draft) {
                 const data = JSON.parse(draft);
                 for (let key in data) {
@@ -628,39 +512,155 @@
                             const radio = document.querySelector(`input[name="${key}"][value="${data[key]}"]`);
                             if (radio) {
                                 radio.checked = true;
-                                radio.closest('.radio-card').classList.add('selected');
+                                const card = radio.closest('.radio-card');
+                                if (card) card.classList.add('selected');
                             }
                         } else {
                             el.value = data[key];
-                            // Trigger resize for textareas
                             if (el.tagName === 'TEXTAREA') {
                                 el.style.height = '40px';
                                 el.style.height = (el.scrollHeight) + 'px';
                             }
                         }
                     }
-                    // Handle scales
                     if (key.includes('_q')) {
                         const scaleBtn = document.querySelector(`.scale-btn[data-val="${data[key]}"]`);
-                        if (scaleBtn && scaleBtn.closest('.scale-group').querySelector(`input[name="${key}"]`)) {
-                            scaleBtn.classList.add('selected');
+                        if (scaleBtn) {
+                            const group = scaleBtn.closest('.scale-group');
+                            if (group && group.querySelector(`input[type="hidden"]`)) {
+                                scaleBtn.classList.add('selected');
+                            }
                         }
                     }
                 }
+                
                 if (savedBlock) currentBlock = parseInt(savedBlock);
                 if (currentBlock > 0) {
                     const intro = document.getElementById('introScreen');
                     if (intro) intro.style.display = 'none';
-                    updateView(true); // Pass flag to prevent re-initialization loop
+                    updateView(true);
                 }
             }
         }
 
+        // ==========================================
+        // 3. O MOTOR DE INTERFACE
+        // ==========================================
+        function ensureInitialized() {
+            if (initialized) return;
+            initInteractions();
+            initialized = true;
+        }
 
-        // Auto-save on input
-        document.addEventListener('input', (e) => {
-            if (e.target.name) saveDraft();
-        });
+        function updateView(fromDraft = false) {
+            if (!wrapper || !blocks || blocks.length === 0) {
+                blocks = document.querySelectorAll('.block');
+                wrapper = document.getElementById('formWrapper');
+                progressBar = document.getElementById('progressBar');
+            }
+            if (!wrapper || !blocks.length) return;
+
+            if (!initialized) {
+                ensureInitialized();
+            }
+
+            wrapper.style.transform = `translateX(-${currentBlock * 100}vw)`;
+            blocks.forEach((b, i) => {
+                if(i === currentBlock) {
+                    b.classList.add('active');
+                    const inner = b.querySelector('.block-inner');
+                    if (inner) inner.style.opacity = '1';
+                } else {
+                    b.classList.remove('active');
+                }
+            });
+            
+            if (progressBar) {
+                const pct = ((currentBlock + 1) / blocks.length) * 100;
+                progressBar.style.width = `${pct}%`;
+            }
+            if (!fromDraft) saveDraft();
+        }
+
+        function startForm() {
+            const intro = document.getElementById('introScreen');
+            if (intro) {
+                intro.style.opacity = '0';
+                intro.style.transform = 'translateY(-50px)';
+                setTimeout(() => {
+                    intro.style.display = 'none';
+                    updateView();
+                }, 800);
+            }
+        }
+        window.startForm = startForm; // Global trigger
+
+        function nextBlock() {
+            if(currentBlock < blocks.length - 1) {
+                currentBlock++;
+                updateView();
+                window.scrollTo(0, 0);
+            }
+        }
+        window.nextBlock = nextBlock;
+
+        function prevBlock() {
+            if(currentBlock > 0) {
+                currentBlock--;
+                updateView();
+                window.scrollTo(0, 0);
+            }
+        }
+        window.prevBlock = prevBlock;
+
+        function initInteractions() {
+            document.querySelectorAll('textarea').forEach(el => {
+                el.addEventListener('input', function() {
+                    this.style.height = '40px';
+                    this.style.height = (this.scrollHeight) + 'px';
+                });
+            });
+
+            document.querySelectorAll('.radio-group').forEach(group => {
+                const cards = group.querySelectorAll('.radio-card');
+                cards.forEach(card => {
+                    card.addEventListener('click', () => {
+                        cards.forEach(c => c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        const input = card.querySelector('input');
+                        if(input) input.checked = true;
+                        saveDraft();
+                    });
+                });
+            });
+
+            document.querySelectorAll('.scale-group').forEach(group => {
+                const btns = group.querySelectorAll('.scale-btn');
+                const hiddenInput = group.querySelector('input[type="hidden"]');
+                btns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        btns.forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        if(hiddenInput) hiddenInput.value = btn.dataset.val;
+                        saveDraft();
+                    });
+                });
+            });
+
+            document.addEventListener('input', (e) => {
+                if (e.target.name) saveDraft();
+            });
+        }
+
+        // ==========================================
+        // 4. INICIALIZAÇÃO
+        // ==========================================
+        window.onload = () => {
+            blocks = document.querySelectorAll('.block');
+            wrapper = document.getElementById('formWrapper');
+            progressBar = document.getElementById('progressBar');
+            loadDraft();
+        };
 
 
         // ============================================
