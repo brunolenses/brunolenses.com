@@ -522,12 +522,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // ==========================================
-        // 1. CONFIGURAÇÕES E VARIÁVEIS GERAIS
+        // 1. CONFIGURAÇÕES E MOTOR DE INTERFACE (PRIORIDADE)
         // ==========================================
         const FORM_PREFIX = 'dxm_'; 
         const DRAFT_KEY = FORM_PREFIX + 'draft';
         const BLOCK_KEY = FORM_PREFIX + 'block';
-
         const SUPABASE_URL = 'https://pqeqccbtqrmsvivnisuc.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0';
         const FORMSUBMIT_URL = `https://formsubmit.co/ajax/brunolenses@gmail.com`;
@@ -538,115 +537,8 @@
         let blocks, wrapper, progressBar;
         let initialized = false;
 
-        if (window.supabase) {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        }
-
-        // ==========================================
-        // 2. FUNÇÕES DE RASCUNHO (Sincronizadas)
-        // ==========================================
-        function getFormData() {
-            let rawData = {};
-            document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea').forEach(el => {
-                if(el.value.trim()) rawData[el.name] = el.value.trim();
-            });
-            document.querySelectorAll('input[type="radio"]:checked').forEach(el => {
-                rawData[el.name] = el.value;
-            });
-            document.querySelectorAll('input[type="hidden"]').forEach(el => {
-                if(el.value) rawData[el.name] = el.value;
-            });
-            return rawData;
-        }
-
-        function saveDraft() {
-            const rawData = getFormData();
-            localStorage.setItem(DRAFT_KEY, JSON.stringify(rawData));
-            localStorage.setItem(BLOCK_KEY, currentBlock);
-        }
-
-        function restoreDraft() {
-            const draft = localStorage.getItem(DRAFT_KEY);
-            const savedBlock = localStorage.getItem(BLOCK_KEY);
-            if(draft) {
-                const data = JSON.parse(draft);
-                document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea').forEach(el => {
-                    if(data[el.name]) {
-                        el.value = data[el.name];
-                        if(el.tagName === 'TEXTAREA') el.style.height = (el.scrollHeight) + 'px';
-                    }
-                });
-                document.querySelectorAll('.radio-group').forEach(group => {
-                    const cards = group.querySelectorAll('.radio-card');
-                    cards.forEach(card => {
-                        const input = card.querySelector('input');
-                        if(input && data[input.name] === input.value) {
-                            card.classList.add('selected');
-                            input.checked = true;
-                        }
-                    });
-                });
-                document.querySelectorAll('.scale-group').forEach(group => {
-                    const hiddenInput = group.querySelector('input[type="hidden"]');
-                    if(hiddenInput && data[hiddenInput.name]) {
-                        hiddenInput.value = data[hiddenInput.name];
-                        const btn = group.querySelector(`.scale-btn[data-val="${data[hiddenInput.name]}"]`);
-                        if(btn) btn.classList.add('selected');
-                    }
-                });
-            }
-            if(savedBlock) {
-                currentBlock = parseInt(savedBlock);
-                if (currentBlock > 0) {
-                    const intro = document.getElementById('introScreen');
-                    if(intro) intro.style.display = 'none';
-                    updateView(true);
-                } else {
-                    updateView(true);
-                }
-            }
-        }
-
-        // ==========================================
-        // 3. MOTOR DE INTERFACE
-        // ==========================================
-        function ensureInitialized() {
-            if (initialized) return;
-            initInteractions();
-            initialized = true;
-        }
-
-        function updateView(fromDraft = false) {
-            if (!wrapper || !blocks || blocks.length === 0) {
-                blocks = document.querySelectorAll('.block');
-                wrapper = document.getElementById('formWrapper');
-                progressBar = document.getElementById('progressBar');
-            }
-            if (!wrapper || !blocks.length) return;
-
-            if (!initialized) {
-                ensureInitialized();
-            }
-
-            wrapper.style.transform = `translateX(-${currentBlock * 100}vw)`;
-            blocks.forEach((b, i) => {
-                if(i === currentBlock) {
-                    b.classList.add('active');
-                    const inner = b.querySelector('.block-inner');
-                    if (inner) inner.style.opacity = '1';
-                } else {
-                    b.classList.remove('active');
-                }
-            });
-            
-            if (progressBar) {
-                const pct = ((currentBlock + 1) / blocks.length) * 100;
-                progressBar.style.width = `${pct}%`;
-            }
-            if (!fromDraft) saveDraft();
-        }
-
-        function startForm() {
+        // FUNÇÕES GLOBAIS
+        window.startForm = function() {
             const intro = document.getElementById('introScreen');
             if (intro) {
                 intro.style.opacity = '0';
@@ -656,49 +548,34 @@
                     updateView();
                 }, 800);
             }
-        }
-        window.startForm = startForm;
+        };
 
-        function initInteractions() {
-            document.querySelectorAll('textarea').forEach(el => {
-                el.addEventListener('input', function() {
-                    this.style.height = '40px';
-                    this.style.height = (this.scrollHeight) + 'px';
-                });
+        window.updateView = function(fromDraft = false) {
+            if (!wrapper || !blocks || blocks.length === 0) {
+                blocks = document.querySelectorAll('.block');
+                wrapper = document.getElementById('formWrapper');
+                progressBar = document.getElementById('progressBar');
+            }
+            if (!wrapper || !blocks.length) return;
+            if (!initialized) ensureInitialized();
+
+            wrapper.style.transform = `translateX(-${currentBlock * 100}vw)`;
+            blocks.forEach((b, i) => {
+                b.classList.toggle('active', i === currentBlock);
+                if(i === currentBlock) {
+                    const inner = b.querySelector('.block-inner');
+                    if (inner) inner.style.opacity = '1';
+                }
             });
+            
+            if (progressBar) {
+                const pct = ((currentBlock + 1) / blocks.length) * 100;
+                progressBar.style.width = `${pct}%`;
+            }
+            if (!fromDraft) saveDraft();
+        };
 
-            document.querySelectorAll('.radio-group').forEach(group => {
-                const cards = group.querySelectorAll('.radio-card');
-                cards.forEach(card => {
-                    card.addEventListener('click', () => {
-                        cards.forEach(c => c.classList.remove('selected'));
-                        card.classList.add('selected');
-                        const input = card.querySelector('input');
-                        if (input) input.checked = true;
-                        saveDraft();
-                    });
-                });
-            });
-
-            document.querySelectorAll('.scale-group').forEach(group => {
-                const btns = group.querySelectorAll('.scale-btn');
-                const hiddenInput = group.querySelector('input[type="hidden"]');
-                btns.forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        btns.forEach(b => b.classList.remove('selected'));
-                        btn.classList.add('selected');
-                        if (hiddenInput) hiddenInput.value = btn.dataset.val;
-                        saveDraft();
-                    });
-                });
-            });
-
-            document.addEventListener('input', (e) => {
-                if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') saveDraft();
-            });
-        }
-
-        function validateNext(blockIndex) {
+        window.validateNext = function(blockIndex) {
             if (blockIndex === 0) {
                 const b1 = document.getElementById('b1-validator-zone');
                 const reqInputs = b1.querySelectorAll('input[required], textarea[required]');
@@ -722,26 +599,126 @@
             } else {
                 nextBlock();
             }
-        }
-        window.validateNext = validateNext;
+        };
 
-        function nextBlock() {
-            if(currentBlock < blocks.length - 1) {
+        window.nextBlock = function() {
+            if(currentBlock < (blocks?.length || 0) - 1) {
                 currentBlock++;
                 updateView();
                 window.scrollTo(0, 0);
             }
-        }
-        window.nextBlock = nextBlock;
+        };
 
-        function prevBlock() {
+        window.prevBlock = function() {
             if(currentBlock > 0) {
                 currentBlock--;
                 updateView();
                 window.scrollTo(0, 0);
             }
+        };
+
+        // ==========================================
+        // 2. LÓGICA DE DADOS E INTERAÇÕES
+        // ==========================================
+        function getFormData() {
+            let rawData = {};
+            document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea').forEach(el => {
+                if(el.value.trim()) rawData[el.name] = el.value.trim();
+            });
+            document.querySelectorAll('input[type="radio"]:checked').forEach(el => {
+                rawData[el.name] = el.value;
+            });
+            document.querySelectorAll('input[type="hidden"]').forEach(el => {
+                if(el.value) rawData[el.name] = el.value;
+            });
+            return rawData;
         }
-        window.prevBlock = prevBlock;
+
+        function saveDraft() {
+            localStorage.setItem(DRAFT_KEY, JSON.stringify(getFormData()));
+            localStorage.setItem(BLOCK_KEY, currentBlock);
+        }
+
+        function restoreDraft() {
+            const draft = localStorage.getItem(DRAFT_KEY);
+            const savedBlock = localStorage.getItem(BLOCK_KEY);
+            if(draft) {
+                const data = JSON.parse(draft);
+                document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea').forEach(el => {
+                    if(data[el.name]) el.value = data[el.name];
+                });
+                document.querySelectorAll('.radio-card').forEach(card => {
+                    const input = card.querySelector('input');
+                    if(input && data[input.name] === input.value) {
+                        card.classList.add('selected');
+                        input.checked = true;
+                    }
+                });
+                document.querySelectorAll('.scale-btn').forEach(btn => {
+                    const group = btn.closest('.scale-group');
+                    const hidden = group?.querySelector('input[type="hidden"]');
+                    if(hidden && data[hidden.name] == btn.dataset.val) {
+                        btn.classList.add('selected');
+                        hidden.value = btn.dataset.val;
+                    }
+                });
+            }
+            if(savedBlock) {
+                currentBlock = parseInt(savedBlock);
+                if (currentBlock > 0) {
+                    const intro = document.getElementById('introScreen');
+                    if(intro) intro.style.display = 'none';
+                    updateView(true);
+                }
+            }
+        }
+
+        function ensureInitialized() {
+            if (initialized) return;
+            initInteractions();
+            initialized = true;
+        }
+
+        function initInteractions() {
+            document.querySelectorAll('.radio-card').forEach(card => {
+                card.onclick = () => {
+                    const group = card.closest('.radio-group');
+                    group.querySelectorAll('.radio-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    const input = card.querySelector('input');
+                    if (input) input.checked = true;
+                    saveDraft();
+                };
+            });
+
+            document.querySelectorAll('.scale-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const group = btn.closest('.scale-group');
+                    group.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    const hiddenInput = group.querySelector('input[type="hidden"]');
+                    if (hiddenInput) hiddenInput.value = btn.dataset.val;
+                    saveDraft();
+                };
+            });
+
+            document.querySelectorAll('textarea').forEach(el => {
+                el.oninput = () => {
+                    el.style.height = '40px';
+                    el.style.height = (el.scrollHeight) + 'px';
+                };
+            });
+
+            document.addEventListener('input', (e) => {
+                if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') saveDraft();
+            });
+
+            if (window.supabase) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            }
+        }
+
+        window.addEventListener('load', restoreDraft);
 
         // ============================================
         // AI DIAGNOSTIC ENGINE (LENSES O.S.)

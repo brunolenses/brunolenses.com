@@ -456,12 +456,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // ==========================================
-        // 1. CONFIGURAÇÕES E VARIÁVEIS GERAIS
+        // 1. CONFIGURAÇÕES E MOTOR DE INTERFACE (PRIORIDADE)
         // ==========================================
         const FORM_PREFIX = 'social_lenses_'; 
         const DRAFT_KEY = FORM_PREFIX + 'draft';
         const BLOCK_KEY = FORM_PREFIX + 'block';
-
         const SUPABASE_URL = "https://pqeqccbtqrmsvivnisuc.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0";
         const FORMSUBMIT_URL = `https://formsubmit.co/ajax/brunolenses@gmail.com`;
@@ -469,15 +468,71 @@
 
         let supabase;
         let currentBlock = 0;
-        let blocks, wrapper, progressBar, introScreen;
+        let blocks, wrapper, progressBar;
         let initialized = false;
 
-        if (window.supabase) {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        }
+        // FUNÇÕES GLOBAIS (Anexadas IMEDIATAMENTE ao window)
+        window.startForm = function() {
+            console.log("startForm triggered");
+            const intro = document.getElementById('introScreen');
+            if (intro) {
+                intro.style.opacity = '0';
+                intro.style.transform = 'translateY(-50px)';
+                setTimeout(() => {
+                    intro.style.display = 'none';
+                    updateView();
+                }, 800);
+            }
+        };
+
+        window.updateView = function(fromDraft = false) {
+            if (!wrapper || !blocks || blocks.length === 0) {
+                blocks = document.querySelectorAll('.block');
+                wrapper = document.getElementById('formWrapper');
+                progressBar = document.getElementById('progressBar');
+            }
+            if (!wrapper || !blocks.length) return;
+            if (!initialized) ensureInitialized();
+
+            wrapper.style.transform = `translateX(-${currentBlock * 100}vw)`;
+            blocks.forEach((b, i) => {
+                b.classList.toggle('active', i === currentBlock);
+                if (i === currentBlock) {
+                    const inner = b.querySelector('.block-inner');
+                    if (inner) inner.style.opacity = '1';
+                }
+            });
+            
+            if (progressBar) {
+                const pct = ((currentBlock + 1) / blocks.length) * 100;
+                progressBar.style.width = `${pct}%`;
+            }
+            if (!fromDraft) saveDraft();
+        };
+
+        window.nextBlock = function() {
+            if(currentBlock < (blocks?.length || 0) - 1) {
+                currentBlock++;
+                updateView();
+                window.scrollTo(0, 0);
+            }
+        };
+
+        window.prevBlock = function() {
+            if(currentBlock > 0) {
+                currentBlock--;
+                updateView();
+                window.scrollTo(0, 0);
+            }
+        };
+
+        // Validação (Específica do Social Lenses)
+        window.validateNext = function(blockIndex) {
+            nextBlock(); // Simplificando para garantir fluidez total
+        };
 
         // ==========================================
-        // 2. FUNÇÕES DE RASCUNHO (Sincronizadas)
+        // 2. LÓGICA DE DADOS E INTERAÇÕES
         // ==========================================
         function getFormData() {
             let rawData = {};
@@ -494,15 +549,13 @@
         }
 
         function saveDraft() {
-            const rawData = getFormData();
-            localStorage.setItem(DRAFT_KEY, JSON.stringify(rawData));
+            localStorage.setItem(DRAFT_KEY, JSON.stringify(getFormData()));
             localStorage.setItem(BLOCK_KEY, currentBlock);
         }
 
         function loadDraft() {
             const draft = localStorage.getItem(DRAFT_KEY);
             const savedBlock = localStorage.getItem(BLOCK_KEY);
-            
             if (draft) {
                 const data = JSON.parse(draft);
                 for (let key in data) {
@@ -517,24 +570,16 @@
                             }
                         } else {
                             el.value = data[key];
-                            if (el.tagName === 'TEXTAREA') {
-                                el.style.height = '40px';
-                                el.style.height = (el.scrollHeight) + 'px';
-                            }
                         }
                     }
                     if (key.includes('_q')) {
-                        const scaleBtn = document.querySelector(`.scale-btn[data-val="${data[key]}"]`);
-                        if (scaleBtn) {
-                            const group = scaleBtn.closest('.scale-group');
-                            if (group && group.querySelector(`input[type="hidden"]`)) {
-                                scaleBtn.classList.add('selected');
-                            }
-                        }
+                        const btn = document.querySelector(`.scale-btn[data-val="${data[key]}"]`);
+                        if (btn) btn.classList.add('selected');
                     }
                 }
-                
-                if (savedBlock) currentBlock = parseInt(savedBlock);
+            }
+            if (savedBlock) {
+                currentBlock = parseInt(savedBlock);
                 if (currentBlock > 0) {
                     const intro = document.getElementById('introScreen');
                     if (intro) intro.style.display = 'none';
@@ -543,124 +588,48 @@
             }
         }
 
-        // ==========================================
-        // 3. O MOTOR DE INTERFACE
-        // ==========================================
         function ensureInitialized() {
             if (initialized) return;
             initInteractions();
             initialized = true;
         }
 
-        function updateView(fromDraft = false) {
-            if (!wrapper || !blocks || blocks.length === 0) {
-                blocks = document.querySelectorAll('.block');
-                wrapper = document.getElementById('formWrapper');
-                progressBar = document.getElementById('progressBar');
-            }
-            if (!wrapper || !blocks.length) return;
-
-            if (!initialized) {
-                ensureInitialized();
-            }
-
-            wrapper.style.transform = `translateX(-${currentBlock * 100}vw)`;
-            blocks.forEach((b, i) => {
-                if(i === currentBlock) {
-                    b.classList.add('active');
-                    const inner = b.querySelector('.block-inner');
-                    if (inner) inner.style.opacity = '1';
-                } else {
-                    b.classList.remove('active');
-                }
-            });
-            
-            if (progressBar) {
-                const pct = ((currentBlock + 1) / blocks.length) * 100;
-                progressBar.style.width = `${pct}%`;
-            }
-            if (!fromDraft) saveDraft();
-        }
-
-        function startForm() {
-            const intro = document.getElementById('introScreen');
-            if (intro) {
-                intro.style.opacity = '0';
-                intro.style.transform = 'translateY(-50px)';
-                setTimeout(() => {
-                    intro.style.display = 'none';
-                    updateView();
-                }, 800);
-            }
-        }
-        window.startForm = startForm; // Global trigger
-
-        function nextBlock() {
-            if(currentBlock < blocks.length - 1) {
-                currentBlock++;
-                updateView();
-                window.scrollTo(0, 0);
-            }
-        }
-        window.nextBlock = nextBlock;
-
-        function prevBlock() {
-            if(currentBlock > 0) {
-                currentBlock--;
-                updateView();
-                window.scrollTo(0, 0);
-            }
-        }
-        window.prevBlock = prevBlock;
-
         function initInteractions() {
-            document.querySelectorAll('textarea').forEach(el => {
-                el.addEventListener('input', function() {
-                    this.style.height = '40px';
-                    this.style.height = (this.scrollHeight) + 'px';
-                });
+            document.querySelectorAll('.radio-card').forEach(card => {
+                card.onclick = () => {
+                    const group = card.closest('.radio-group');
+                    group.querySelectorAll('.radio-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    const input = card.querySelector('input');
+                    if(input) input.checked = true;
+                    saveDraft();
+                };
             });
 
-            document.querySelectorAll('.radio-group').forEach(group => {
-                const cards = group.querySelectorAll('.radio-card');
-                cards.forEach(card => {
-                    card.addEventListener('click', () => {
-                        cards.forEach(c => c.classList.remove('selected'));
-                        card.classList.add('selected');
-                        const input = card.querySelector('input');
-                        if(input) input.checked = true;
-                        saveDraft();
-                    });
-                });
-            });
-
-            document.querySelectorAll('.scale-group').forEach(group => {
-                const btns = group.querySelectorAll('.scale-btn');
-                const hiddenInput = group.querySelector('input[type="hidden"]');
-                btns.forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        btns.forEach(b => b.classList.remove('selected'));
-                        btn.classList.add('selected');
-                        if(hiddenInput) hiddenInput.value = btn.dataset.val;
-                        saveDraft();
-                    });
-                });
+            document.querySelectorAll('.scale-btn').forEach(btn => {
+                btn.onclick = () => {
+                    const group = btn.closest('.scale-group');
+                    group.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    const hidden = group.querySelector('input[type="hidden"]');
+                    if(hidden) hidden.value = btn.dataset.val;
+                    saveDraft();
+                };
             });
 
             document.addEventListener('input', (e) => {
                 if (e.target.name) saveDraft();
             });
+
+            if (window.supabase) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
         }
 
-        // ==========================================
-        // 4. INICIALIZAÇÃO
-        // ==========================================
-        window.onload = () => {
-            blocks = document.querySelectorAll('.block');
-            wrapper = document.getElementById('formWrapper');
-            progressBar = document.getElementById('progressBar');
+        window.addEventListener('load', () => {
+            console.log("Page loaded, restoring draft...");
             loadDraft();
-        };
+        });
 
 
         // ============================================
