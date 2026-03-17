@@ -231,28 +231,12 @@
                 <div class="question"><label>1. Qual é o nome da sua marca ou empresa?</label><input type="text" name="b1_q1" required></div>
                 <div class="question"><label>2. Em qual cidade e região o negócio está localizado?</label><input type="text" name="b1_q2"></div>
                 <div class="question"><label>3. Em qual área ou segmento sua empresa atua?</label><input type="text" name="b1_q3"></div>
-                <div class="question"><label>4. O que exatamente você vende ou oferece hoje?</label><textarea name="b1_q4"></textarea></div>
-                <div class="question"><label>5. Se alguém perguntasse “o que sua empresa faz”, como você explicaria em uma frase simples?</label><input type="text" name="b1_q5"></div>
+                <div class="question"><label>4. O que vocês entregam? (Defina seu negócio/produto em uma frase)</label><textarea name="b1_q4"></textarea></div>
                 <div class="question">
-                    <label>6. Há quanto tempo o negócio existe?</label>
-                    <div class="radio-group">
-                        <label class="radio-card"><input type="radio" name="b1_q6" value="-1 ano">Menos de 1 ano</label>
-                        <label class="radio-card"><input type="radio" name="b1_q6" value="1 a 3 anos">1 a 3 anos</label>
-                        <label class="radio-card"><input type="radio" name="b1_q6" value="3 a 10 anos">3 a 10 anos</label>
-                        <label class="radio-card"><input type="radio" name="b1_q6" value="+10 anos">Mais de 10 anos</label>
-                    </div>
+                    <label>5. Há quanto tempo existe e como nasceu? (Oportunidade, necessidade ou sonho?)</label>
+                    <textarea name="b1_q5"></textarea>
                 </div>
-                <div class="question">
-                    <label>7. O negócio nasceu de uma oportunidade, de uma necessidade ou de um sonho antigo?</label>
-                    <div class="radio-group">
-                        <label class="radio-card"><input type="radio" name="b1_q7" value="Oportunidade">Oportunidade de Mercado</label>
-                        <label class="radio-card"><input type="radio" name="b1_q7" value="Necessidade">Necessidade</label>
-                        <label class="radio-card"><input type="radio" name="b1_q7" value="Sonho/Vocação">Sonho / Vocação</label>
-                    </div>
-                </div>
-                <div class="question"><label>8. Antes de existir formalmente, esse negócio já existia de alguma forma na sua vida? Como?</label><textarea name="b1_q8"></textarea></div>
-                <div class="question"><label>9. Se esse negócio deixasse de existir amanhã, qual parte da sua história pessoal desapareceria junto?</label><textarea name="b1_q9"></textarea></div>
-                <div class="question"><label>10. Existe algum momento marcante que você considera o verdadeiro início da empresa?</label><textarea name="b1_q10"></textarea></div>
+                <div class="question"><label>6. Se a sua marca deixasse de existir amanhã, o que morreria no mundo?</label><textarea name="b1_q6"></textarea></div>
 
                 <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar para História →</button></div>
             </div>
@@ -262,21 +246,18 @@
         <div class="block">
             <div class="block-inner">
                 <div class="block-counter">Bloco 2 de 10</div>
-                <h2 class="block-title">História e Fundadores</h2>
+                <h2 class="block-title">O Arquiteto</h2>
                 
-                <div class="question"><label>11. Quem criou ou fundou o negócio?</label><input type="text" name="b2_q11"></div>
-                <div class="question"><label>12. Qual é a trajetória profissional dessa pessoa antes da empresa existir?</label><textarea name="b2_q12"></textarea></div>
+                <div class="question"><label>7. Quem fundou e qual era a sua trajetória antes disso?</label><textarea name="b2_q7"></textarea></div>
                 <div class="question">
-                    <label>13. Essa pessoa sempre quis trabalhar nessa área ou chegou nela por acaso?</label>
+                    <label>8. Ter essa empresa sempre foi um sonho ou obra do acaso?</label>
                     <div class="radio-group">
-                        <label class="radio-card"><input type="radio" name="b2_q13" value="Sempre quis">Sempre soube que queria isso</label>
-                        <label class="radio-card"><input type="radio" name="b2_q13" value="Acaso">Foi um desvio (Acaso)</label>
+                        <label class="radio-card"><input type="radio" name="b2_q8" value="Sempre quis">Sempre sonhei com isso</label>
+                        <label class="radio-card"><input type="radio" name="b2_q8" value="Acaso">Obra do Acaso</label>
                     </div>
                 </div>
-                <div class="question"><label>14. Qual foi o maior desafio enfrentado no início do negócio?</label><textarea name="b2_q14"></textarea></div>
-                <div class="question"><label>15. Houve algum momento em que você realmente pensou em desistir? O que aconteceu?</label><textarea name="b2_q15"></textarea></div>
-                <div class="question"><label>16. O que fez você continuar mesmo diante das dificuldades?</label><input type="text" name="b2_q16"></div>
-                <div class="question"><label>17. Hoje, olhando para trás, qual conquista do negócio mais te orgulha?</label><textarea name="b2_q17"></textarea></div>
+                <div class="question"><label>9. Qual foi o maior desafio no início e o que te fez continuar sem desistir?</label><textarea name="b2_q9"></textarea></div>
+                <div class="question"><label>10. Olhando para trás até hoje, qual foi o seu momento de maior orgulho?</label><textarea name="b2_q10"></textarea></div>
 
                 <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
             </div>
@@ -286,14 +267,12 @@
         <div class="block">
             <div class="block-inner">
                 <div class="block-counter">Bloco 3 de 10</div>
-                <h2 class="block-title">Produtos e Serviços</h2>
+                <h2 class="block-title">A Oferta Central</h2>
                 
-                <div class="question"><label>18. Quais são os principais produtos ou serviços que você oferece hoje?</label><textarea name="b3_q18"></textarea></div>
-                <div class="question"><label>19. Existe algum produto ou serviço que seja o carro-chefe do negócio?</label><input type="text" name="b3_q19"></div>
-                <div class="question"><label>20. Qual produto ou serviço mais representa a essência da sua marca?</label><input type="text" name="b3_q20"></div>
-                <div class="question"><label>21. Existe algo que os clientes elogiam com frequência?</label><textarea name="b3_q21"></textarea></div>
-                <div class="question"><label>22. Existe algo que surpreende as pessoas quando conhecem sua empresa pela primeira vez?</label><textarea name="b3_q22"></textarea></div>
-                <div class="question"><label>23. Qual produto ou serviço você mais gosta de entregar ou realizar? Por quê?</label><textarea name="b3_q23"></textarea></div>
+                <div class="question"><label>11. Qual é o produto/serviço "carro-chefe" (o que paga as contas)?</label><input type="text" name="b3_q11"></div>
+                <div class="question"><label>12. Qual é o produto/serviço da "essência" (o que você mais ama entregar)?</label><input type="text" name="b3_q12"></div>
+                <div class="question"><label>13. Qual é o elogio que vocês mais recebem dos clientes repetidas vezes?</label><textarea name="b3_q13"></textarea></div>
+                <div class="question"><label>14. O que na sua entrega sempre surpreende os clientes que não esperavam por aquilo?</label><textarea name="b3_q14"></textarea></div>
 
                 <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
             </div>
@@ -303,32 +282,30 @@
         <div class="block">
             <div class="block-inner">
                 <div class="block-counter">Bloco 4 de 10</div>
-                <h2 class="block-title">Experiência do Cliente</h2>
+                <h2 class="block-title">A Rota Invisível</h2>
                 
-                <div class="question"><label>24. Como a maioria das pessoas descobre sua empresa hoje?</label><input type="text" name="b4_q24"></div>
-                <div class="question"><label>25. O que normalmente acontece desde o primeiro contato até a compra?</label><textarea name="b4_q25"></textarea></div>
+                <div class="question"><label>15. Como as pessoas geralmente descobrem a sua empresa hoje?</label><input type="text" name="b4_q15"></div>
                 <div class="question">
-                    <label>26. Numa escala de 1 a 5, como você qualifica a fluidez da experiência do cliente dentro do negócio?</label>
+                    <label>16. Escala fluidez: O quão fácil é comprar de você?</label>
                     <div class="scale-group">
                         <button type="button" class="scale-btn" data-val="1">1</button>
                         <button type="button" class="scale-btn" data-val="2">2</button>
                         <button type="button" class="scale-btn" data-val="3">3</button>
                         <button type="button" class="scale-btn" data-val="4">4</button>
                         <button type="button" class="scale-btn" data-val="5">5</button>
-                        <input type="hidden" name="b4_q26">
+                        <input type="hidden" name="b4_q16">
                     </div>
-                    <div class="scale-labels"><span>1: Dolorosa/Burocrática</span><span>5: Impecável/Premium</span></div>
+                    <div class="scale-labels"><span>1: Burocrática</span><span>5: Impecável/Premium</span></div>
                 </div>
                 <div class="question">
-                    <label>27. O atendimento é mais rápido e objetivo ou mais próximo e conversado?</label>
+                    <label>17. No atendimento, a cultura é ser absurdamente ágil ou absurdamente próximo?</label>
                     <div class="radio-group">
-                        <label class="radio-card"><input type="radio" name="b4_q27" value="Rápido/Objetivo">Rápido e Objetivo</label>
-                        <label class="radio-card"><input type="radio" name="b4_q27" value="Próximo/Conversado">Próximo e Conversado</label>
+                        <label class="radio-card"><input type="radio" name="b4_q17" value="Rápido/Ágil">Absurdamente Ágil</label>
+                        <label class="radio-card"><input type="radio" name="b4_q17" value="Próximo/Conversado">Absurdamente Próximo</label>
                     </div>
                 </div>
-                <div class="question"><label>28. Existe algum momento especial durante o atendimento que costuma marcar os clientes?</label><textarea name="b4_q28"></textarea></div>
-                <div class="question"><label>29. O que faz um cliente voltar pela segunda ou terceira vez?</label><input type="text" name="b4_q29"></div>
-                <div class="question"><label>30. Existe algum comportamento ou hábito curioso que você percebe nos seus clientes?</label><textarea name="b4_q30"></textarea></div>
+                <div class="question"><label>18. Qual é o principal motivo que faz um cliente voltar a comprar?</label><textarea name="b4_q18"></textarea></div>
+                <div class="question"><label>19. Qual é o hábito ou comportamento mais curioso do seu público?</label><textarea name="b4_q19"></textarea></div>
 
                 <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
             </div>
@@ -338,35 +315,17 @@
         <div class="block">
             <div class="block-inner">
                 <div class="block-counter">Bloco 5 de 10</div>
-                <h2 class="block-title">Público</h2>
+                <h2 class="block-title">O Alvo</h2>
                 
-                <div class="question"><label>31. Quem é o público principal do seu negócio?</label><textarea name="b5_q31"></textarea></div>
+                <div class="question"><label>20. Defina seu público demograficamente (Faixa etária predominante e gênero)</label><input type="text" name="b5_q20"></div>
                 <div class="question">
-                    <label>32. Qual é a faixa etária média dos seus clientes?</label>
+                    <label>21. Para a maioria: Seu serviço atende uma Necessidade Úrgente ou um Desejo Latente?</label>
                     <div class="radio-group">
-                        <label class="radio-card"><input type="radio" name="b5_q32" value="Sub 20">Sub 20</label>
-                        <label class="radio-card"><input type="radio" name="b5_q32" value="20 a 30">20 a 30 anos</label>
-                        <label class="radio-card"><input type="radio" name="b5_q32" value="30 a 45">30 a 45 anos</label>
-                        <label class="radio-card"><input type="radio" name="b5_q32" value="+45">Mais de 45 anos</label>
+                        <label class="radio-card"><input type="radio" name="b5_q21" value="Necessidade">Necessidade Úrgente</label>
+                        <label class="radio-card"><input type="radio" name="b5_q21" value="Desejo">Desejo Latente (Elevação)</label>
                     </div>
                 </div>
-                <div class="question">
-                    <label>33. Seus clientes costumam vir mais por necessidade ou por desejo?</label>
-                    <div class="radio-group">
-                        <label class="radio-card"><input type="radio" name="b5_q33" value="Necessidade">Necessidade</label>
-                        <label class="radio-card"><input type="radio" name="b5_q33" value="Desejo">Desejo de Elevação</label>
-                    </div>
-                </div>
-                <div class="question"><label>34. Existe um público secundário importante para a empresa?</label><input type="text" name="b5_q34"></div>
-                <div class="question">
-                    <label>35. Seus clientes são predominantemente:</label>
-                    <div class="radio-group">
-                        <label class="radio-card"><input type="radio" name="b5_q35" value="Homens">Homens</label>
-                        <label class="radio-card"><input type="radio" name="b5_q35" value="Mulheres">Mulheres</label>
-                        <label class="radio-card"><input type="radio" name="b5_q35" value="Equilibrado">Equilibrado</label>
-                    </div>
-                </div>
-                <div class="question"><label>36. O que normalmente motiva uma pessoa a procurar exatamente esse tipo de serviço ou produto?</label><textarea name="b5_q36"></textarea></div>
+                <div class="question"><label>22. Além do demográfico, qual é a "dor ou ambição" secreta que eles não dizem, mas motiva a compra?</label><textarea name="b5_q22"></textarea></div>
 
                 <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
             </div>
@@ -376,14 +335,12 @@
         <div class="block">
             <div class="block-inner">
                 <div class="block-counter">Bloco 6 de 10</div>
-                <h2 class="block-title">Diferenciais e Valores</h2>
+                <h2 class="block-title">O Fosso do Castelo</h2>
                 
-                <div class="question"><label>37. Por que um cliente escolheria sua empresa em vez de um concorrente?</label><textarea name="b6_q37"></textarea></div>
-                <div class="question"><label>38. O que você acredita que sua empresa faz melhor que a maioria no mercado?</label><textarea name="b6_q38"></textarea></div>
-                <div class="question"><label>39. Existe algo que só o seu negócio oferece ou faz de um jeito muito próprio?</label><textarea name="b6_q39"></textarea></div>
-                <div class="question"><label>40. Qual é o cuidado ou detalhe que vocês têm que talvez os clientes nem percebam, mas que é muito importante para você?</label><textarea name="b6_q40"></textarea></div>
-                <div class="question"><label>41. Existe algo que você se recusa a fazer no seu negócio, mesmo que isso pudesse gerar mais dinheiro?</label><input type="text" name="b6_q41"></div>
-                <div class="question"><label>42. Existe alguma prática comum no seu mercado que você não concorda?</label><textarea name="b6_q42"></textarea></div>
+                <div class="question"><label>23. Em um mercado cheio de opções, por que deveriam escolher você? (Seu grande diferencial)</label><textarea name="b6_q23"></textarea></div>
+                <div class="question"><label>24. Qual é aquele detalhe operacional que é MUITO importante para você, mas a maioria não liga?</label><textarea name="b6_q24"></textarea></div>
+                <div class="question"><label>25. O que você se recusa TERMINANTEMENTE a fazer, mesmo que um cliente pague muito bem?</label><input type="text" name="b6_q25"></div>
+                <div class="question"><label>26. Qual é a prática normalizada do seu mercado que você não concorda ou acha antiética?</label><textarea name="b6_q26"></textarea></div>
 
                 <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
             </div>
@@ -393,25 +350,15 @@
         <div class="block">
             <div class="block-inner">
                 <div class="block-counter">Bloco 7 de 10</div>
-                <h2 class="block-title">Ambiente e Atmosfera</h2>
+                <h2 class="block-title">A Atmosfera</h2>
                 
-                <div class="question"><label>43. Como é o espaço físico (ou percepção online) do seu negócio?</label><textarea name="b7_q43"></textarea></div>
-                <div class="question"><label>44. Que sensação você gostaria que as pessoas tivessem ao entrar no seu ecossistema?</label><input type="text" name="b7_q44"></div>
+                <div class="question"><label>27. Se o seu ecossistema (site, espaço físico) fosse um lugar real, que lugar seria e qual seria a atmosfera ideal?</label><textarea name="b7_q27"></textarea></div>
+                <div class="question"><label>28. Qual elemento visual (cor, objeto, fonte, textura) não pode faltar por representar a sua marca?</label><input type="text" name="b7_q28"></div>
                 <div class="question">
-                    <label>45. A atmosfera sentida deve ser mais:</label>
+                    <label>29. Quão intenso ou frequente é o contato ideal entre sua marca e o cliente durante o serviço?</label>
                     <div class="radio-group">
-                        <label class="radio-card"><input type="radio" name="b7_q45" value="Sofisticado/Minimalista">Sofisticado & Minimalista</label>
-                        <label class="radio-card"><input type="radio" name="b7_q45" value="Acolhedor/Humano">Acolhedor & Humano</label>
-                        <label class="radio-card"><input type="radio" name="b7_q45" value="Vibrante/Enérgico">Vibrante & Enérgico</label>
-                        <label class="radio-card"><input type="radio" name="b7_q45" value="Sombrio/Subversivo">Sombrio & Subversivo</label>
-                    </div>
-                </div>
-                <div class="question"><label>46. Existe algum detalhe visual ou elemento do ambiente que represente bem a marca?</label><input type="text" name="b7_q46"></div>
-                <div class="question">
-                    <label>47. Você prefere que os clientes fiquem bastante tempo em contato ou que seja algo altamente objetivo?</label>
-                    <div class="radio-group">
-                        <label class="radio-card"><input type="radio" name="b7_q47" value="Imersão Demorada">Imersão/Retenção longa</label>
-                        <label class="radio-card"><input type="radio" name="b7_q47" value="Rápido Clínico">Transacional/Rápido</label>
+                        <label class="radio-card"><input type="radio" name="b7_q29" value="Imersão Demorada">Imersão/Retenção longa</label>
+                        <label class="radio-card"><input type="radio" name="b7_q29" value="Rápido Clínico">Transacional/Rápido</label>
                     </div>
                 </div>
 
@@ -423,12 +370,11 @@
         <div class="block">
             <div class="block-inner">
                 <div class="block-counter">Bloco 8 de 10</div>
-                <h2 class="block-title">Percepção e Concorrência</h2>
+                <h2 class="block-title">O Espelho Quebrado</h2>
                 
-                <div class="question"><label>48. Quem são os principais concorrentes na sua região ou nicho digital?</label><input type="text" name="b8_q48"></div>
-                <div class="question"><label>49. O que você acredita que esses concorrentes fazem BEM?</label><textarea name="b8_q49"></textarea></div>
-                <div class="question"><label>50. O que você acredita que eles deixam a desejar (o calcanhar de Aquiles deles)?</label><textarea name="b8_q50"></textarea></div>
-                <div class="question"><label>51. Existe algo que você sente que ainda falta visceralmente no mercado da sua região?</label><textarea name="b8_q51"></textarea></div>
+                <div class="question"><label>30. Listem rapidamente seus 3 principais concorrentes locais ou referências nacionais.</label><input type="text" name="b8_q30"></div>
+                <div class="question"><label>31. Sendo humilde: O que esses concorrentes fazem MUITO bem que você respeita?</label><textarea name="b8_q31"></textarea></div>
+                <div class="question"><label>32. Sendo crítico: O que falta visceralmente neles e que os clientes detestam (a fraqueza a ser explorada)?</label><textarea name="b8_q32"></textarea></div>
 
                 <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Avançar →</button></div>
             </div>
@@ -438,16 +384,27 @@
         <div class="block">
             <div class="block-inner">
                 <div class="block-counter">Bloco 9 de 10</div>
-                <h2 class="block-title">Identidade da Marca</h2>
+                <h2 class="block-title">Máscara Social</h2>
+                
+                <div class="question"><label>33. Se a sua marca fosse uma pessoa famosa (real ou fictícia), quem ela seria?</label><input type="text" name="b9_q33"></div>
                 
                 <div class="question">
-                    <label>52. Se sua marca fosse uma pessoa em um ambiente social alto padrão, como ela se comportaria?</label>
-                    <textarea name="b9_q52" placeholder="Ex: Falaria baixo? Dominaria a mesa?"></textarea>
+                    <label>34. Escala Escuridão: O quão "boazinha" x "agressiva" é a postura da marca na comunicação?</label>
+                    <div class="scale-group">
+                        <button type="button" class="scale-btn" data-val="1">1</button>
+                        <button type="button" class="scale-btn" data-val="2">2</button>
+                        <button type="button" class="scale-btn" data-val="3">3</button>
+                        <button type="button" class="scale-btn" data-val="4">4</button>
+                        <button type="button" class="scale-btn" data-val="5">5</button>
+                        <input type="hidden" name="b9_q34">
+                    </div>
+                    <div class="scale-labels"><span>1: Totalmente Boazinha/Paz</span><span>5: Agressiva/Questionadora</span></div>
                 </div>
-                <div class="question"><label>53. Quais três palavras devem definir sua marca hoje?</label><input type="text" name="b9_q53"></div>
-                <div class="question"><label>54. Quais três palavras você NUNCA gostaria que fossem associadas à sua empresa (Ofensas)?</label><input type="text" name="b9_q54"></div>
-                <div class="question"><label>55. Se três clientes estivessem conversando sobre sua empresa agora num bar, o que você gostaria de ouvir escondido?</label><textarea name="b9_q55"></textarea></div>
-                <div class="question"><label>56. Existe algo que você teria medo profundo de ouvir nessa mesma conversa?</label><textarea name="b9_q56"></textarea></div>
+
+                <div class="question"><label>35. Diga três palavras magnéticas que resumem o que sua marca É.</label><input type="text" name="b9_q35"></div>
+                <div class="question"><label>36. Diga três palavras proibidas que seriam uma ofensa se alguém usasse para descrever sua marca.</label><input type="text" name="b9_q36"></div>
+                <div class="question"><label>37. Seus clientes estão conversando numa roda. O que você AMARIA escutar eles dizendo sobre você?</label><textarea name="b9_q37"></textarea></div>
+                <div class="question"><label>38. Nessa mesma roda, qual comentário sobre a sua marca te faria perder o sono de raiva ou tristeza?</label><textarea name="b9_q38"></textarea></div>
 
                 <div class="controls"><button class="btn" onclick="prevBlock()">← Voltar</button><button class="btn btn-primary" onclick="nextBlock()">Último Passo →</button></div>
             </div>
@@ -457,12 +414,25 @@
         <div class="block">
             <div class="block-inner">
                 <div class="block-counter">Bloco 10 de 10</div>
-                <h2 class="block-title">O Ápice da Visão</h2>
+                <h2 class="block-title">Horizonte de Eventos</h2>
                 
-                <div class="question"><label>57. O que você gostaria que as pessoas sentissem no peito quando veem sua marca nas redes sociais?</label><textarea name="b10_q57"></textarea></div>
-                <div class="question"><label>58. Qual é o principal objetivo do marketing da empresa hoje?</label><input type="text" name="b10_q58"></div>
-                <div class="question"><label>59. Se esse negócio crescer absurdamente nos próximos anos, o que ele vai permitir que você realize na sua vida particular?</label><textarea name="b10_q59"></textarea></div>
-                <div class="question"><label>60. Se sua marca pudescde deixar uma única mensagem (Legado Filosófico) para o mundo, qual seria?</label><textarea name="b10_q60"></textarea></div>
+                <div class="question"><label>39. Olhando para a identidade atual, qual é o seu sentimento dominante? (Orgulho, Vergonha, Confusão, Alegria?)</label><textarea name="b10_q39"></textarea></div>
+                <div class="question"><label>40. De forma nua e crua: O que o marketing atual NÃO está conseguindo fazer?</label><input type="text" name="b10_q40"></div>
+                
+                <div class="question">
+                    <label>41. Qual o grau de disposição atual de vocês para DESTRUIR a marca antiga e renascer como algo premium?</label>
+                    <div class="scale-group">
+                        <button type="button" class="scale-btn" data-val="1">1</button>
+                        <button type="button" class="scale-btn" data-val="2">2</button>
+                        <button type="button" class="scale-btn" data-val="3">3</button>
+                        <button type="button" class="scale-btn" data-val="4">4</button>
+                        <button type="button" class="scale-btn" data-val="5">5</button>
+                        <input type="hidden" name="b10_q41">
+                    </div>
+                    <div class="scale-labels"><span>1: Quero manter tudo igual</span><span>5: Disposto a destruir tudo e renascer</span></div>
+                </div>
+
+                <div class="question"><label>42. Daqui a 10 anos, quando você vender ou passar a empresa, qual legado filosófico quer que permaneça?</label><textarea name="b10_q42"></textarea></div>
 
                 <div class="controls" style="margin-top:20px;">
                     <button class="btn" onclick="prevBlock()">← Revisar</button>
@@ -508,50 +478,51 @@
             var blocks, wrapper, progressBar;
             var initialized = false;
 
-            // Mapeamento de Perguntas para o Email
+            // Mapeamento de Perguntas para o Email (Atualizado: 42 perguntas)
             const QUESTION_MAP = {
                 "lead_name": "Nome do Lead", "lead_email": "E-mail de Contato", "lead_whatsapp": "WhatsApp", "lead_social": "Rede Social/Link",
                 
-                // Bloco 1
-                "b1_q1": "1. Nome da marca/empresa", "b1_q2": "2. Cidade e região", "b1_q3": "3. Área ou segmento", "b1_q4": "4. O que vende ou oferece",
-                "b1_q5": "5. O que faz em uma frase", "b1_q6": "6. Há quanto tempo existe", "b1_q7": "7. Nasceu de oportunidade, necessidade ou sonho?", 
-                "b1_q8": "8. Já existia na sua vida antes?", "b1_q9": "9. Se deixasse de existir amanhã?", "b1_q10": "10. Momento marcante de início",
+                // Bloco 1: A Gênese
+                "b1_q1": "1. Nome da marca/empresa", "b1_q2": "2. Cidade e região", "b1_q3": "3. Área ou segmento", 
+                "b1_q4": "4. Entregável (Definição em uma frase)", "b1_q5": "5. Tempo de existência e nascimento (Oportunidade/Necessidade/Sonho)",
+                "b1_q6": "6. Se deixasse de existir amanhã, o que morreria?",
                 
-                // Bloco 2
-                "b2_q11": "11. Quem fundou?", "b2_q12": "12. Trajetória anterior", "b2_q13": "13. Sempre quis ou acaso?", 
-                "b2_q14": "14. Maior desafio no início", "b2_q15": "15. Pensou em desistir?", "b2_q16": "16. O que fez continuar?", "b2_q17": "17. Maior orgulho",
+                // Bloco 2: O Arquiteto
+                "b2_q7": "7. Fundador e trajetória", "b2_q8": "8. Sonho ou Acaso", "b2_q9": "9. Maior desafio e o que fez continuar", 
+                "b2_q10": "10. Momento de maior orgulho",
                 
-                // Bloco 3
-                "b3_q18": "18. Principais produtos/serviços", "b3_q19": "19. Produto carro-chefe", "b3_q20": "20. Produto que representa a essência", 
-                "b3_q21": "21. Elogio frequente", "b3_q22": "22. O que surpreende os clientes", "b3_q23": "23. O que mais gosta de entregar",
+                // Bloco 3: A Oferta Central
+                "b3_q11": "11. Produto/serviço carro-chefe", "b3_q12": "12. Produto/serviço essência", 
+                "b3_q13": "13. Elogio mais frequente", "b3_q14": "14. O que surpreende os clientes",
                 
-                // Bloco 4
-                "b4_q24": "24. Como descobrem a empresa?", "b4_q25": "25. Jornada de contato até compra", "b4_q26": "26. Escala fluidez (1-5)", 
-                "b4_q27": "27. Atendimento rápido ou próximo?", "b4_q28": "28. Momento especial no atendimento", "b4_q29": "29. Motivo de retorno", "b4_q30": "30. Hábito curioso de cliente",
+                // Bloco 4: A Rota Invisível
+                "b4_q15": "15. Como descobrem a empresa", "b4_q16": "16. Escala fluidez da compra (1-5)", 
+                "b4_q17": "17. Atendimento: Ágil ou Próximo?", "b4_q18": "18. Motivo de recompra", "b4_q19": "19. Hábito curioso do público",
                 
-                // Bloco 5
-                "b5_q31": "31. Público principal", "b5_q32": "32. Faixa etária", "b5_q33": "33. Necessidade ou desejo?", 
-                "b5_q34": "34. Público secundário", "b5_q35": "35. Predominância de gênero", "b5_q36": "36. Motivação para procurar a empresa",
+                // Bloco 5: O Alvo
+                "b5_q20": "20. Público demográfico", "b5_q21": "21. Atende Necessidade ou Desejo?", 
+                "b5_q22": "22. Dor ou ambição secreta que motiva a compra",
                 
-                // Bloco 6
-                "b6_q37": "37. Por que escolher sua empresa?", "b6_q38": "38. O que faz melhor que a maioria", "b6_q39": "39. Algo próprio e único", 
-                "b6_q40": "40. Detalhe importante para você", "b6_q41": "41. Recusa a fazer mesmo por dinheiro", "b6_q42": "42. Prática do mercado que não concorda",
+                // Bloco 6: O Fosso do Castelo
+                "b6_q23": "23. Grande Diferencial (Por que você?)", "b6_q24": "24. Detalhe operacional invisível mas importante", 
+                "b6_q25": "25. O que se recusa a fazer", "b6_q26": "26. Prática do mercado que discorda/antiética",
                 
-                // Bloco 7
-                "b7_q43": "43. Espaço físico/percepção online", "b7_q44": "44. Sensação ao entrar no ecossistema", "b7_q45": "45. Atmosfera ideal", 
-                "b4_q46": "46. Detalhe visual representativo", "b7_q47": "47. Tempo de contato ideal",
+                // Bloco 7: A Atmosfera
+                "b7_q27": "27. Atmosfera e Lugar Ideal", "b7_q28": "28. Elemento visual obrigatório", 
+                "b7_q29": "29. Contato ideal (Imersão ou Rápido)",
                 
-                // Bloco 8
-                "b8_q48": "48. Principais concorrentes", "b8_q49": "49. O que os concorrentes fazem BEM", "b8_q50": "50. O que deixam a desejar", 
-                "b8_q51": "51. O que falta visceralmente no mercado",
+                // Bloco 8: O Espelho Quebrado
+                "b8_q30": "30. Principais Concorrentes/Referências", "b8_q31": "31. O que os concorrentes fazem BEM", 
+                "b8_q32": "32. O que falta neles (A grande Fraqueza)",
                 
-                // Bloco 9
-                "b9_q52": "52. Marca como pessoa social", "b9_q53": "53. Três palavras que definem a marca", "b9_q54": "54. Três palavras nunca associadas (Ofensas)", 
-                "b9_q55": "55. Conversa escondida (O que gostaria de ouvir)", "b9_q56": "56. Medo profundo de ouvir",
+                // Bloco 9: Máscara Social
+                "b9_q33": "33. Se a marca fosse pessoa famosa", "b9_q34": "34. Escala Escuridão (1-Boa / 5-Agressiva)", 
+                "b9_q35": "35. Três palavras magnéticas (É)", "b9_q36": "36. Três palavras proibidas/ofensas",
+                "b9_q37": "37. Conversa de bar (Amária ouvir)", "b9_q38": "38. Conversa de bar (Odiaria ouvir/Raiva)",
                 
-                // Bloco 10
-                "b10_q57": "57. Sentimento ao ver a marca", "b10_q58": "58. Objetivo do marketing hoje", "b10_q59": "59. Crescimento e vida particular", 
-                "b10_q60": "60. Legado Filosófico"
+                // Bloco 10: Horizonte de Eventos
+                "b10_q39": "39. Sentimento dominante sobre identidade atual", "b10_q40": "40. Falha do marketing atual", 
+                "b10_q41": "41. Disposição de destruir e renascer (1-5)", "b10_q42": "42. Legado Filosófico"
             };
 
             // ==========================================
