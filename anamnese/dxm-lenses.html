@@ -521,325 +521,421 @@
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // ==========================================
-        // 1. CONFIGURAÇÕES E MOTOR DE INTERFACE (PRIORIDADE)
-        // ==========================================
-        const FORM_PREFIX = 'dxm_'; 
-        const DRAFT_KEY = FORM_PREFIX + 'draft';
-        const BLOCK_KEY = FORM_PREFIX + 'block';
-        const SUPABASE_URL = 'https://pqeqccbtqrmsvivnisuc.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0';
-        const FORMSUBMIT_URL = `https://formsubmit.co/ajax/brunolenses@gmail.com`;
-        const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/analyze-lenses`;
+        /**
+         * LENSES O.S. - KERNEL v7.0 (DXM VERSION)
+         * "Tanque de Guerra" - ES5 Native Compatible
+         */
+        (function() {
+            "use strict";
 
-        let supabase;
-        let currentBlock = 0;
-        let blocks, wrapper, progressBar;
-        let initialized = false;
+            // CONFIGURAÇÕES GLOBAIS
+            var FORM_PREFIX = 'dxm_';
+            var DRAFT_KEY = FORM_PREFIX + 'draft';
+            var BLOCK_KEY = FORM_PREFIX + 'block';
+            var SUPABASE_URL = 'https://pqeqccbtqrmsvivnisuc.supabase.co';
+            var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxZXFjY2J0cXJtc3Zpdm5pc3VjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzODM0ODksImV4cCI6MjA4Nzk1OTQ4OX0.9AHXafOxSKYW0rtaXQcSoNakpM5cdf9bQ_P6d_5nhi0';
+            var FORMSUBMIT_URL = "https://formsubmit.co/ajax/brunolenses@gmail.com";
+            var EDGE_FUNCTION_URL = SUPABASE_URL + "/functions/v1/analyze-lenses";
 
-        // FUNÇÕES GLOBAIS
-        window.startForm = function() {
-            const intro = document.getElementById('introScreen');
-            if (intro) {
-                intro.style.opacity = '0';
-                intro.style.transform = 'translateY(-50px)';
-                setTimeout(() => {
-                    intro.style.display = 'none';
-                    updateView();
-                }, 800);
+            // DICIONÁRIO DE TRADUÇÃO (DOSSIÊ)
+            var QUESTION_MAP = {
+                "context_name": "Nome do Lead",
+                "context_email": "E-mail de Contato",
+                "context_whatsapp": "WhatsApp/Telefone",
+                "context_social_media": "Instagram/Rede Social",
+                "context_role": "Perfil Profissional",
+                "context_time": "Tempo de Mercado",
+                "context_business_name": "Nome da Empresa",
+                "context_main_goal": "Objetivo Principal",
+                "context_challenges": "Maiores Desafios",
+                "context_differential": "Diferencial Acreditado",
+                "context_holding_back": "O que está segurando",
+                "context_transformation": "Transformação desejada",
+                "b1_q1": "1. Personagem/Sombra da Marca",
+                "b1_q2": "2. Nível de Compreensão Publica (0-5)",
+                "b1_q3": "3. O que morreria sem a marca",
+                "b1_q4": "4. Frase de Definição (Sem produto)",
+                "b1_q5": "5. Segredo sobre o Mercado",
+                "b1_q6": "6. Postura (Amada/Temida/etc)",
+                "b2_q7": "7. Arquétipo Desejado vs Real",
+                "b2_q8": "8. Alinhamento Comunicação (0-5)",
+                "b2_q9": "9. Pecado Capital Dominante",
+                "b2_q10": "10. Percepção vs Realidade",
+                "b2_q11": "11. Emoção Default",
+                "b2_q12": "12. A Marca como Arma",
+                "b3_q13": "13. Público Declarado vs Real",
+                "b3_q14": "14. Sentimento do Público (0-5)",
+                "b3_q15": "15. Dor Inadmissível",
+                "b3_q16": "16. Fraqueza do Vilão (Público)",
+                "b3_q17": "17. Busca Sem Palavras",
+                "b3_q18": "18. Cliente Temido/Desejado",
+                "b4_q19": "19. Nicho Declarado",
+                "b4_q20": "20. Nicho Real (Transformação)",
+                "b4_q21": "21. Espaço de Crescimento (0-5)",
+                "b4_q22": "22. Nicho em uma Palavra",
+                "b5_q23": "23. Promessa vs Entrega Real",
+                "b5_q24": "24. Diferenciação (0-5)",
+                "b5_q25": "25. Motivo de Proibição",
+                "b5_q26": "26. Natureza (Ponte/Remédio/etc)",
+                "b5_q27": "27. Detalhe Oculto",
+                "b5_q28": "28. Destino vs Ferramenta",
+                "b6_q29": "29. Significado do Preço",
+                "b6_q30": "30. Crença no Preço (0-5)",
+                "b6_q31": "31. Efeito do Preço (Atrai/Afasta)",
+                "b6_q32": "32. Versão 10x mais cara",
+                "b7_q33": "33. História Oculta",
+                "b7_q34": "34. Identificação (0-5)",
+                "b7_q35": "35. Tempo da Narrativa",
+                "b7_q36": "36. Sentimento Pós-Consumo",
+                "b7_q37": "37. Vilão Narrativo",
+                "b7_q38": "38. Clima Musical",
+                "b8_q39": "39. Comunicação Estética Muda",
+                "b8_q40": "40. Alinhamento Estético (0-5)",
+                "b8_q41": "41. Elemento Descartável",
+                "b8_q42": "42. Direção de Arte (Filme)",
+                "b9_q43": "43. Venda vs Compra Real",
+                "b9_q44": "44. Desejo Imediato (0-5)",
+                "b9_q45": "45. Fricção Invisível",
+                "b9_q46": "46. Ritual de Conversão",
+                "b9_q47": "47. Base do Funil",
+                "b9_q48": "48. O que não abandona",
+                "b10_q49": "49. O que deve parar de fazer",
+                "b10_q50": "50. Disposição para Destruir (0-5)",
+                "b10_q51": "51. O que permanece no zero",
+                "b10_q52": "52. Versão Perigosa",
+                "b10_q53": "53. Sem expectativa de nicho",
+                "b10_q54": "54. Expansão 12 meses",
+                "b11_q55": "55. Versão Universo Paralelo",
+                "b11_q56": "56. Alinhamento Criador (0-5)",
+                "b11_q57": "57. Crença Principal (Culto)",
+                "b11_q58": "58. Segredo Único",
+                "b11_q59": "59. O que a marca diria",
+                "b11_q60": "60. Tornar-se para o final"
+            };
+
+            var supabase;
+            var currentBlock = 0;
+            var blocks, wrapper, progressBar;
+            var initialized = false;
+
+            // MOTOR DE INTERFACE
+            window.startForm = function() {
+                var intro = document.getElementById('introScreen');
+                if (intro) {
+                    intro.style.opacity = '0';
+                    intro.style.transform = 'translateY(-50px)';
+                    setTimeout(function() {
+                        intro.style.display = 'none';
+                        window.updateView();
+                    }, 800);
+                }
+            };
+
+            window.updateView = function(fromDraft) {
+                if (!wrapper || !blocks || blocks.length === 0) {
+                    blocks = document.querySelectorAll('.block');
+                    wrapper = document.getElementById('formWrapper');
+                    progressBar = document.getElementById('progressBar');
+                }
+                if (!wrapper || !blocks.length) return;
+                if (!initialized) ensureInitialized();
+
+                wrapper.style.transform = 'translateX(-' + (currentBlock * 100) + 'vw)';
+                for (var i = 0; i < blocks.length; i++) {
+                    blocks[i].classList.toggle('active', i === currentBlock);
+                    if (i === currentBlock) {
+                        var inner = blocks[i].querySelector('.block-inner');
+                        if (inner) inner.style.opacity = '1';
+                    }
+                }
+
+                if (progressBar) {
+                    var pct = ((currentBlock + 1) / blocks.length) * 100;
+                    progressBar.style.width = pct + '%';
+                }
+                if (!fromDraft) saveDraft();
+            };
+
+            window.validateNext = function(blockIndex) {
+                if (blockIndex === 0) {
+                    var b1 = document.getElementById('b1-validator-zone');
+                    var reqInputs = b1.querySelectorAll('input[required], textarea[required]');
+                    var radioGroups = b1.querySelectorAll('.radio-group[data-required="true"]');
+                    var errorSpan = document.getElementById('b1-error');
+                    
+                    var valid = true;
+                    for (var i = 0; i < reqInputs.length; i++) {
+                        if (!reqInputs[i].value.trim()) valid = false;
+                    }
+                    for (var j = 0; j < radioGroups.length; j++) {
+                        var checked = radioGroups[j].querySelector('input[type="radio"]:checked');
+                        if (!checked) valid = false;
+                    }
+
+                    if (!valid) {
+                        if (errorSpan) errorSpan.style.display = "block";
+                        return;
+                    } else {
+                        if (errorSpan) errorSpan.style.display = "none";
+                        window.nextBlock();
+                    }
+                } else {
+                    window.nextBlock();
+                }
+            };
+
+            window.nextBlock = function() {
+                if (currentBlock < (blocks ? blocks.length : 0) - 1) {
+                    currentBlock++;
+                    window.updateView();
+                    window.scrollTo(0, 0);
+                }
+            };
+
+            window.prevBlock = function() {
+                if (currentBlock > 0) {
+                    currentBlock--;
+                    window.updateView();
+                    window.scrollTo(0, 0);
+                }
+            };
+
+            // LÓGICA DE DADOS (DRAFT & DOSSIÊ)
+            function getFormData() {
+                var rawData = {};
+                var inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea');
+                for (var i = 0; i < inputs.length; i++) {
+                    if (inputs[i].value.trim()) rawData[inputs[i].name] = inputs[i].value.trim();
+                }
+                var radios = document.querySelectorAll('input[type="radio"]:checked');
+                for (var j = 0; j < radios.length; j++) {
+                    rawData[radios[j].name] = radios[j].value;
+                }
+                var hiddens = document.querySelectorAll('input[type="hidden"]');
+                for (var k = 0; k < hiddens.length; k++) {
+                    if (hiddens[k].value) rawData[hiddens[k].name] = hiddens[k].value;
+                }
+                return rawData;
             }
-        };
 
-        window.updateView = function(fromDraft = false) {
-            if (!wrapper || !blocks || blocks.length === 0) {
+            function getFormattedAnswers() {
+                var data = getFormData();
+                var formatted = {};
+                for (var key in data) {
+                    var label = QUESTION_MAP[key] || key;
+                    formatted[label] = data[key];
+                }
+                return formatted;
+            }
+
+            function saveDraft() {
+                localStorage.setItem(DRAFT_KEY, JSON.stringify(getFormData()));
+                localStorage.setItem(BLOCK_KEY, currentBlock);
+            }
+
+            function restoreDraft() {
+                var draft = localStorage.getItem(DRAFT_KEY);
+                var savedBlock = localStorage.getItem(BLOCK_KEY);
+                if (draft) {
+                    var data = JSON.parse(draft);
+                    var inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea');
+                    for (var i = 0; i < inputs.length; i++) {
+                        if (data[inputs[i].name]) inputs[i].value = data[inputs[i].name];
+                    }
+                    var cards = document.querySelectorAll('.radio-card');
+                    for (var j = 0; j < cards.length; j++) {
+                        var input = cards[j].querySelector('input');
+                        if (input && data[input.name] === input.value) {
+                            cards[j].classList.add('selected');
+                            input.checked = true;
+                        }
+                    }
+                    var scales = document.querySelectorAll('.scale-btn');
+                    for (var k = 0; k < scales.length; k++) {
+                        var group = scales[k].closest('.scale-group');
+                        var hidden = group ? group.querySelector('input[type="hidden"]') : null;
+                        if (hidden && data[hidden.name] == scales[k].dataset.val) {
+                            scales[k].classList.add('selected');
+                            hidden.value = scales[k].dataset.val;
+                        }
+                    }
+                }
+                if (savedBlock) {
+                    currentBlock = parseInt(savedBlock);
+                    if (currentBlock > 0) {
+                        var intro = document.getElementById('introScreen');
+                        if (intro) intro.style.display = 'none';
+                        window.updateView(true);
+                    }
+                }
+            }
+
+            function ensureInitialized() {
+                if (initialized) return;
+                initInteractions();
+                initialized = true;
+            }
+
+            function initInteractions() {
+                var cards = document.querySelectorAll('.radio-card');
+                for (var i = 0; i < cards.length; i++) {
+                    (function(card) {
+                        card.onclick = function() {
+                            var group = card.closest('.radio-group');
+                            var allCards = group.querySelectorAll('.radio-card');
+                            for (var j = 0; j < allCards.length; j++) allCards[j].classList.remove('selected');
+                            card.classList.add('selected');
+                            var input = card.querySelector('input');
+                            if (input) input.checked = true;
+                            saveDraft();
+                        };
+                    })(cards[i]);
+                }
+
+                var scales = document.querySelectorAll('.scale-btn');
+                for (var j = 0; j < scales.length; j++) {
+                    (function(btn) {
+                        btn.onclick = function() {
+                            var group = btn.closest('.scale-group');
+                            var allBtns = group.querySelectorAll('.scale-btn');
+                            for (var k = 0; k < allBtns.length; k++) allBtns[k].classList.remove('selected');
+                            btn.classList.add('selected');
+                            var hiddenInput = group.querySelector('input[type="hidden"]');
+                            if (hiddenInput) hiddenInput.value = btn.dataset.val;
+                            saveDraft();
+                        };
+                    })(scales[j]);
+                }
+
+                var textareas = document.querySelectorAll('textarea');
+                for (var k = 0; k < textareas.length; k++) {
+                    (function(el) {
+                        el.oninput = function() {
+                            el.style.height = '40px';
+                            el.style.height = el.scrollHeight + 'px';
+                        };
+                    })(textareas[k]);
+                }
+
+                document.addEventListener('input', function(e) {
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') saveDraft();
+                });
+            }
+
+            // AI & SUBMISSION
+            async function generateAIDiagnosis(answers) {
+                try {
+                    var response = await fetch(EDGE_FUNCTION_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + SUPABASE_KEY
+                        },
+                        body: JSON.stringify({ answers: answers, type: 'dxm' })
+                    });
+                    return await response.json();
+                } catch (e) {
+                    console.error("AI Error:", e);
+                    return { 
+                        teaser: "O fluxo energético da sua marca sugere uma identidade latente de alto impacto. O DXM detectou que sua narrativa possui camadas de profundidade que aguardam por uma estratégia de grife.", 
+                        full_diagnosis: "Análise processada em modo preventivo."
+                    };
+                }
+            }
+
+            var submitBtn = document.getElementById('btnSubmitForm');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', async function(e) {
+                    if (submitBtn.disabled) return;
+                    submitBtn.disabled = true;
+                    submitBtn.style.opacity = '0.5';
+                    submitBtn.textContent = 'TRANSMITINDO...';
+
+                    var rawData = getFormattedAnswers();
+                    rawData['_captcha'] = "false";
+                    rawData['_template'] = "table";
+                    rawData['_subject'] = "🆕 DXM LENSES: Diagnóstico Profundo de " + (rawData["Nome do Lead"] || "Novo Lead");
+
+                    var loader = document.getElementById('loader');
+                    var loaderText = document.getElementById('loaderText');
+                    if (loader) loader.classList.add('show');
+
+                    var steps = [
+                        "Criptografando Malha Lexical...",
+                        "Decodificando DNA Estratégico...",
+                        "Lenses O.S. Gerando Dossiê..."
+                    ];
+                    
+                    for (var i = 0; i < steps.length; i++) {
+                        if (loaderText) loaderText.textContent = steps[i];
+                        await new Promise(function(r) { setTimeout(r, 1200); });
+                    }
+
+                    // 1. AI Analysis
+                    var diagnosisDataOnly = {};
+                    var raw = getFormData();
+                    for (var k in raw) { if (!k.startsWith('context_')) diagnosisDataOnly[k] = raw[k]; }
+                    var diagnosis = await generateAIDiagnosis(diagnosisDataOnly);
+
+                    // 2. Supabase Insert
+                    try {
+                        var contactInfo = {};
+                        for (var c in raw) { if (c.startsWith('context_')) contactInfo[c] = raw[c]; }
+                        
+                        await supabase.from('dxm_leads').insert([{ 
+                            contact_info: contactInfo, 
+                            answers: diagnosisDataOnly,
+                            ai_analysis: diagnosis,
+                            type: 'dxm'
+                        }]);
+                    } catch (err) { console.error("DB Error:", err); }
+
+                    // 3. FormSubmit (Email)
+                    fetch(FORMSUBMIT_URL, {
+                        method: "POST",
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                        body: JSON.stringify(rawData)
+                    }).catch(function(e) { console.log(e); });
+
+                    // 4. WhatsApp (CallMeBot)
+                    var phone = "5515997730671";
+                    var apikey = "8684363";
+                    var leadName = contactInfo.context_name || "Alguém";
+                    var msg = encodeURIComponent("🚨 *DXM LENSES* 🚨\nDiagnóstico de *" + leadName + "* pronto!\n\nTeaser: " + (diagnosis.teaser || "Processado."));
+                    fetch("https://api.callmebot.com/whatsapp.php?phone=" + phone + "&text=" + msg + "&apikey=" + apikey, { mode: 'no-cors' }).catch(function(e) { console.log(e); });
+
+                    // Final UI
+                    localStorage.removeItem(DRAFT_KEY);
+                    localStorage.removeItem(BLOCK_KEY);
+
+                    if (loader) {
+                        loader.innerHTML = '<div style="max-width:600px; padding: 40px; text-align:left; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius:12px; margin:0 20px;">' +
+                            '<h2 style="font-family:\'Playfair Display\',serif;font-size:32px;margin-bottom:20px; color:var(--accent); font-weight:400;">Dossiê Criptografado.</h2>' +
+                            '<div style="background:rgba(255,255,255,0.03); border-left: 2px solid var(--accent); padding: 25px; margin-bottom: 30px;">' +
+                                '<p style="font-family:\'Playfair Display\',serif; font-style:italic; font-size:22px; line-height:1.4; color:#fff;">"' + (diagnosis.teaser || "") + '"</p>' +
+                            '</div>' +
+                            '<p style="color:#888; margin-bottom: 40px; font-size: 14px; line-height:1.6;">O seu **Dossiê Estratégico DXM** foi processado. Seus dados estão protegidos pela custódia cognitiva Lenses. Para visualizar o mapa completo da sua marca, agende sua análise.</p>' +
+                            '<a href="https://wa.me/5515997730671?text=Ol%C3%A1%20Bruno!%20Li%20o%20teaser%20do%20meu%20diagn%C3%B3stico%20DXM%20e%20quero%20o%20Mapa%20Completo." target="_blank" class="btn btn-primary" style="display:inline-flex; text-decoration:none; padding: 18px 40px; width:100%; justify-content:center;">AGENDAR ANÁLISE COMPLETA</a>' +
+                            '<br><br><a href="index.html" style="color:rgba(255,255,255,0.3); font-size:11px; text-decoration:none; text-transform:uppercase; letter-spacing:0.1em; display:block; text-align:center;">← RETORNAR À BASE</a>' +
+                        '</div>';
+                    }
+                });
+            }
+
+            // BOOT LOAD
+            window.addEventListener('load', function() {
                 blocks = document.querySelectorAll('.block');
                 wrapper = document.getElementById('formWrapper');
                 progressBar = document.getElementById('progressBar');
-            }
-            if (!wrapper || !blocks.length) return;
-            if (!initialized) ensureInitialized();
-
-            wrapper.style.transform = `translateX(-${currentBlock * 100}vw)`;
-            blocks.forEach((b, i) => {
-                b.classList.toggle('active', i === currentBlock);
-                if(i === currentBlock) {
-                    const inner = b.querySelector('.block-inner');
-                    if (inner) inner.style.opacity = '1';
-                }
-            });
-            
-            if (progressBar) {
-                const pct = ((currentBlock + 1) / blocks.length) * 100;
-                progressBar.style.width = `${pct}%`;
-            }
-            if (!fromDraft) saveDraft();
-        };
-
-        window.validateNext = function(blockIndex) {
-            if (blockIndex === 0) {
-                const b1 = document.getElementById('b1-validator-zone');
-                const reqInputs = b1.querySelectorAll('input[required], textarea[required]');
-                const radioGroups = b1.querySelectorAll('.radio-group[data-required="true"]');
-                const errorSpan = document.getElementById('b1-error');
                 
-                let valid = true;
-                reqInputs.forEach(el => { if(!el.value.trim()) valid = false; });
-                radioGroups.forEach(rg => {
-                    const checked = rg.querySelector('input[type="radio"]:checked');
-                    if(!checked) valid = false;
-                });
-
-                if(!valid) {
-                    errorSpan.style.display = "block";
-                    return;
-                } else {
-                    errorSpan.style.display = "none";
-                    nextBlock();
+                if (window.supabase) {
+                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
                 }
-            } else {
-                nextBlock();
-            }
-        };
-
-        window.nextBlock = function() {
-            if(currentBlock < (blocks?.length || 0) - 1) {
-                currentBlock++;
-                updateView();
-                window.scrollTo(0, 0);
-            }
-        };
-
-        window.prevBlock = function() {
-            if(currentBlock > 0) {
-                currentBlock--;
-                updateView();
-                window.scrollTo(0, 0);
-            }
-        };
-
-        // ==========================================
-        // 2. LÓGICA DE DADOS E INTERAÇÕES
-        // ==========================================
-        function getFormData() {
-            let rawData = {};
-            document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea').forEach(el => {
-                if(el.value.trim()) rawData[el.name] = el.value.trim();
-            });
-            document.querySelectorAll('input[type="radio"]:checked').forEach(el => {
-                rawData[el.name] = el.value;
-            });
-            document.querySelectorAll('input[type="hidden"]').forEach(el => {
-                if(el.value) rawData[el.name] = el.value;
-            });
-            return rawData;
-        }
-
-        function saveDraft() {
-            localStorage.setItem(DRAFT_KEY, JSON.stringify(getFormData()));
-            localStorage.setItem(BLOCK_KEY, currentBlock);
-        }
-
-        function restoreDraft() {
-            const draft = localStorage.getItem(DRAFT_KEY);
-            const savedBlock = localStorage.getItem(BLOCK_KEY);
-            if(draft) {
-                const data = JSON.parse(draft);
-                document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], textarea').forEach(el => {
-                    if(data[el.name]) el.value = data[el.name];
-                });
-                document.querySelectorAll('.radio-card').forEach(card => {
-                    const input = card.querySelector('input');
-                    if(input && data[input.name] === input.value) {
-                        card.classList.add('selected');
-                        input.checked = true;
-                    }
-                });
-                document.querySelectorAll('.scale-btn').forEach(btn => {
-                    const group = btn.closest('.scale-group');
-                    const hidden = group?.querySelector('input[type="hidden"]');
-                    if(hidden && data[hidden.name] == btn.dataset.val) {
-                        btn.classList.add('selected');
-                        hidden.value = btn.dataset.val;
-                    }
-                });
-            }
-            if(savedBlock) {
-                currentBlock = parseInt(savedBlock);
-                if (currentBlock > 0) {
-                    const intro = document.getElementById('introScreen');
-                    if(intro) intro.style.display = 'none';
-                    updateView(true);
-                }
-            }
-        }
-
-        function ensureInitialized() {
-            if (initialized) return;
-            initInteractions();
-            initialized = true;
-        }
-
-        function initInteractions() {
-            document.querySelectorAll('.radio-card').forEach(card => {
-                card.onclick = () => {
-                    const group = card.closest('.radio-group');
-                    group.querySelectorAll('.radio-card').forEach(c => c.classList.remove('selected'));
-                    card.classList.add('selected');
-                    const input = card.querySelector('input');
-                    if (input) input.checked = true;
-                    saveDraft();
-                };
+                
+                restoreDraft();
             });
 
-            document.querySelectorAll('.scale-btn').forEach(btn => {
-                btn.onclick = () => {
-                    const group = btn.closest('.scale-group');
-                    group.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
-                    btn.classList.add('selected');
-                    const hiddenInput = group.querySelector('input[type="hidden"]');
-                    if (hiddenInput) hiddenInput.value = btn.dataset.val;
-                    saveDraft();
-                };
-            });
-
-            document.querySelectorAll('textarea').forEach(el => {
-                el.oninput = () => {
-                    el.style.height = '40px';
-                    el.style.height = (el.scrollHeight) + 'px';
-                };
-            });
-
-            document.addEventListener('input', (e) => {
-                if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') saveDraft();
-            });
-
-            if (window.supabase) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            }
-        }
-
-        window.addEventListener('load', restoreDraft);
-
-        // ============================================
-        // AI DIAGNOSTIC ENGINE (LENSES O.S.)
-        // ============================================
-        async function generateAIDiagnosis(answers) {
-            try {
-                const response = await fetch(EDGE_FUNCTION_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${SUPABASE_KEY}`
-                    },
-                    body: JSON.stringify({ answers, type: 'dxm' })
-                });
-                return await response.json();
-            } catch (e) {
-                console.error("AI Error:", e);
-                return { 
-                    teaser: "Sua marca possui uma frequência única. O DNA sugere um posicionamento de elite, onde a sua história pessoal é o maior combustível para a autoridade.", 
-                    full_diagnosis: "Erro ao gerar diagnóstico completo.", 
-                    brand_archetype_score: {},
-                    debug_error: e.message || String(e)
-                };
-            }
-        }
-
-        document.getElementById('btnSubmitForm').addEventListener('click', async (e) => {
-            const btn = e.currentTarget;
-            if(btn.disabled) return;
-            btn.disabled = true;
-            btn.style.opacity = '0.5';
-            btn.style.cursor = 'not-allowed';
-            btn.textContent = 'PROCESSANDO...';
-
-            let rawData = getFormData();
-            rawData['_captcha'] = "false";
-            rawData['_template'] = "table";
-            rawData['_subject'] = `💎 DXM LENSES - Diagnóstico Prime: ${rawData.context_name || 'Novo Lead'}`;
-            
-            const contactInfoKeys = ['context_name', 'context_email', 'context_whatsapp', 'context_social_media', 'context_role', 'context_time', 'context_business_name'];
-            let contactInfo = {};
-            let diagnosisData = {};
-
-            for(let key in rawData) {
-                if(contactInfoKeys.includes(key)) contactInfo[key] = rawData[key];
-                else if(!key.startsWith('_')) diagnosisData[key] = rawData[key];
-            }
-
-            const loader = document.getElementById('loader');
-            const loaderText = document.getElementById('loaderText');
-            loader.classList.add('show');
-
-            const steps = [
-                "Criptografando Malha Lexical...",
-                "Decodificando Padrões Psicoestratégicos...",
-                "Construindo Arquétipo de Grife...",
-                "Lenses O.S. Finalizando Diagnóstico..."
-            ];
-            
-            for(let i=0; i<steps.length; i++) {
-                loaderText.textContent = steps[i];
-                await new Promise(r => setTimeout(r, 1500));
-            }
-
-            const diagnosis = await generateAIDiagnosis(diagnosisData);
-
-            try {
-                const { error } = await supabase.from('dxm_leads').insert([
-                    { 
-                        contact_info: contactInfo, 
-                        diagnosis_data: diagnosisData,
-                        ai_analysis: diagnosis,
-                        status_analise: 'concluido'
-                    }
-                ]);
-                if(error) console.error("Supabase Error:", error);
-            } catch(e) { console.log(e); }
-
-            fetch(FORMSUBMIT_URL, {
-                method: "POST",
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify(rawData)
-            }).catch(e => console.log(e));
-
-            const phone = "5515997730671";
-            const apikey = "8684363";
-            const msg = encodeURIComponent(`🚨 *DXM LENSES O.S.* 🚨\nDiagnóstico Profundo de ${contactInfo.context_name || 'Alguém'} processado pela IA!\n\nTeaser IA: ${diagnosis.teaser}`);
-            fetch(`https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${msg}&apikey=${apikey}`, { mode: 'no-cors' }).catch(e => console.log(e));
-
-            localStorage.removeItem(DRAFT_KEY);
-            localStorage.removeItem(BLOCK_KEY);
-
-            loader.innerHTML = `
-                <div style="max-width:600px; padding: 40px; text-align:left; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius:12px; margin:0 20px;">
-                    <h2 style="font-family:'Playfair Display',serif;font-size:32px;margin-bottom:20px; color:var(--accent); font-weight:400;">Diagnóstico Criptografado.</h2>
-                    <div style="background:rgba(255,255,255,0.03); border-left: 2px solid var(--accent); padding: 25px; margin-bottom: 30px;">
-                        <p style="font-family:'Playfair Display',serif; font-style:italic; font-size:22px; line-height:1.4; color:#fff;">
-                            "${diagnosis.teaser}"
-                        </p>
-                    </div>
-                    <p style="color:#888; margin-bottom: 40px; font-size: 14px; line-height:1.6;">
-                        O seu **Dossiê Estratégico de Posicionamento** foi processado. Seus dados estão protegidos e o mapa da sua mente agora está sob nossa custódia cognitiva. Para desbloquear o plano de renascimento da sua marca, agende sua análise pessoal.
-                    </p>
-                    <a href="https://wa.me/5515997730671?text=Ol%C3%A1%20Bruno!%20Li%20o%20teaser%20do%20meu%20diagn%C3%B3stico%20DXM%20e%20quero%20o%20Mapa%20Completo." target="_blank" class="btn btn-primary" style="display:inline-flex; text-decoration:none; padding: 18px 40px; width:100%; justify-content:center;">
-                        AGENDAR ANÁLISE COMPLETA
-                    </a>
-                    <br><br>
-                    <a href="index.html" style="color:rgba(255,255,255,0.3); font-size:11px; text-decoration:none; text-transform:uppercase; letter-spacing:0.1em; display:block; text-align:center;">← RETORNAR À BASE</a>
-                </div>
-            `;
-        });
-
-        // ==========================================
-        // 4. INICIALIZAÇÃO
-        // ==========================================
-        window.onload = () => {
-            blocks = document.querySelectorAll('.block');
-            wrapper = document.getElementById('formWrapper');
-            progressBar = document.getElementById('progressBar');
-            restoreDraft();
-        };
+        })();
     </script>
 </body>
 </html>
