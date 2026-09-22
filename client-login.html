@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Access - Lenses O.S.</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --primary-blue: #5C7BFA;
+            --primary-blue-hover: #4865E1;
+            --light-green: #B7F5B7;
+            --bg-color: #F6F7F9;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --white: #FFFFFF;
+            --radius-lg: 16px;
+            --radius-xl: 32px;
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 8px 32px rgba(92, 123, 250, 0.15);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 480px;
+            padding: 2rem;
+        }
+
+        .login-card {
+            background-color: var(--primary-blue);
+            color: var(--white);
+            border-radius: var(--radius-xl);
+            padding: 3rem 2rem;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Decorative Background element */
+        .login-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 100%;
+            height: 30%;
+            background-color: var(--light-green);
+            border-top-left-radius: var(--radius-xl);
+            z-index: 0;
+            opacity: 0.1;
+        }
+
+        .login-card-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .logo-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 2.5rem;
+            font-weight: 400;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border-radius: var(--radius-lg);
+            border: 2px solid transparent;
+            background-color: rgba(255, 255, 255, 0.15);
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-control:focus {
+            background-color: rgba(255, 255, 255, 0.25);
+            border-color: var(--light-green);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: var(--radius-lg);
+            background-color: var(--light-green);
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 1rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(183, 245, 183, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            background-color: rgba(255, 76, 76, 0.2);
+            color: #ffb3b3;
+            padding: 1rem;
+            border-radius: var(--radius-lg);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            display: none;
+            border: 1px solid rgba(255, 76, 76, 0.4);
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(0,0,0,0.2);
+            border-top-color: var(--text-dark);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="login-card fade-in">
+            <div class="login-card-content">
+                <div class="logo-title">LENSES O.S.</div>
+                <div class="subtitle">Member Portal Access</div>
+
+                <div id="errorMessage" class="error-message"></div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" class="form-control" placeholder="your@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary" id="loginBtn">
+                        <span id="btnText">Log In</span>
+                        <div id="btnSpinner" class="loading-spinner"></div>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="assets/js/client-auth.js"></script>
+</body>
+</html>

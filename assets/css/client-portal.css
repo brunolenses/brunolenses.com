@@ -1,0 +1,365 @@
+/* ==========================================================================
+   LENSES O.S. - CLIENT PORTAL (MEMBER AREA)
+   Aesthetic: Premium "Canva-style", Solid Vibrant Blues and Greens
+   ========================================================================== */
+
+:root {
+    --cp-blue: #5C7BFA;        /* Primary vibrant blue */
+    --cp-blue-dark: #4865E1;   /* Deeper blue for headers/cards */
+    --cp-blue-light: #8BA1FC;  /* Soft blue for accents */
+    --cp-blue-bg: #E3E9FF;     /* Very pale blue for card bodies */
+    
+    --cp-green: #B7F5B7;       /* Neon/mint highlight green */
+    --cp-green-accent: #9AF09A;
+    
+    --cp-bg: #F4F6F9;          /* Overall page background */
+    --cp-text-dark: #1F2937;
+    --cp-text-white: #FFFFFF;
+    
+    --cp-radius-sm: 8px;
+    --cp-radius-md: 16px;
+    --cp-radius-lg: 24px;
+    --cp-radius-xl: 32px;
+    
+    --cp-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
+}
+
+body {
+    background-color: var(--cp-bg);
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    color: var(--cp-text-dark);
+}
+
+/* ---- NAVIGATION ---- */
+.portal-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 3rem;
+    background-color: var(--cp-text-white);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.nav-brand {
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: var(--cp-blue-dark);
+    letter-spacing: -0.02em;
+}
+
+.nav-tag {
+    font-size: 0.75rem;
+    background-color: var(--cp-green);
+    color: var(--cp-blue-dark);
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 8px;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-weight: 500;
+}
+
+.btn-logout {
+    background: transparent;
+    border: 1px solid #E5E7EB;
+    padding: 0.5rem 1rem;
+    border-radius: var(--cp-radius-sm);
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-logout:hover {
+    background-color: #F3F4F6;
+    color: #DC2626;
+}
+
+/* ---- MAIN CONTAINER ---- */
+.portal-container {
+    max-width: 1100px;
+    margin: 3rem auto;
+    padding: 0 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem; /* Space between canvas blocks */
+}
+
+.loading-state {
+    text-align: center;
+    padding: 5rem 0;
+    color: var(--cp-blue);
+}
+
+.spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(92, 123, 250, 0.2);
+    border-top-color: var(--cp-blue);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem auto;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ==========================================================================
+   CANVA BLOCK 1: HIGHLIGHT CARD (Split Layout)
+   ========================================================================== */
+.cp-block-highlight {
+    background-color: var(--cp-blue-light);
+    border-radius: var(--cp-radius-lg);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: var(--cp-shadow);
+}
+@media(min-width: 768px) {
+    .cp-block-highlight { flex-direction: row; }
+}
+
+.highlight-header {
+    background-color: var(--cp-blue-dark);
+    color: var(--cp-text-white);
+    padding: 2rem 3rem;
+    font-size: 3rem;
+    font-weight: 800;
+    border-bottom-right-radius: var(--cp-radius-lg);
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+.highlight-content {
+    flex: 1;
+    padding: 2rem 3rem;
+    color: var(--cp-text-white);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.highlight-image-side {
+    flex: 1;
+    min-height: 300px;
+    background-size: cover;
+    background-position: center;
+    border-top-left-radius: var(--cp-radius-lg);
+}
+
+.pill-title {
+    background-color: var(--cp-green);
+    color: var(--cp-blue-dark);
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    border-radius: var(--cp-radius-xl);
+    font-weight: 800;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    margin: 1.5rem 0 1rem 0;
+}
+
+.highlight-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    color: rgba(255,255,255,0.9);
+}
+
+.highlight-list {
+    margin: 0;
+    padding-left: 1.5rem;
+    font-size: 1.05rem;
+    line-height: 1.8;
+}
+.highlight-list li { margin-bottom: 0.5rem; }
+
+/* ==========================================================================
+   CANVA BLOCK 2: MATRIX / CALENDAR TABLE
+   ========================================================================== */
+.cp-block-matrix {
+    background-color: var(--cp-blue);
+    border-radius: var(--cp-radius-lg);
+    padding: 2rem;
+    box-shadow: var(--cp-shadow);
+}
+
+.matrix-header {
+    color: var(--cp-text-white);
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+}
+
+.matrix-table-wrap {
+    background-color: var(--cp-text-white);
+    border-radius: var(--cp-radius-md);
+    overflow: hidden;
+}
+
+.matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.matrix-table th {
+    background-color: #E0FBE0; /* very light green */
+    color: var(--cp-blue-dark);
+    font-weight: 800;
+    padding: 1.25rem 1rem;
+    text-transform: uppercase;
+    border: 1px solid #D1D5DB;
+}
+
+.matrix-table-header-dark th {
+    background-color: #D3F4D3;
+}
+
+.matrix-table td {
+    padding: 1.25rem 1rem;
+    border: 1px solid #D1D5DB;
+    text-align: center;
+    font-size: 0.95rem;
+    color: #4B5563;
+}
+
+.cell-active {
+    background-color: var(--cp-blue-bg);
+}
+
+/* ==========================================================================
+   CANVA BLOCK 3: JOURNEY TIMELINE
+   ========================================================================== */
+.cp-block-journey {
+    background-color: var(--cp-text-white);
+    border-radius: var(--cp-radius-lg);
+    padding: 4rem 2rem;
+    box-shadow: var(--cp-shadow);
+    text-align: center;
+}
+
+.journey-title {
+    color: var(--cp-blue-dark);
+    font-size: 2.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 4rem;
+}
+
+.journey-line-container {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0 2rem;
+}
+
+/* The horizontal line */
+.journey-line-container::before {
+    content: '';
+    position: absolute;
+    top: 40px; /* Aligns with circles */
+    left: 5%;
+    right: 5%;
+    height: 2px;
+    background-color: var(--cp-text-dark);
+    z-index: 1;
+}
+
+.journey-step {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.journey-card {
+    background-color: var(--cp-blue-light);
+    color: var(--cp-text-white);
+    border-radius: var(--cp-radius-md);
+    padding: 2rem 1.5rem;
+    margin-top: -20px; /* pull up over line */
+    width: 80%;
+    min-height: 160px;
+    box-shadow: 0 4px 15px rgba(92, 123, 250, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.journey-dot {
+    width: 16px;
+    height: 16px;
+    background-color: var(--cp-green);
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    position: relative;
+    top: 20px; /* Aligns dot on line inside card */
+}
+
+.step-title {
+    font-weight: 800;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+.step-desc {
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: rgba(255,255,255,0.9);
+}
+
+/* ==========================================================================
+   CANVA BLOCK 4: AGENDA
+   ========================================================================== */
+.cp-block-agenda {
+    background-color: var(--cp-blue-light);
+    border-radius: var(--cp-radius-lg);
+    display: flex;
+    padding: 4rem;
+    gap: 4rem;
+    box-shadow: var(--cp-shadow);
+}
+
+.agenda-left {
+    flex: 1;
+}
+.agenda-left-title {
+    color: var(--cp-text-white);
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    text-transform: uppercase;
+}
+
+.agenda-right {
+    flex: 1;
+    background-color: var(--cp-blue);
+    border-radius: var(--cp-radius-md);
+    padding: 3rem;
+}
+
+.agenda-list {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0 0 0;
+}
+
+.agenda-list li {
+    color: var(--cp-text-white);
+    font-size: 1.2rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+}
+
+.agenda-list li:last-child { border-bottom: none; }

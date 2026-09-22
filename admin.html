@@ -72,6 +72,10 @@
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                         Setup Global
                     </button>
+                    <button class="nav-item" data-target="tab-clients">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        Área de Clientes
+                    </button>
                 </nav>
                 <div class="sidebar-footer">
                     <a href="index.html" class="btn-outline btn-sm btn-full" target="_blank" style="text-align:center; display:block; margin-bottom:12px;">Despachar para o ar</a>
@@ -270,7 +274,69 @@
                     </div>
                 </section>
                 
+                <!-- TAB: CLIENTS (MEMBER AREA) -->
+                <section class="tab-content" id="tab-clients">
+                    <div class="dashboard-header">
+                        <h2>Área de Membros & Jornadas</h2>
+                        <p style="color:var(--text-muted); margin-top:8px;">Gerencie o cronograma de acesso e conteúdo de cada cliente.</p>
+                    </div>
+                    
+                    <div class="config-grid" style="grid-template-columns: 1fr 2fr; gap: 24px; margin-top: 24px;">
+                        <!-- Client List Sidebar -->
+                        <div class="client-sidebar" style="background: var(--bg-surface); padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                            <h3 style="margin-bottom: 16px; font-size: 14px; text-transform: uppercase;">Selecione o Cliente</h3>
+                            <div id="adminClientList" style="display:flex; flex-direction:column; gap:8px;">
+                                <p style="color:var(--text-muted); font-size: 13px;">Carregando clientes...</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Client Schedule Editor -->
+                        <div class="client-editor" id="clientEditorArea" style="display: none; background: var(--bg-surface); padding: 24px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 24px;">
+                                <h3 id="editingClientName">Editando: Nome do Cliente</h3>
+                                <button class="btn btn-sm btn-primary" onclick="openNewBlockModal()">+ Add Bloco</button>
+                            </div>
+                            
+                            <div id="clientBlocksList" style="display:flex; flex-direction:column; gap: 16px;">
+                                <!-- Blocks go here -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
             </main>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD/EDIT BLOCK -->
+    <div class="modal-overlay" id="blockModal">
+        <div class="modal-container" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 id="blockModalTitle">Novo Bloco de Jornada</h2>
+                <button class="modal-close" onclick="closeBlockModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="config-field">
+                    <label>Tipo de Bloco</label>
+                    <select id="blockTypeSel" class="config-select">
+                        <option value="highlight_card">Highlight Card (Resumo com Imagem Lateral)</option>
+                        <option value="matrix">Matrix Calendário (Tabela de Dias/Semanas)</option>
+                        <option value="timeline">Timeline Jornada (Passos Conectados)</option>
+                        <option value="agenda">Agenda Lista (Lista Limpa)</option>
+                    </select>
+                </div>
+                <div class="config-field full-width">
+                    <label>Conteúdo (JSON) - Estrutura Dinâmica Canva</label>
+                    <textarea id="blockJsonInput" class="config-textarea" rows="10" 
+style="font-family:monospace; font-size:13px;"></textarea>
+                    <p style="color:var(--text-muted); font-size:12px; margin-top:8px;">
+                    O JSON será preenchido como modelo automaticamente ao selecionar o Tipo de Bloco. Edite os valores em inglês/português conforme a necessidade do Canva-Card final.
+                    </p>
+                </div>
+                <button class="btn btn-primary btn-full" id="saveBlockBtn" style="margin-top:16px;">Salvar Bloco</button>
+            </div>
+        </div>
+    </div>
         </div>
     </div>
 
@@ -1129,6 +1195,127 @@
         }
 
         // ============================================
+        // CLIENT SCHEDULES MANAGEMENT
+        // ============================================
+        let currentEditClientId = null;
+
+        async function initClientsTab() {
+            const listEl = document.getElementById('adminClientList');
+            const { data, error } = await sb.from('profiles').select('*').eq('role', 'client');
+            
+            if (error || !data) {
+                listEl.innerHTML = '<span style="color:#ff5555">Erro ao carregar clientes.</span>';
+                return;
+            }
+            if (data.length === 0) {
+                listEl.innerHTML = '<span style="color:var(--text-muted)">Nenhum cliente registrado.</span>';
+                return;
+            }
+
+            listEl.innerHTML = data.map(c => `
+                <button class="btn btn-outline btn-sm" style="text-align:left; justify-content:flex-start;" onclick="editClientSchedules('${c.id}', '${escHtml(c.full_name || c.id)}')">
+                    👤 ${escHtml(c.full_name || 'Usuário ' + c.id.substring(0,8))}
+                </button>
+            `).join('');
+            
+            // Templates for the JSON input
+            document.getElementById('blockTypeSel').addEventListener('change', (e) => {
+                const type = e.target.value;
+                const txt = document.getElementById('blockJsonInput');
+                if(txt.value && txt.value !== '{}') return; 
+                
+                if(type === 'highlight_card') {
+                    txt.value = JSON.stringify({ monthTitle: "Month 1", leftPill: "GROWTH AND REFLECTION", leftText: "Escreva o resumo do mês aqui. O texto fluirá perfeitamente.", rightPill: "HIGHLIGHTS", rightBullets: ["Item 1", "Item 2"], imageUrl: "", imagePosition: "left" }, null, 2);
+                } else if(type === 'matrix') {
+                    txt.value = JSON.stringify({ headerText: "MONTH 1 - GETTING STARTED", columns: ["Dia 1", "Dia 2", "Dia 3"], rows: [ ["Company Background", "Team Culture", ""], ["IT Setup", "Benefits", ""] ] }, null, 2);
+                } else if(type === 'timeline') {
+                    txt.value = JSON.stringify({ title: "SUA JORNADA DE ONBOARDING", steps: [ { title: "MÊS 1", desc: "Getting started" }, { title: "MÊS 2", desc: "Skills" } ] }, null, 2);
+                } else if(type === 'agenda') {
+                    txt.value = JSON.stringify({ title: "WELCOME TO EXPERIÊNCIA CRIATIVA", pill: "AGENDA", items: ["Overview", "Month 1", "Month 2"] }, null, 2);
+                }
+            });
+            
+            document.getElementById('saveBlockBtn').addEventListener('click', saveClientBlock);
+        }
+
+        window.editClientSchedules = async (clientId, clientName) => {
+            currentEditClientId = clientId;
+            document.getElementById('clientEditorArea').style.display = 'block';
+            document.getElementById('editingClientName').textContent = `Jornada: ${clientName}`;
+            
+            showLoading();
+            const { data, error } = await sb.from('client_schedules').select('*').eq('client_id', clientId).order('order_index');
+            hideLoading();
+            
+            const listEl = document.getElementById('clientBlocksList');
+            if (error) { listEl.innerHTML = '<p>Erro ao carregar blocos.</p>'; return; }
+            if (!data.length) { listEl.innerHTML = '<p style="color:var(--text-muted); padding: 20px 0;">Este cliente ainda não tem blocos na jornada.</p>'; return; }
+            
+            listEl.innerHTML = data.map(b => `
+                <div style="background:var(--bg); border:1px solid var(--border); padding: 16px; border-radius: var(--radius-sm); display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <strong style="text-transform:uppercase; color:var(--accent);">[${b.block_type}]</strong> - Ordem: ${b.order_index}
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-outline" style="border-color:#ff5555; color:#ff5555;" onclick="deleteBlock('${b.id}')">Excluir</button>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        window.openNewBlockModal = () => {
+            document.getElementById('blockModalTitle').textContent = "Novo Bloco de Jornada";
+            document.getElementById('blockTypeSel').value = 'highlight_card';
+            document.getElementById('blockJsonInput').value = '{}';
+            document.getElementById('blockTypeSel').dispatchEvent(new Event('change'));
+            document.getElementById('blockModal').classList.add('active');
+        };
+
+        window.closeBlockModal = () => {
+            document.getElementById('blockModal').classList.remove('active');
+        };
+
+        async function saveClientBlock() {
+            if(!currentEditClientId) return;
+            const type = document.getElementById('blockTypeSel').value;
+            const jsonStr = document.getElementById('blockJsonInput').value;
+            let contentObj = {};
+            try { 
+                contentObj = JSON.parse(jsonStr); 
+            } catch(e) { 
+                showToast('⚠️ JSON Inválido. Verifique a sintaxe.'); 
+                return; 
+            }
+            
+            showLoading();
+            const { error } = await sb.from('client_schedules').insert({
+                client_id: currentEditClientId,
+                block_type: type,
+                content: contentObj,
+                order_index: document.getElementById('clientBlocksList').children.length
+            });
+            hideLoading();
+            
+            if(error) { 
+                showToast('Erro ao salvar no banco'); 
+                console.error(error); 
+            } else { 
+                showToast('Bloco adicionado com sucesso! ✅'); 
+                closeBlockModal(); 
+                editClientSchedules(currentEditClientId, document.getElementById('editingClientName').textContent.replace('Jornada: ','')); 
+            }
+        }
+
+        window.deleteBlock = async (id) => {
+            if(!confirm('Excluir este bloco PERMANENTEMENTE?')) return;
+            showLoading();
+            await sb.from('client_schedules').delete().eq('id', id);
+            hideLoading();
+            showToast('🗑️ Bloco excluído.');
+            editClientSchedules(currentEditClientId, document.getElementById('editingClientName').textContent.replace('Jornada: ',''));
+        };
+
+        // ============================================
         // INIT
         // ============================================
         document.addEventListener('DOMContentLoaded', () => {
@@ -1139,6 +1326,7 @@
             initCommentModeration();
             initSaveButton();
             initLogin();
+            initClientsTab(); // <--- Client schedules init
         });
     </script>
 </body>
