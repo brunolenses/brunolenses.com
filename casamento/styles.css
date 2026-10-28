@@ -1652,3 +1652,7 @@ ul {
     gap: 16px;
   }
 }
+/* ---- FOTOS ESTÁTICAS (fallback quando o banco não devolve itens) ---- */
+.hero-bg { background-size: cover; background-position: 30% 35%; }
+.portfolio-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+@media (max-width: 768px) { .portfolio-fill { display: none; } }
