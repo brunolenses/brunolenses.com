@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Obrigado — O Ouro · Lenses Prompts</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0E0F0F">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Familjen+Grotesk:wght@400;500;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#0E0F0F;--cream:#F6F2EA;--gold:#D4A84B;--mut:rgba(246,242,234,.65)}
+html{overflow-x:clip}
+body{background:var(--ink);color:var(--cream);font-family:'Familjen Grotesk',system-ui,sans-serif;font-size:18px;line-height:1.5;min-height:100vh}
+a{color:inherit}
+.mono{font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.14em;font-size:12px}
+.cond{font-family:'Archivo',sans-serif;font-stretch:62%;font-weight:900;text-transform:uppercase;line-height:.86}
+em{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;text-transform:none;color:var(--gold);font-stretch:100%}
+.wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+header{display:flex;justify-content:space-between;align-items:center;height:72px;border-bottom:1px solid rgba(246,242,234,.12)}
+header .lg{font-family:'Syne';font-weight:800;text-transform:uppercase;font-size:18px;text-decoration:none}
+main{display:grid;grid-template-columns:1.2fr .8fr;gap:56px;align-items:center;padding:70px 0 90px}
+h1{font-size:clamp(68px,11vw,160px)}
+.lead{font-size:clamp(19px,2vw,23px);color:var(--mut);margin-top:22px;max-width:560px}
+.box{margin-top:36px;display:grid;gap:12px;max-width:560px}
+.dl{display:flex;justify-content:space-between;align-items:center;gap:16px;background:var(--gold);color:var(--ink);text-decoration:none;padding:22px 26px;border-radius:14px;font-weight:700;font-size:19px;transition:transform .2s}
+.dl:hover{transform:translateY(-2px)}
+.dl span.mono{font-size:11px;opacity:.7}
+.dl.alt{background:transparent;color:var(--cream);border:1.5px solid rgba(246,242,234,.35)}
+.msg{border:1.5px solid rgba(246,242,234,.2);border-radius:14px;padding:24px 26px;color:var(--mut)}
+.msg b{color:var(--cream)}
+.btn{display:inline-block;margin-top:14px;background:var(--cream);color:var(--ink);padding:14px 22px;border-radius:999px;font-weight:700;text-decoration:none;border:0;font:inherit;font-weight:700;cursor:pointer}
+.cover{position:relative;perspective:1600px}
+.cover img{width:100%;border-radius:8px;box-shadow:30px 40px 80px rgba(0,0,0,.6);transform:rotateY(-12deg) rotateX(3deg)}
+.tips{border-top:1px solid rgba(246,242,234,.12);padding:50px 0 70px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.tips b{font-family:'Instrument Serif';font-style:italic;font-weight:400;font-size:56px;color:var(--gold);line-height:.8;display:block}
+.tips h3{font-family:'Syne';font-weight:800;text-transform:uppercase;font-size:20px;margin:12px 0 6px}
+.tips p{color:var(--mut);font-size:16px}
+.spin{display:inline-block;width:18px;height:18px;border:2px solid rgba(246,242,234,.3);border-top-color:var(--gold);border-radius:50%;animation:s 1s linear infinite;vertical-align:-3px;margin-right:10px}
+@keyframes s{to{transform:rotate(360deg)}}
+@media(max-width:820px){main{grid-template-columns:1fr;padding:44px 0 60px}.cover{max-width:340px}.tips{grid-template-columns:1fr}}
+</style></head><body>
+<div class="wrap">
+<header><a class="lg" href="../">Lenses <em>Prompts</em></a><span class="mono">Pedido · O Ouro</span></header>
+<main>
+<div>
+<div class="mono" style="color:var(--gold)">Pagamento confirmado ✦</div>
+<h1 class="cond" style="margin-top:18px">Agora o <em>ouro</em><br>é seu.</h1>
+<p class="lead" id="hello">Seus arquivos estão logo abaixo. Baixe os dois e guarde em um lugar seguro.</p>
+<div class="box" id="box"><div class="msg"><span class="spin"></span>Conferindo seu pagamento…</div></div>
+<p class="mono" style="margin-top:22px;color:var(--mut)">Os links valem 24 horas. Voltando nesta página, eles são gerados de novo.</p>
+</div>
+<div class="cover"><img src="../img/ouro-capa.jpg" alt="Capa do e-book O Ouro do Lenses Prompts"></div>
+</main>
+<section class="tips">
+<div><b>01</b><h3>Comece pela fórmula</h3><p>A página 3 mostra a anatomia do prompt. Lendo ela, você entende todos os outros.</p></div>
+<div><b>02</b><h3>Abra os PSDs</h3><p>No Photoshop ou no photopea.com, grátis, no navegador. Troque a camada “Foto”.</p></div>
+<div><b>03</b><h3>Me marca</h3><p>Postou o resultado? Marca @lensesprompts que eu reposto os melhores.</p></div>
+</section>
+</div>
+<script>
+const FN='https://efozkhsulhjzpzujpygu.supabase.co/functions/v1/entrega-ouro';
+const box=document.getElementById('box');
+const sid=new URLSearchParams(location.search).get('session_id');
+const help='Se precisar, me chama no Direct do <a href="https://ig.me/m/lensesprompts" target="_blank" rel="noopener">@lensesprompts</a> com o e-mail da compra.';
+function msg(h){box.innerHTML='<div class="msg">'+h+'</div>'}
+let tries=0;
+async function go(){
+  if(!sid){msg('<b>Não encontrei o seu pedido nesta página.</b><br>Use o link que aparece logo depois do pagamento. '+help);return}
+  try{
+    const r=await fetch(FN+'?session_id='+encodeURIComponent(sid));
+    const d=await r.json();
+    if(d.status==='paid'){
+      if(d.name)document.getElementById('hello').textContent='Valeu, '+d.name.split(' ')[0]+'! Seus arquivos estão logo abaixo. Baixe os dois e guarde em um lugar seguro.';
+      box.innerHTML=d.links.map((l,i)=>'<a class="dl'+(i?' alt':'')+'" href="'+l.url+'"><span>'+l.label+'</span><span class="mono">Baixar ↓</span></a>').join('');
+    }else if(d.status==='pending'&&tries<20){tries++;msg('<span class="spin"></span>Aguardando a confirmação do pagamento… (no Pix pode levar alguns segundos)');setTimeout(go,4000)}
+    else if(d.status==='pending'){msg('<b>O pagamento ainda não foi confirmado.</b><br>Recarregue esta página em alguns minutos. '+help)}
+    else{msg('<b>Não consegui liberar os arquivos agora.</b><br>'+help)}
+  }catch(e){msg('<b>Falha de conexão.</b><br><button class="btn" onclick="go()">Tentar de novo</button><br>'+help)}
+}
+go();
+</script>
+</body></html>
