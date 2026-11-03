@@ -352,7 +352,7 @@
             el.style.transform = `rotateY(${i * anglePerCard}deg) translateZ(${RADIUS}px)`;
             
             const mediaHTML = card.logo
-                ? `<div class="card-image" style="background:radial-gradient(circle at 50% 30%,#1c1c1c 0%,#050505 70%);display:flex;flex-direction:column;align-items:center;padding-top:96px;gap:14px"><img src="${card.logo}" alt="${card.title}" style="width:72%;height:auto" loading="lazy"><span style="font-size:10px;letter-spacing:.45em;text-transform:uppercase;font-weight:700;color:#E6B31E">${card.tagline || ''}</span><span style="margin-top:6px;border:1px solid rgba(255,255,255,.35);color:#fff;font-size:9px;letter-spacing:.2em;padding:5px 9px;border-radius:3px">CONTEÚDO ADULTO · 18+</span></div>`
+                ? `<div class="card-image" style="background:radial-gradient(circle at 50% 30%,#1c1c1c 0%,#050505 70%);display:flex;flex-direction:column;align-items:center;padding-top:64px;gap:12px"><img src="${card.logo}" alt="${card.title}" style="width:72%;height:auto" loading="lazy"><span style="font-size:10px;letter-spacing:.45em;text-transform:uppercase;font-weight:700;color:#E6B31E">${card.tagline || ''}</span><span style="margin-top:6px;border:1px solid rgba(255,255,255,.35);color:#fff;font-size:9px;letter-spacing:.2em;padding:5px 9px;border-radius:3px">CONTEÚDO ADULTO · 18+</span></div>`
                 : card.video 
                 ? `<video class="card-image" src="${card.video}" autoplay loop muted playsinline poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"></video>` // fallback invisível
                 : `<img class="card-image" src="${card.image}" alt="${card.title}" loading="lazy">`;
