@@ -1,0 +1,1323 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Lenses Code</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200;300;400;600&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: a deep-blue halftone field (animated WebGL shader) behind everything.
+     The logo is printed in halftone, the builds are filed in glass folders, and
+     each build is a print you can inspect with a liquid-glass loupe inside a
+     spotlight frame. Single dark look by design. */
+  :root{
+    --paper:#031c26;      /* page — the shader's lowest colour */
+    --paper-2:rgba(234,249,255,.08); /* raised panels */
+    --ink:#eaf9ff;        /* primary text — the shader's highest colour */
+    --ash:#c4e2ee;        /* secondary text — higher contrast */
+    --hair:rgba(234,249,255,.18);
+    --rec:#ff3b2f;        /* REC light — the one accent */
+    --display:"Unbounded","Arial Black",system-ui,sans-serif;
+    --body:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+    --gut-l:max(20px,env(safe-area-inset-left,0px));
+    --gut-r:max(20px,env(safe-area-inset-right,0px));
+    color-scheme:dark;
+  }
+  #bg{position:fixed;inset:0;z-index:-2;width:100vw;height:100vh;display:block;max-width:none;pointer-events:none}
+  .bg-paths{position:fixed;inset:0;z-index:-1;width:100vw;height:100vh;pointer-events:none;overflow:hidden;color:var(--ink);opacity:.62;mix-blend-mode:screen}
+  .bg-paths-svg{width:100%;height:100%;display:block}
+  .bg-paths-svg path{stroke-dasharray:0.32 0.68;stroke-linecap:round;will-change:stroke-dashoffset,opacity}
+  @keyframes floatingPath{
+    0%{stroke-dashoffset:0;opacity:.22}
+    50%{stroke-dashoffset:-1;opacity:.72}
+    100%{stroke-dashoffset:-2;opacity:.22}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .bg-paths-svg path{animation:none!important}
+  }
+  /* keep type legible over the brighter dots */
+  .hud,.ht-hint,.by,.hero h1,.archive-head,.copy,.spec,.hwf-top,.hwf-rule,.shot .tag{text-shadow:0 1px 2px rgba(3,28,38,.9),0 0 18px rgba(3,28,38,.85)}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--paper);color:var(--ink);font-family:var(--body);line-height:1.55;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--paper)}
+  a{color:inherit}
+  img{display:block;max-width:100%}
+  .wrap{max-width:1240px;margin:0 auto;padding-left:var(--gut-l);padding-right:var(--gut-r)}
+  .mono{font-family:var(--mono);font-size:clamp(.72rem,1.6vw,.76rem);letter-spacing:.08em;text-transform:uppercase}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+  :focus-visible{outline:2px solid var(--rec);outline-offset:4px}
+
+  /* ---------- top bar ---------- */
+  .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
+    background:rgba(3,28,38,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--hair)}
+  .bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:14px}
+  .bar img{height:16px;width:auto}
+  .bar nav{display:flex;align-items:center;gap:20px;color:var(--ash)}
+  .bar nav a{text-decoration:none;transition:color .25s}
+  .bar nav a:hover{color:var(--ink)}
+  .btn-top-cta{
+    display:inline-flex;align-items:center;gap:6px;padding:7px 15px;border-radius:999px;
+    background:rgba(234,249,255,.08);border:1px solid var(--hair);color:var(--ink)!important;
+    font-size:.74rem;letter-spacing:.06em;transition:all .25s ease;
+  }
+  .btn-top-cta:hover{
+    background:var(--ink);color:var(--paper)!important;border-color:var(--ink);
+    transform:translateY(-1px);box-shadow:0 0 16px rgba(234,249,255,.2);
+  }
+
+  /* ---------- hero: viewfinder + halftone logo ---------- */
+  .hero{position:relative;padding-block:48px 24px}
+  .vf{position:relative;padding:clamp(24px,5vw,60px) clamp(16px,4vw,56px);overflow:hidden;isolation:isolate}
+  .corner{position:absolute;width:26px;height:26px;border-color:var(--ink);border-style:solid;opacity:.8}
+  .corner.tl{top:0;left:0;border-width:1px 0 0 1px}
+  .corner.tr{top:0;right:0;border-width:1px 1px 0 0}
+  .corner.bl{bottom:0;left:0;border-width:0 0 1px 1px}
+  .corner.br{bottom:0;right:0;border-width:0 1px 1px 0}
+  .aperture{position:absolute;z-index:-1;left:50%;top:50%;width:min(900px,140vw);aspect-ratio:1;
+    transform:translate(-50%,-50%) translate(var(--ax,0),var(--ay,0)) rotate(var(--rot,0deg));
+    background:repeating-radial-gradient(circle,transparent 0 22px,rgba(234,249,255,.07) 22px 23px);
+    -webkit-mask:radial-gradient(circle,#000 30%,transparent 70%);mask:radial-gradient(circle,#000 30%,transparent 70%)}
+  .hud{display:flex;justify-content:space-between;gap:12px;color:var(--ash)}
+  .hud .rec{color:var(--ink);display:inline-flex;align-items:center;gap:8px}
+  .hud .rec i{width:8px;height:8px;border-radius:50%;background:var(--rec);box-shadow:0 0 10px var(--rec);
+    animation:blink 1.4s steps(2,start) infinite}
+  @keyframes blink{50%{opacity:.15}}
+  .ht{position:relative;height:clamp(170px,30vw,380px);margin:clamp(16px,4vw,40px) 0 0}
+  .ht canvas{position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none;cursor:crosshair}
+  .ht-hint{text-align:center;color:var(--ash);margin:6px 0 0}
+  .by{text-align:center;color:var(--ash);margin:18px 0 0}
+  .hero h1{font-family:var(--display);font-weight:300;font-size:clamp(1.2rem,2.5vw,1.8rem);
+    line-height:1.3;letter-spacing:-.01em;text-align:center;max-width:30ch;margin:clamp(22px,4vw,36px) auto 0;text-wrap:balance}
+  .hero h1 b{font-weight:600}
+  .hero h1 span{color:var(--ash)}
+  .hero-actions{
+    display:flex;gap:12px;justify-content:center;align-items:center;
+    margin-top:clamp(22px,4vw,34px);flex-wrap:wrap;position:relative;z-index:2;
+  }
+  .btn-primary{
+    display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:999px;
+    background:var(--ink);color:var(--paper);font-weight:600;font-size:clamp(.78rem,1.8vw,.84rem);
+    letter-spacing:.05em;text-decoration:none;box-shadow:0 0 24px rgba(234,249,255,.16);
+    transition:all .25s ease;
+  }
+  .btn-primary:hover{
+    background:#fff;transform:translateY(-2px);box-shadow:0 0 32px rgba(234,249,255,.32);color:var(--paper);
+  }
+  .btn-primary .arr{transition:transform .25s ease}
+  .btn-primary:hover .arr{transform:translateX(3px)}
+  .btn-secondary{
+    display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:999px;
+    background:rgba(234,249,255,.06);border:1px solid var(--hair);
+    color:var(--ash);font-size:clamp(.78rem,1.8vw,.84rem);letter-spacing:.05em;text-decoration:none;
+    transition:all .25s ease;
+  }
+  .btn-secondary:hover{
+    background:rgba(234,249,255,.12);color:var(--ink);border-color:rgba(234,249,255,.3);
+    transform:translateY(-1px);
+  }
+  .hud.bottom{margin-top:clamp(30px,5vw,56px)}
+
+  /* ---------- archive: glass folders on a dotted desk ---------- */
+  .archive{position:relative;margin-top:28px;padding-block:28px 40px;border-top:1px solid var(--hair)}
+  .archive-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;color:var(--ash);margin-bottom:8px}
+  .folders{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));justify-items:center;align-items:end;gap:120px 24px;margin-top:90px}
+  .folder-slot{width:100%;max-width:340px;display:flex;justify-content:center}
+
+  /* desk invite card */
+  .desk-invite{position:relative;z-index:4;margin:60px auto 30px}
+  .desk-invite-inner{
+    display:flex;justify-content:space-between;align-items:center;gap:24px;
+    padding:clamp(24px,3.8vw,36px) clamp(20px,4.5vw,42px);
+    background:linear-gradient(135deg,rgba(234,249,255,.06) 0%,rgba(234,249,255,.02) 100%);
+    border:1px solid var(--hair);border-radius:20px;
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  }
+  .desk-invite-tag{color:var(--rec);display:inline-flex;align-items:center;gap:6px;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+  .desk-invite-tag i{width:6px;height:6px;border-radius:50%;background:var(--rec)}
+  .desk-invite-content h3{font-family:var(--display);font-size:clamp(1.15rem,2.2vw,1.5rem);font-weight:400;margin:0 0 8px;letter-spacing:-.015em}
+  .desk-invite-content p{color:var(--ash);margin:0;font-size:clamp(.9rem,1.4vw,1rem);max-width:52ch;line-height:1.5}
+  @media (max-width:760px){
+    .desk-invite-inner{flex-direction:column;align-items:flex-start}
+  }
+
+  /* ---------- chapters ---------- */
+  .chapters{padding-block:24px 20px}
+  .ch{position:relative;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(24px,5vw,72px);
+    align-items:center;padding-block:clamp(70px,11vw,140px);border-top:1px solid var(--hair)}
+  .ch.flip{grid-template-columns:minmax(0,7fr) minmax(0,5fr)}
+  .ch.flip .copy{order:2}
+  .ghost{position:absolute;z-index:0;top:50%;font-family:var(--display);font-weight:200;
+    font-size:clamp(9rem,26vw,22rem);line-height:.8;color:transparent;-webkit-text-stroke:1px rgba(234,249,255,.12);
+    pointer-events:none;user-select:none;will-change:transform}
+  .ch .ghost{left:-.06em;margin-top:-.4em}
+  .ch.flip .ghost{left:auto;right:-.06em}
+  .copy{position:relative;z-index:1;min-width:0}
+  .copy .num{display:flex;align-items:center;gap:10px;color:var(--ash);margin:0 0 18px}
+  .copy .num b{color:var(--rec);font-weight:500}
+  .copy h2{font-family:var(--display);font-weight:400;font-size:clamp(1.7rem,3.6vw,2.7rem);line-height:1.04;
+    letter-spacing:-.02em;margin:0;text-wrap:balance}
+  .copy .what{font-family:var(--display);font-weight:200;color:var(--ash);font-size:clamp(.95rem,1.5vw,1.1rem);margin:10px 0 0}
+  .copy p.desc{color:var(--ink);opacity:.88;max-width:46ch;margin:22px 0 0;font-size:1rem}
+  .stack{display:flex;flex-wrap:wrap;gap:6px;margin:22px 0 0;padding:0;list-style:none}
+  .stack li{border:1px solid var(--hair);padding:5px 9px;background:var(--paper);border-radius:4px}
+  .open{display:inline-flex;align-items:center;gap:10px;margin-top:28px;text-decoration:none;
+    padding:11px 20px;border:1px solid var(--ink);border-radius:999px;background:rgba(234,249,255,.05);
+    font-size:.76rem;letter-spacing:.06em;transition:all .25s ease}
+  .open:hover{background:var(--ink);color:var(--paper);transform:translateY(-1px);box-shadow:0 0 20px rgba(234,249,255,.22)}
+  .open .arr{transition:transform .25s}
+  .open:hover .arr{transform:translateX(4px)}
+  .open.muted{border-color:var(--hair);color:var(--ash)}
+
+  /* the lens: tilt + focus driven by --rx --ry --ty --s --blur (all 0 at rest) */
+  .lens{position:relative;z-index:1;perspective:1100px;min-width:0;animation:float 7s ease-in-out infinite}
+  .ch:nth-of-type(even) .lens{animation-delay:-3.5s}
+  @keyframes float{0%,100%{translate:0 0}50%{translate:0 -12px}}
+  .shot{position:relative;transform-style:preserve-3d;
+    transform:translateY(var(--ty,0)) rotateX(var(--rx,0)) rotateY(var(--ry,0)) scale(var(--s,1));will-change:transform}
+  .shot .tag{position:absolute;display:flex;gap:10px;color:var(--ink);transform:translateZ(40px)}
+  .shot .tag.t{top:-30px;left:0;right:0;justify-content:space-between}
+  .shot .tag.b{bottom:-30px;left:0;right:0;justify-content:space-between;color:var(--ash)}
+  .shot .live{display:inline-flex;align-items:center;gap:6px}
+  .shot .live i{width:6px;height:6px;border-radius:50%;background:var(--rec)}
+
+  /* spotlight card: a glowing frame that follows the pointer, hue shifting across the screen */
+  .glow{--base:280;--spread:300;--bsz:3px;--spot:240px;--backdrop:hsl(0 0% 60% / .12);
+    --hue:calc(var(--base) + var(--xp,0) * var(--spread));
+    position:relative;border-radius:16px;padding:10px;border:var(--bsz) solid var(--backdrop);
+    background-color:var(--backdrop);
+    background-image:radial-gradient(var(--spot) var(--spot) at calc(var(--x,-9999) * 1px) calc(var(--y,-9999) * 1px),
+      hsl(var(--hue) 100% 70% / .16),transparent);
+    box-shadow:0 1rem 2rem -1rem rgba(0,0,0,.35);
+    -webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}
+  .glow::before,.glow::after,.glow-outer::before{content:"";position:absolute;pointer-events:none;border-style:solid;border-color:transparent;
+    background-repeat:no-repeat;
+    -webkit-mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+    mask:linear-gradient(#000 0 0) padding-box exclude,linear-gradient(#000 0 0)}
+  .glow::before,.glow::after{inset:calc(var(--bsz) * -1);border-width:var(--bsz);border-radius:16px;z-index:2}
+  .glow::before{filter:brightness(2);
+    background-image:radial-gradient(calc(var(--spot) * .75) calc(var(--spot) * .75) at calc(var(--x,-9999) * 1px + var(--bsz)) calc(var(--y,-9999) * 1px + var(--bsz)),
+      hsl(var(--hue) 100% 50% / 1),transparent 100%)}
+  .glow::after{opacity:.7;
+    background-image:radial-gradient(calc(var(--spot) * .5) calc(var(--spot) * .5) at calc(var(--x,-9999) * 1px + var(--bsz)) calc(var(--y,-9999) * 1px + var(--bsz)),
+      hsl(0 100% 100% / 1),transparent 100%)}
+  .glow-outer{position:absolute;inset:0;border-radius:16px;pointer-events:none;filter:blur(30px)}
+  .glow-outer::before{inset:-10px;border-width:10px;border-radius:16px;filter:brightness(2);
+    background-image:radial-gradient(calc(var(--spot) * .75) calc(var(--spot) * .75) at calc(var(--x,-9999) * 1px + 10px) calc(var(--y,-9999) * 1px + 10px),
+      hsl(var(--hue) 100% 50% / 1),transparent 100%)}
+
+  .img{position:relative;z-index:1;aspect-ratio:16/10;overflow:hidden;border-radius:8px;background:var(--paper-2);cursor:crosshair}
+  .img > img{position:absolute;left:0;top:-7%;width:100%;height:114%;object-fit:cover;object-position:top;
+    filter:blur(var(--blur,0));transform:translateY(var(--iy,0))}
+  .glare{position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light;opacity:var(--go,0);
+    background:radial-gradient(circle at var(--gx,50%) var(--gy,50%),rgba(255,255,255,.7),transparent 45%);transition:opacity .4s}
+  .adult{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#fff;background:rgba(0,0,0,.18)}
+  .adult span{font-family:var(--display);font-weight:600;font-size:clamp(2rem,6vw,3.6rem);letter-spacing:-.02em;text-shadow:0 2px 20px rgba(0,0,0,.35)}
+
+  /* liquid-glass loupe */
+  .loupe{position:absolute;z-index:6;left:0;top:0;width:168px;height:168px;border-radius:50%;pointer-events:none;
+    box-shadow:0 14px 40px rgba(0,0,0,.28);opacity:0;
+    transform:translate3d(-50%,-50%,70px) scale(.55);transition:opacity .25s,transform .3s cubic-bezier(.2,.8,.2,1)}
+  .loupe.on{opacity:1;transform:translate3d(-50%,-50%,70px) scale(1)}
+  .loupe-img{position:absolute;inset:0;border-radius:50%;background-color:var(--paper-2);background-repeat:no-repeat}
+  .loupe-shine{position:absolute;inset:0;border-radius:50%;
+    background:radial-gradient(55% 38% at 30% 16%,rgba(255,255,255,.6),rgba(255,255,255,0) 70%),
+               radial-gradient(70% 45% at 70% 100%,rgba(255,255,255,.22),transparent 65%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.85),inset 0 0 0 1px rgba(255,255,255,.5),inset 0 -12px 26px rgba(0,0,0,.14)}
+  .loupe-dot{position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-2.5px 0 0 -2.5px;border-radius:50%;background:var(--rec);box-shadow:0 0 0 2px rgba(255,255,255,.7)}
+  .loupe span{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);
+    font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;color:var(--ink);white-space:nowrap}
+
+  /* ---------- spec sheet ---------- */
+  .spec{padding-block:clamp(70px,10vw,120px);border-top:1px solid var(--hair)}
+  .spec h2{font-family:var(--display);font-weight:300;font-size:clamp(1.6rem,3.4vw,2.5rem);letter-spacing:-.02em;
+    margin:12px 0 0;max-width:22ch;text-wrap:balance}
+  .spec .lede{color:var(--ash);max-width:56ch;margin:18px 0 0}
+  .rows{margin:40px 0 0;border-top:1px solid var(--hair)}
+  .row{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:16px;padding-block:16px;border-bottom:1px solid var(--hair)}
+  .row dt{color:var(--ash)}
+  .row dd{margin:0;font-family:var(--display);font-weight:300;font-size:clamp(.95rem,1.8vw,1.2rem)}
+
+  /* ---------- footer: halftone wordmark cropped by the bottom edge ---------- */
+  .hwf{position:relative;overflow:hidden;isolation:isolate;height:clamp(420px,52vw,640px);border-top:1px solid var(--hair);background:transparent}
+  .hwf canvas{position:absolute;inset:0;width:100%;height:100%;display:block;max-width:none}
+  .hwf-top{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.25fr) repeat(3,minmax(0,1fr));gap:24px;
+    padding-top:clamp(22px,3.4vw,40px);font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;line-height:1.8}
+  .hwf-top strong{display:block;font-weight:500}
+  .hwf-top .muted{color:var(--ash)}
+  .hwf-top h3{margin:0;font:inherit;color:var(--ash);font-weight:500}
+  .hwf-top ul{list-style:none;margin:0;padding:0}
+  .hwf-top a,.hwf-up{color:inherit;text-decoration:none;background:none;border:0;padding:0;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;
+    background-image:linear-gradient(currentColor,currentColor);background-size:0% 1px;background-repeat:no-repeat;background-position:0 100%;
+    transition:background-size .35s cubic-bezier(.2,.7,.1,1)}
+  .hwf-top a:hover,.hwf-up:hover{background-size:100% 1px}
+  .hwf-top .email{text-transform:none;letter-spacing:.04em;user-select:all}
+  .hwf-rule{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:16px;
+    margin-top:clamp(18px,2.6vw,30px);padding-top:12px;border-top:.5px solid var(--hair);
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ash)}
+
+  @media (max-width:820px){
+    .ch,.ch.flip{grid-template-columns:1fr;gap:56px}
+    .ch.flip .copy{order:0}
+    .ch .ghost,.ch.flip .ghost{top:40px;left:-.04em;right:auto;margin-top:0}
+    .bar nav{display:flex;gap:10px}
+    .bar nav a:not(.btn-top-cta){display:none}
+    .btn-top-cta{padding:6px 12px;font-size:.7rem}
+    .row{grid-template-columns:1fr;gap:4px}
+    .hwf-top{grid-template-columns:minmax(0,1fr) minmax(0,1fr);row-gap:18px}
+    .hwf-top .brand{grid-column:1 / -1}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .hud .rec i,.lens{animation:none}
+    .shot{transform:none!important}
+    .img > img{filter:none!important;transform:none!important}
+    .aperture{transform:translate(-50%,-50%)!important}
+    .ghost,.copy{transform:none!important}
+  }
+
+  /* ===== Glass Folder (ported from the React component, .gf- scoped) ===== */
+  .gf-root{--gf-px:0;--gf-py:0;--gf-ease:cubic-bezier(.2,.8,.2,1);--gf-spring:cubic-bezier(.34,1.36,.5,1);--gf-hinge:0deg;--gf-lift:42px;--gf-spread:0px;--gf-fan:0deg;--gf-stack:15px;--gf-ink:#141416;--gf-ink-soft:rgba(20,20,22,.55);position:relative;display:inline-block;flex:none;vertical-align:top;font-family:var(--body);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;isolation:isolate}
+  .gf-root:hover,.gf-root:focus-within{--gf-hinge:-11deg;--gf-lift:-34px;--gf-spread:8px;--gf-fan:1.4deg;--gf-stack:10px}
+  .gf-root[data-open]{--gf-hinge:-24deg;--gf-lift:-96px;--gf-spread:40px;--gf-fan:5deg;--gf-stack:30px;z-index:5}
+  .gf-stage{position:absolute;left:0;top:0;width:340px;height:272px;transform-origin:0 0}
+  .gf-tilt{position:absolute;inset:0;transform:perspective(1400px) rotateX(calc(var(--gf-py) * -3deg)) rotateY(calc(var(--gf-px) * 4deg));transition:transform .9s var(--gf-ease)}
+  .gf-shadow{position:absolute;left:18px;right:18px;bottom:-6px;height:60px;border-radius:40px;background:rgba(16,18,24,.34);filter:blur(22px);transform:translateX(calc(var(--gf-px) * -8px));transition:transform .9s var(--gf-ease),opacity .9s var(--gf-ease)}
+  .gf-back{position:absolute;inset:0;overflow:hidden;background:linear-gradient(180deg,#f3f3f4 0%,#e3e3e6 100%)}
+  .gf-art{position:absolute;left:-12px;top:-12px;max-width:none;object-fit:cover;transform:translate(calc(var(--gf-px) * -7px),calc(var(--gf-py) * -6px)) scale(1.02);transition:transform 1.1s var(--gf-ease),opacity 1.2s var(--gf-ease),filter 1.2s var(--gf-ease)}
+  canvas.gf-art{opacity:0;filter:blur(14px) saturate(.6)}
+  canvas.gf-art[data-ready]{opacity:1;filter:none}
+  .gf-back-sheen{position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.22) 0%,rgba(255,255,255,0) 22%),radial-gradient(120% 80% at 80% 0%,rgba(255,255,255,.16),rgba(255,255,255,0) 60%);pointer-events:none}
+  .gf-rim{position:absolute;left:0;top:0;max-width:none;overflow:visible;pointer-events:none;fill:none}
+  .gf-back-rim{width:340px;height:272px}
+  .gf-back-rim path{stroke:rgba(255,255,255,.45);stroke-width:1}
+  .gf-files{position:absolute;inset:0;z-index:5;pointer-events:none;clip-path:inset(-400px -400px 10px -400px)}
+  .gf-sheet{all:unset;box-sizing:border-box;position:absolute;left:34px;top:96px;width:272px;height:184px;border-radius:16px;overflow:hidden;cursor:pointer;pointer-events:auto;background:#1a1a1d;box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 0 0 .5px rgba(0,0,0,.1),0 10px 26px -8px rgba(10,12,20,.28);transform-origin:50% 100%;transform:translate(calc(var(--gf-jx) + var(--gf-slot) * var(--gf-spread)),calc(var(--gf-lift) + var(--gf-depth) * var(--gf-stack) * -1)) rotate(calc(var(--gf-jr) + var(--gf-slot) * var(--gf-fan)));transition:transform .75s var(--gf-spring) calc(var(--gf-depth) * 40ms),box-shadow .4s var(--gf-ease),translate .9s var(--gf-ease),opacity .9s var(--gf-ease)}
+  .gf-root[data-open] .gf-sheet:hover,.gf-root[data-open] .gf-sheet:focus-visible{transform:translate(calc(var(--gf-jx) + var(--gf-slot) * var(--gf-spread)),calc(var(--gf-lift) + var(--gf-depth) * var(--gf-stack) * -1 - 18px)) rotate(calc(var(--gf-slot) * var(--gf-fan) * .6));box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 0 0 .5px rgba(0,0,0,.1),0 22px 40px -12px rgba(10,12,20,.42);transition-delay:0s}
+  .gf-sheet:focus-visible{outline:2px solid var(--rec);outline-offset:2px}
+  .gf-sheet-art{position:absolute;left:0;top:0;width:272px;height:184px;max-width:none;object-fit:cover;object-position:top}
+  .gf-sheet::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,0) 38%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);pointer-events:none}
+  .gf-sheet-head{position:absolute;left:14px;right:14px;top:11px;z-index:1;display:flex;align-items:baseline;justify-content:space-between;gap:10px;white-space:nowrap}
+  .gf-sheet-name{overflow:hidden;text-overflow:ellipsis;font-size:12.5px;font-weight:600;letter-spacing:-.005em;color:#fafafa}
+  .gf-sheet-meta{flex:none;font-family:var(--mono);font-size:10px;letter-spacing:.02em;color:rgba(250,250,250,.72)}
+  .gf-front{position:absolute;left:0;top:74px;width:340px;height:198px;z-index:10;-webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);transform-origin:50% 100%;transform:perspective(760px) rotateX(var(--gf-hinge));transition:transform .8s var(--gf-spring),translate 1s var(--gf-ease),opacity 1s var(--gf-ease)}
+  .gf-tint{position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.16) 0%,rgba(255,255,255,.5) 42%,rgba(252,252,252,.93) 100%)}
+  .gf-spec{position:absolute;inset:0;background:radial-gradient(260px 200px at calc(50% + var(--gf-px) * 46%) calc(30% + var(--gf-py) * 40%),rgba(255,255,255,.5),rgba(255,255,255,0) 70%);mix-blend-mode:soft-light;opacity:.9;pointer-events:none}
+  .gf-front-rim{width:340px;height:198px}
+  .gf-front-rim path{stroke-width:2.4;transition:stroke-width .3s var(--gf-ease)}
+  .gf-hit{all:unset;position:absolute;inset:0;z-index:1;cursor:pointer}
+  .gf-hit:focus-visible ~ .gf-label .gf-title{text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:4px}
+  .gf-front:has(.gf-hit:focus-visible) .gf-front-rim path{stroke-width:5}
+  .gf-label{position:absolute;z-index:2;left:28px;bottom:32px;display:flex;flex-direction:column;gap:4px;max-width:260px;pointer-events:none;color:var(--gf-ink)}
+  .gf-title{font-family:var(--display);font-size:17px;font-weight:400;line-height:1.15;letter-spacing:-.012em;white-space:nowrap}
+  .gf-meta{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--gf-ink-soft);white-space:nowrap}
+  .gf-root:not([data-entered]) .gf-back,.gf-root:not([data-entered]) .gf-back-rim{translate:0 22px;opacity:0}
+  .gf-root:not([data-entered]) .gf-sheet{translate:0 -120px;opacity:0}
+  .gf-root:not([data-entered]) .gf-front{translate:0 46px;opacity:0}
+  .gf-root:not([data-entered]) .gf-shadow{opacity:0}
+  .gf-back,.gf-back-rim{transition:translate 1s var(--gf-ease),opacity .9s var(--gf-ease)}
+  .gf-root[data-entered] .gf-sheet{transition-delay:calc(var(--gf-depth) * 40ms),0s,calc(.18s + var(--gf-depth) * 90ms),calc(.18s + var(--gf-depth) * 90ms)}
+  .gf-root[data-entered] .gf-front{transition-delay:0s,.42s,.42s}
+  @media (prefers-reduced-motion:reduce){
+    .gf-root *,.gf-root *::before,.gf-root *::after{transition-duration:0s!important;transition-delay:0s!important;animation:none!important}
+    .gf-tilt{transform:none}
+  }
+</style>
+
+<canvas id="bg" aria-hidden="true"></canvas>
+<div id="bg-paths" class="bg-paths" aria-hidden="true"></div>
+<header class="bar">
+  <div class="wrap">
+    <a href="#top" aria-label="Lenses Code, voltar ao topo"><img src="brand/lc-horizontal.svg" alt="Lenses Code"></a>
+    <nav class="mono" aria-label="Seções">
+      <a href="#arquivo">Builds</a>
+      <a href="#stack">Stack</a>
+      <a href="#contato">Contato</a>
+      <a href="#contato" class="btn-top-cta">Iniciar projeto →</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero wrap">
+    <div class="vf">
+      <div class="aperture" aria-hidden="true"></div>
+      <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+      <div class="hud mono" aria-hidden="true">
+        <span class="rec"><i></i>REC <span id="tc">00:00:00:00</span></span>
+        <span>8 builds</span>
+      </div>
+      <div class="ht" id="ht-hero"><canvas aria-hidden="true"></canvas><span class="sr">Lenses Code</span></div>
+      <p class="ht-hint mono" aria-hidden="true">passe o mouse no logo · clique pra disparar</p>
+      <p class="by mono">by Bruno Lenses</p>
+      <h1><b>Builder &amp; orquestrador de IA.</b> <span>Eu posiciono, desenho e construo sites, produtos e funis, do conceito ao ar.</span></h1>
+      <div class="hero-actions">
+        <a href="#contato" class="btn-primary mono">Iniciar um projeto <span class="arr">→</span></a>
+        <a href="#arquivo" class="btn-secondary mono">Explorar os builds ↓</a>
+      </div>
+      <div class="hud bottom mono" aria-hidden="true">
+        <span>Sorocaba · BR · remoto</span>
+        <span>role pra focar ↓</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="archive" id="arquivo" aria-label="Arquivo de builds">
+    <div class="wrap">
+      <div class="archive-head mono"><span>Arquivo · 8 builds em 3 pastas</span><span>passe o mouse · clique pra abrir</span></div>
+      <div class="folders">
+        <div class="folder-slot" data-folder="0"></div>
+        <div class="folder-slot" data-folder="1"></div>
+        <div class="folder-slot" data-folder="2"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="desk-invite wrap">
+    <div class="desk-invite-inner">
+      <div class="desk-invite-content">
+        <span class="desk-invite-tag mono"><i></i>Próximo build</span>
+        <h3>Tem uma ideia, produto ou funil para colocar no ar?</h3>
+        <p>Eu assumo o posicionamento, desenho a experiência e orquestro a IA para entregar em produção.</p>
+      </div>
+      <div class="desk-invite-action">
+        <a href="#contato" class="btn-primary mono">Vamos conversar <span class="arr">→</span></a>
+      </div>
+    </div>
+  </div>
+
+  <section class="chapters wrap" aria-label="Builds">
+
+    <article class="ch" id="ch01">
+      <span class="ghost" data-ghost aria-hidden="true">01</span>
+      <div class="copy">
+        <p class="num mono"><b>CH.01</b> Marca própria · hub</p>
+        <h2>Bruno Lenses</h2>
+        <p class="what">Hub de marca</p>
+        <p class="desc">O hub que reúne meu trabalho: carrossel 3D de projetos sobre retrato cinematográfico, e a casa do método DXM de posicionamento.</p>
+        <ul class="stack mono"><li>HTML</li><li>Carrossel 3D</li><li>Marca</li></ul>
+        <a class="open mono" href="https://www.brunolenses.com" target="_blank" rel="noopener noreferrer">Abrir ao vivo <span class="arr">→</span></a>
+      </div>
+      <div class="lens"><div class="shot" data-lens data-side="right">
+        <div class="tag t mono"><span>CH.01</span><span class="live"><i></i>Live</span></div>
+        <div class="glow"><div class="glow-outer"></div><div class="img"><img src="shots/brunolenses.jpg" alt="Hub Bruno Lenses com retrato e carrossel de projetos" loading="lazy"></div></div>
+        <div class="tag b mono"><span>brunolenses.com</span><span>1440 × 900</span></div>
+      </div></div>
+    </article>
+
+    <article class="ch flip" id="ch02">
+      <span class="ghost" data-ghost aria-hidden="true">02</span>
+      <div class="copy">
+        <p class="num mono"><b>CH.02</b> Produto próprio · e-commerce</p>
+        <h2>Canônicas de Deus</h2>
+        <p class="what">Loja e funil de uma trilogia</p>
+        <p class="desc">Vitrine dos três livros com checkout Stripe, capítulo grátis por e-mail e um quiz que revela "qual carta é a sua".</p>
+        <ul class="stack mono"><li>Next.js</li><li>Stripe</li><li>Funil</li><li>Quiz</li></ul>
+        <a class="open mono" href="https://www.canonicasdedeus.com.br" target="_blank" rel="noopener noreferrer">Abrir ao vivo <span class="arr">→</span></a>
+      </div>
+      <div class="lens"><div class="shot" data-lens data-side="left">
+        <div class="tag t mono"><span>CH.02</span><span class="live"><i></i>Live</span></div>
+        <div class="glow"><div class="glow-outer"></div><div class="img"><img src="shots/canonicas.jpg" alt="Site Canônicas de Deus com fundo de mármore escuro e a capa A Carta de Deus" loading="lazy"></div></div>
+        <div class="tag b mono"><span>canonicasdedeus.com.br</span><span>1440 × 900</span></div>
+      </div></div>
+    </article>
+
+    <article class="ch" id="ch03">
+      <span class="ghost" data-ghost aria-hidden="true">03</span>
+      <div class="copy">
+        <p class="num mono"><b>CH.03</b> Produto próprio · no ar</p>
+        <h2>Studio Lenses</h2>
+        <p class="what">Galeria de prompts de IA</p>
+        <p class="desc">12.837 prompts curados para geração de imagem, com busca, filtros por estilo e favoritos. Produto meu, do zero, com pagamento integrado.</p>
+        <ul class="stack mono"><li>Next.js</li><li>Supabase</li><li>Stripe</li><li>IA</li></ul>
+        <a class="open mono" href="https://studio-lenses-saas.vercel.app" target="_blank" rel="noopener noreferrer">Abrir ao vivo <span class="arr">→</span></a>
+      </div>
+      <div class="lens"><div class="shot" data-lens data-side="right">
+        <div class="tag t mono"><span>CH.03</span><span class="live"><i></i>Live</span></div>
+        <div class="glow"><div class="glow-outer"></div><div class="img"><img src="shots/studiolenses.jpg" alt="Tela da galeria Studio Lenses com cards de prompts e filtros de categoria" loading="lazy"></div></div>
+        <div class="tag b mono"><span>studio-lenses · vercel</span><span>1440 × 900</span></div>
+      </div></div>
+    </article>
+
+    <article class="ch flip" id="ch04">
+      <span class="ghost" data-ghost aria-hidden="true">04</span>
+      <div class="copy">
+        <p class="num mono"><b>CH.04</b> Cliente · feito em ~20 min</p>
+        <h2>KRNM Skins</h2>
+        <p class="what">Landing de marca em 3D</p>
+        <p class="desc">Fita 3D guiada pela rolagem que apresenta as 10 texturas de uma marca de skins para câmera, com catálogo e contato direto no WhatsApp.</p>
+        <ul class="stack mono"><li>HTML</li><li>CSS 3D</li><li>Scroll</li><li>Claude</li></ul>
+        <a class="open mono" href="https://claude.ai/artifact/Fu7Y67qYdRYB8ABaepgemk" target="_blank" rel="noopener noreferrer">Abrir ao vivo <span class="arr">→</span></a>
+      </div>
+      <div class="lens"><div class="shot" data-lens data-side="left">
+        <div class="tag t mono"><span>CH.04</span><span class="live"><i></i>Live</span></div>
+        <div class="glow"><div class="glow-outer"></div><div class="img"><img src="shots/krnm.jpg" alt="Landing KRNM Skins com a fita 3D de câmeras e o logotipo KRNM" loading="lazy"></div></div>
+        <div class="tag b mono"><span>krnm skins · artifact</span><span>1440 × 900</span></div>
+      </div></div>
+    </article>
+
+    <article class="ch" id="ch05">
+      <span class="ghost" data-ghost aria-hidden="true">05</span>
+      <div class="copy">
+        <p class="num mono"><b>CH.05</b> Conceito · pré-lançamento</p>
+        <h2>RADDAR</h2>
+        <p class="what">Marketplace hiperlocal</p>
+        <p class="desc">Um radar de produtos e serviços a metros de você, com busca por IA e mapa. Landing de pré-lançamento com copy e UX trabalhadas.</p>
+        <ul class="stack mono"><li>V0</li><li>Next.js</li><li>UX</li></ul>
+        <a class="open mono" href="https://website-ux-improvement-2.vercel.app" target="_blank" rel="noopener noreferrer">Abrir ao vivo <span class="arr">→</span></a>
+      </div>
+      <div class="lens"><div class="shot" data-lens data-side="right">
+        <div class="tag t mono"><span>CH.05</span><span class="live"><i></i>Live</span></div>
+        <div class="glow"><div class="glow-outer"></div><div class="img"><img src="shots/raddar.jpg" alt="Landing RADDAR com o título Encontre. A metros de você." loading="lazy"></div></div>
+        <div class="tag b mono"><span>raddar · vercel</span><span>1440 × 900</span></div>
+      </div></div>
+    </article>
+
+    <article class="ch flip" id="ch06">
+      <span class="ghost" data-ghost aria-hidden="true">06</span>
+      <div class="copy">
+        <p class="num mono"><b>CH.06</b> Produto próprio · conteúdo adulto</p>
+        <h2>Lenses Mag</h2>
+        <p class="what">Revista digital por assinatura · 18+</p>
+        <p class="desc">Plataforma de ensaios fotográficos autorais com paywall, área de membros, loja e verificação de idade. Contém nudez: abra só se for maior de 18.</p>
+        <ul class="stack mono"><li>Next.js</li><li>Paywall</li><li>Assinatura</li></ul>
+        <a class="open muted mono" href="https://www.lensesmag.com.br" target="_blank" rel="noopener noreferrer">Abrir (18+) <span class="arr">→</span></a>
+      </div>
+      <div class="lens"><div class="shot" data-lens data-side="left">
+        <div class="tag t mono"><span>CH.06</span><span class="live"><i></i>Live</span></div>
+        <div class="glow"><div class="glow-outer"></div><div class="img"><img src="shots/lensesmag.jpg" alt="Lenses Mag, página inicial com a foto de capa levemente desfocada" loading="lazy">
+          <div class="adult"><span>18+</span></div></div></div>
+        <div class="tag b mono"><span>lensesmag.com.br</span><span>1440 × 900</span></div>
+      </div></div>
+    </article>
+
+    <article class="ch" id="ch07">
+      <span class="ghost" data-ghost aria-hidden="true">07</span>
+      <div class="copy">
+        <p class="num mono"><b>CH.07</b> Cliente · loja digital</p>
+        <h2>Protocolos Premium</h2>
+        <p class="what">Vitrine editorial de infoprodutos</p>
+        <p class="desc">Loja para os protocolos de uma podóloga com 23 anos de profissão: precificação, fichas de anamnese e cursos, com identidade editorial.</p>
+        <ul class="stack mono"><li>Next.js</li><li>E-commerce</li><li>Editorial</li></ul>
+        <a class="open mono" href="https://site-marilia-esteira.vercel.app" target="_blank" rel="noopener noreferrer">Abrir ao vivo <span class="arr">→</span></a>
+      </div>
+      <div class="lens"><div class="shot" data-lens data-side="right">
+        <div class="tag t mono"><span>CH.07</span><span class="live"><i></i>Live</span></div>
+        <div class="glow"><div class="glow-outer"></div><div class="img"><img src="shots/marilia.jpg" alt="Site Protocolos Marília Eleonora com capa do Protocolo de Precificação" loading="lazy"></div></div>
+        <div class="tag b mono"><span>protocolos · vercel</span><span>1440 × 900</span></div>
+      </div></div>
+    </article>
+
+    <article class="ch flip" id="ch08">
+      <span class="ghost" data-ghost aria-hidden="true">08</span>
+      <div class="copy">
+        <p class="num mono"><b>CH.08</b> Cliente · landing de venda</p>
+        <h2>SENAJ Leilões</h2>
+        <p class="what">Página de conversão para curso</p>
+        <p class="desc">Landing para um curso de leilão de imóveis: proposta de valor, jornada em quatro etapas, FAQ e checkout, desenhada para converter.</p>
+        <ul class="stack mono"><li>Next.js</li><li>Stripe</li><li>Copy</li></ul>
+        <a class="open mono" href="https://senaj-landing.vercel.app" target="_blank" rel="noopener noreferrer">Abrir ao vivo <span class="arr">→</span></a>
+      </div>
+      <div class="lens"><div class="shot" data-lens data-side="left">
+        <div class="tag t mono"><span>CH.08</span><span class="live"><i></i>Live</span></div>
+        <div class="glow"><div class="glow-outer"></div><div class="img"><img src="shots/senaj.jpg" alt="Landing SENAJ Leilões com o título Imóveis de leilão com segurança e lucratividade" loading="lazy"></div></div>
+        <div class="tag b mono"><span>senaj-landing · vercel</span><span>1440 × 900</span></div>
+      </div></div>
+    </article>
+  </section>
+
+  <section class="spec wrap" id="stack">
+    <p class="mono" style="color:var(--ash);margin:0">Ficha técnica</p>
+    <h2>Uma pessoa, três cadeiras: posicionamento, conteúdo e build.</h2>
+    <p class="lede">Eu não uso uma IA só. Escolho a certa para cada etapa e dirijo o resultado com olho de UX. Este é o stack que eu orquestro.</p>
+    <dl class="rows">
+      <div class="row"><dt class="mono">Raciocínio &amp; texto</dt><dd>Claude · GPT · Gemini · Grok</dd></div>
+      <div class="row"><dt class="mono">Interface &amp; código</dt><dd>V0 · Next.js · HTML/CSS 3D</dd></div>
+      <div class="row"><dt class="mono">Dados &amp; pagamento</dt><dd>Supabase · Stripe · Cielo</dd></div>
+      <div class="row"><dt class="mono">Voz, áudio &amp; deck</dt><dd>ElevenLabs · Suno · Gamma</dd></div>
+      <div class="row"><dt class="mono">Deploy</dt><dd>Vercel · Netlify · Hostinger</dd></div>
+      <div class="row"><dt class="mono">Olho</dt><dd>19 anos de fotografia e vídeo · moda, dança, editorial</dd></div>
+    </dl>
+  </section>
+</main>
+
+<footer class="hwf" id="contato">
+  <canvas aria-hidden="true"></canvas>
+  <span class="sr">Lenses Code</span>
+  <div class="wrap">
+    <div class="hwf-top">
+      <div class="brand"><strong>Lenses Code</strong><span class="muted">by Bruno Lenses · Bruno Lopes</span></div>
+      <nav aria-label="Builds"><h3>Builds</h3><ul>
+        <li><a href="#ch01">Bruno Lenses</a></li><li><a href="#ch02">Canônicas</a></li><li><a href="#ch03">Studio Lenses</a></li><li><a href="#ch04">KRNM Skins</a></li>
+      </ul></nav>
+      <nav aria-label="Contato"><h3>Contato</h3><ul>
+        <li><a href="mailto:brunolenses@gmail.com" class="email">brunolenses@gmail.com ↗</a></li>
+        <li><a href="https://www.linkedin.com/in/bruno-lopes-a6268117a" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a></li>
+        <li><a href="https://instagram.com/brunolenses" target="_blank" rel="noopener noreferrer">Instagram ↗</a></li>
+      </ul></nav>
+      <nav aria-label="Marca"><h3>Marca</h3><ul>
+        <li><a href="https://www.brunolenses.com" target="_blank" rel="noopener noreferrer">brunolenses.com</a></li>
+        <li><span>Sorocaba · BR</span></li><li><span>Remoto · GMT-3</span></li>
+      </ul></nav>
+    </div>
+    <div class="hwf-rule"><span>©2026 Lenses Code</span><button type="button" class="hwf-up" id="to-top">Voltar ao topo ↑</button></div>
+  </div>
+</footer>
+
+<script type="x-shader/x-fragment" id="hd-fs">
+// "Halftone Dots" — made with the 21st.dev Shader Builder
+// Adapted from Paper Shaders: https://shaders.paper.design/halftone-dots
+// Licensed under Apache-2.0: https://github.com/paper-design/shaders
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+
+uniform vec3 u_colors[8];
+uniform vec4 u_scene;
+uniform vec4 u_shape;
+uniform vec4 u_surface;
+uniform vec4 u_finish;
+uniform vec4 u_transform;
+uniform vec4 u_space;
+uniform vec4 u_cursor;
+
+#define u_resolution u_scene.xy
+#define u_time u_scene.z
+#define u_colorCount u_scene.w
+#define u_scale u_shape.x
+#define u_intensity u_shape.y
+#define u_paramA u_shape.z
+#define u_warp u_shape.w
+#define u_detail u_surface.x
+#define u_contrast u_surface.y
+#define u_brightness u_surface.z
+#define u_saturation u_surface.w
+#define u_hue u_finish.x
+#define u_vignette u_finish.y
+#define u_blur u_finish.z
+#define u_grain u_finish.w
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+#define u_seed u_transform.x
+#else
+#define u_seed mod(u_transform.x, 31.0)
+#endif
+#define u_rotate u_transform.y
+#define u_drift u_transform.z
+#define u_oklab u_transform.w
+#define u_offset u_space.xy
+#define u_mouse u_space.zw
+#define u_cursorPresence u_cursor.x
+#define u_cursorEffect u_cursor.y
+#define u_cursorStrength u_cursor.z
+#define u_cursorRadius u_cursor.w
+
+float hash21(vec2 p) {
+#ifndef GL_FRAGMENT_PRECISION_HIGH
+  p = mod(p, 31.0);
+#endif
+  p = fract(p * vec2(234.34, 435.345));
+  p += dot(p, p + 34.23);
+  return fract(p.x * p.y);
+}
+
+float grainHash(vec2 p) {
+  vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+  p3 += dot(p3, p3.yzx + 33.33);
+  return fract((p3.x + p3.y) * p3.z);
+}
+
+vec2 hash22(vec2 p) {
+#ifndef GL_FRAGMENT_PRECISION_HIGH
+  p = mod(p, 31.0);
+#endif
+  float n = sin(dot(p, vec2(41.0, 289.0)));
+  return fract(vec2(15731.743, 7892.321) * n);
+}
+
+float noise(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(
+    mix(hash21(i), hash21(i + vec2(1.0, 0.0)), u.x),
+    mix(hash21(i + vec2(0.0, 1.0)), hash21(i + vec2(1.0, 1.0)), u.x),
+    u.y);
+}
+
+float fbm(vec2 p) {
+  float v = 0.0;
+  float a = 0.5;
+  for (int i = 0; i < 5; i++) {
+    v += a * noise(p);
+    p = p * 2.03 + vec2(17.0, 9.2);
+    a *= 0.5;
+  }
+  return v;
+}
+
+vec3 srgbToLinear(vec3 c) {
+  return mix(c / 12.92, pow((c + 0.055) / 1.055, vec3(2.4)),
+    step(0.04045, c));
+}
+vec3 linearToSrgb(vec3 c) {
+  return mix(c * 12.92, 1.055 * pow(max(c, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055,
+    step(0.0031308, c));
+}
+vec3 linToOklab(vec3 c) {
+  float l = 0.4122214708 * c.r + 0.5363325363 * c.g + 0.0514459929 * c.b;
+  float m = 0.2119034982 * c.r + 0.6806995451 * c.g + 0.1073969566 * c.b;
+  float s = 0.0883024619 * c.r + 0.2817188376 * c.g + 0.6299787005 * c.b;
+  l = pow(max(l, 0.0), 1.0 / 3.0);
+  m = pow(max(m, 0.0), 1.0 / 3.0);
+  s = pow(max(s, 0.0), 1.0 / 3.0);
+  return vec3(
+    0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s,
+    1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s,
+    0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s);
+}
+vec3 oklabToLin(vec3 c) {
+  float l = c.x + 0.3963377774 * c.y + 0.2158037573 * c.z;
+  float m = c.x - 0.1055613458 * c.y - 0.0638541728 * c.z;
+  float s = c.x - 0.0894841775 * c.y - 1.2914855480 * c.z;
+  l = l * l * l; m = m * m * m; s = s * s * s;
+  return vec3(
+    4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+    -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+    -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s);
+}
+vec3 mixColour(vec3 a, vec3 b, float t) {
+  if (u_oklab > 0.5) {
+    vec3 la = linToOklab(srgbToLinear(a));
+    vec3 lb = linToOklab(srgbToLinear(b));
+    return clamp(linearToSrgb(oklabToLin(mix(la, lb, t))), 0.0, 1.0);
+  }
+  return mix(a, b, t);
+}
+
+vec3 palette(float x) {
+  float n = max(u_colorCount - 1.0, 1.0);
+  float f = clamp(x, 0.0, 1.0) * n;
+  vec3 col = u_colors[0];
+  for (int i = 0; i < 7; i++) {
+    if (float(i) < n)
+      col = mixColour(col, u_colors[i + 1],
+        smoothstep(0.0, 1.0, clamp(f - float(i), 0.0, 1.0)));
+  }
+  return col;
+}
+
+vec3 hueRotate(vec3 col, float a) {
+  const mat3 toYIQ = mat3(0.299, 0.596, 0.211,
+                          0.587, -0.274, -0.523,
+                          0.114, -0.322, 0.312);
+  const mat3 toRGB = mat3(1.0, 1.0, 1.0,
+                          0.956, -0.272, -1.106,
+                          0.621, -0.647, 1.703);
+  vec3 yiq = toYIQ * col;
+  float ca = cos(a), sa = sin(a);
+  yiq = vec3(yiq.x, yiq.y * ca - yiq.z * sa, yiq.y * sa + yiq.z * ca);
+  return toRGB * yiq;
+}
+
+vec3 shade(vec2 uv, vec2 p, float t) {
+  float cells = 13.0 + u_intensity * 42.0;
+  vec2 grid = p * cells;
+  vec2 id = floor(grid);
+  vec2 local = fract(grid) - 0.5;
+  if (mod(id.y, 2.0) > 0.5) local.x += 0.5;
+  local.x = fract(local.x + 0.5) - 0.5;
+  float source = fbm(p * 2.1 + vec2(t * 0.025, -t * 0.018) + u_seed);
+  source = mix(source, 0.5 + 0.5 * sin(p.x * 2.7 + p.y * 1.9), 0.35);
+  float radius = (0.08 + source * 0.36) * mix(0.55, 1.45, u_paramA);
+  float grain = (hash21(id + u_seed) - 0.5) * u_intensity * 0.08;
+  float dotMask = 1.0 - smoothstep(radius - 0.055, radius + 0.025, length(local) + grain);
+  return mix(u_colors[0], palette(source), dotMask);
+}
+
+void main() {
+  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+  vec2 screenUv = uv;
+  vec2 p = (gl_FragCoord.xy - 0.5 * u_resolution.xy)
+    / min(u_resolution.x, u_resolution.y);
+  float cursorMask = 0.0;
+
+  if (u_cursorPresence > 0.001) {
+    vec2 cursor = (0.5 * u_mouse * u_resolution.xy)
+      / min(u_resolution.x, u_resolution.y);
+    vec2 cursorDelta = p - cursor;
+    if (u_cursorEffect < 0.5) {
+      p += cursor * u_cursorPresence * u_cursorStrength * 0.55;
+    } else {
+      float cursorDistance = length(cursorDelta);
+      vec2 cursorDirection = cursorDelta / max(cursorDistance, 0.0001);
+      cursorMask = u_cursorPresence
+        * (1.0 - smoothstep(0.0, u_cursorRadius, cursorDistance));
+      if (u_cursorEffect < 1.5) {
+        p -= cursorDirection * cursorMask * u_cursorStrength * 0.24;
+      } else if (u_cursorEffect < 2.5) {
+        float cursorAngle = cursorMask * u_cursorStrength * 2.2;
+        float cc = cos(cursorAngle), cs = sin(cursorAngle);
+        p = cursor + mat2(cc, -cs, cs, cc) * cursorDelta;
+      } else if (u_cursorEffect < 3.5) {
+        float ripple = sin(
+          cursorDistance / max(u_cursorRadius, 0.001) * 18.0 - u_time * 5.0);
+        p -= cursorDirection * ripple * cursorMask * u_cursorStrength * 0.07;
+      }
+    }
+  }
+
+  uv = p * min(u_resolution.x, u_resolution.y) / u_resolution.xy + 0.5;
+  p *= u_scale;
+  if (abs(u_rotate) > 0.0001) {
+    float cr = cos(u_rotate), sr = sin(u_rotate);
+    p = mat2(cr, -sr, sr, cr) * p;
+  }
+  p += u_offset;
+  if (u_drift > 0.0001)
+    p += u_drift * vec2(sin(u_time * 0.31), cos(u_time * 0.23));
+  if (u_warp > 0.0) {
+    p += u_warp * (vec2(
+      fbm(p * u_detail + u_seed),
+      fbm(p * u_detail + vec2(5.2, 1.3))) - 0.5);
+  }
+  vec3 col;
+  if (u_blur > 0.0) {
+    float e = u_blur;
+    float pe = e * u_scale;
+    vec2 uvE = vec2(e) * min(u_resolution.x, u_resolution.y) / u_resolution.xy;
+    col  = shade(uv, p, u_time) * 0.36;
+    col += shade(uv + vec2(uvE.x, 0.0), p + vec2(pe, 0.0), u_time) * 0.16;
+    col += shade(uv - vec2(uvE.x, 0.0), p - vec2(pe, 0.0), u_time) * 0.16;
+    col += shade(uv + vec2(0.0, uvE.y), p + vec2(0.0, pe), u_time) * 0.16;
+    col += shade(uv - vec2(0.0, uvE.y), p - vec2(0.0, pe), u_time) * 0.16;
+  } else {
+    col = shade(uv, p, u_time);
+  }
+  if (abs(u_contrast - 1.0) > 0.0001)
+    col = (col - 0.5) * u_contrast + 0.5;
+  if (abs(u_saturation - 1.0) > 0.0001) {
+    float luma = dot(col, vec3(0.299, 0.587, 0.114));
+    col = mix(vec3(luma), col, u_saturation);
+  }
+  if (abs(u_hue) > 0.0001)
+    col = hueRotate(col, u_hue);
+  if (abs(u_brightness) > 0.0001)
+    col += u_brightness;
+  if (u_vignette > 0.0001) {
+    float vd = length(screenUv - 0.5) * 1.41421356;
+    col *= 1.0 - u_vignette * smoothstep(0.35, 1.0, vd);
+  }
+  if (u_cursorPresence > 0.001 && u_cursorEffect > 3.5)
+    col += (vec3(0.18) + col * 0.12) * cursorMask * u_cursorStrength;
+  if (u_grain > 0.0001)
+    col += (grainHash(
+      gl_FragCoord.xy + vec2(u_seed * 17.0, u_seed * 31.0)) - 0.5) * u_grain;
+  gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+}
+</script>
+<script>
+// Animated halftone background: fullscreen triangle, plain WebGL1, no libraries.
+(() => {
+  const canvas = document.getElementById('bg');
+  const gl = canvas.getContext('webgl', { antialias: false, alpha: false, preserveDrawingBuffer: false });
+  if (!gl) return;                                   // falls back to the solid page colour
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null; };
+  const vs = sh(gl.VERTEX_SHADER, 'attribute vec2 a;void main(){gl_Position=vec4(a,0.0,1.0);}');
+  const fs = sh(gl.FRAGMENT_SHADER, document.getElementById('hd-fs').textContent);
+  if (!vs || !fs) return;
+  const prog = gl.createProgram(); gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
+  gl.useProgram(prog);
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, 'a'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  const U = n => gl.getUniformLocation(prog, n);
+  // colours low → high: #031C26, #1B6CA8, #5AD2F4, #EAF9FF (slots 5–8 unused)
+  gl.uniform3fv(U('u_colors'), new Float32Array([.012,.110,.149, .106,.424,.659, .353,.824,.957, .918,.976,1.0, 0,0,0, 0,0,0, 0,0,0, 0,0,0]));
+  gl.uniform4f(U('u_shape'), 1.26, 0.35, 0.28, 0.00);
+  gl.uniform4f(U('u_surface'), 1.82, 1.12, 0.00, 1.00);
+  gl.uniform4f(U('u_finish'), 0.00, 0.26, 0.006, 0.04);
+  gl.uniform4f(U('u_transform'), 3517.0, 0.00, 0.00, 0.0);
+  gl.uniform4f(U('u_space'), -0.19, -0.02, 0.0, 0.0);   // cursor off
+  gl.uniform4f(U('u_cursor'), 0.0, 2.0, 0.65, 0.46);
+  const uScene = U('u_scene');
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let w = 0, h = 0, raf = 0;
+  const resize = () => {
+    const dpr = Math.min(devicePixelRatio || 1, 1.5);   // capped: the 5-tap shader is heavy at full retina
+    w = Math.max(1, Math.round(canvas.clientWidth * dpr)); h = Math.max(1, Math.round(canvas.clientHeight * dpr));
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h); }
+  };
+  const frame = t => {
+    resize();
+    gl.uniform4f(uScene, w, h, (still ? 8 : t / 1000) * -0.57, 4.0);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    raf = still ? 0 : requestAnimationFrame(frame);
+  };
+  addEventListener('resize', () => { if (still) frame(0); });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { cancelAnimationFrame(raf); raf = 0; }
+    else if (!raf && !still) raf = requestAnimationFrame(frame);
+  });
+  raf = requestAnimationFrame(frame);
+})();
+</script>
+<script>
+// Floating Paths (Background Paths) — 72 animated organic SVG bezier curves
+(() => {
+  const container = document.getElementById('bg-paths');
+  if (!container) return;
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 696 316');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+  svg.classList.add('bg-paths-svg');
+
+  const positions = [1, -1];
+  positions.forEach(pos => {
+    for (let i = 0; i < 36; i++) {
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      const d = `M-${380 - i * 5 * pos} -${189 + i * 6}C-${380 - i * 5 * pos} -${189 + i * 6} -${312 - i * 5 * pos} ${216 - i * 6} ${152 - i * 5 * pos} ${343 - i * 6}C${616 - i * 5 * pos} ${470 - i * 6} ${684 - i * 5 * pos} ${875 - i * 6} ${684 - i * 5 * pos} ${875 - i * 6}`;
+      p.setAttribute('d', d);
+      p.setAttribute('pathLength', '1');
+      p.setAttribute('stroke', 'currentColor');
+      p.setAttribute('stroke-width', (0.55 + i * 0.035).toFixed(2));
+      p.setAttribute('stroke-opacity', (0.12 + i * 0.022).toFixed(3));
+
+      const dur = (20 + (i % 8) * 1.5).toFixed(1);
+      const delay = (-(i * 0.75)).toFixed(1);
+      p.style.animation = `floatingPath ${dur}s linear ${delay}s infinite`;
+      svg.appendChild(p);
+    }
+  });
+  container.appendChild(svg);
+})();
+</script>
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine = matchMedia('(pointer: fine)').matches;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const el = (tag, cls) => { const e = document.createElement(tag); if (cls) e.className = cls; return e; };
+
+  // ---------------- REC timecode ----------------
+  const tc = document.getElementById('tc');
+  const t0 = performance.now();
+  const pad = n => String(n).padStart(2, '0');
+  setInterval(() => {
+    const ms = performance.now() - t0, s = Math.floor(ms / 1000);
+    tc.textContent = `${pad(Math.floor(s/3600))}:${pad(Math.floor(s/60)%60)}:${pad(s%60)}:${pad(Math.floor(ms/41.67)%24)}`;
+  }, 42);
+  document.getElementById('to-top').addEventListener('click', () => scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }));
+
+  // ================= shared helpers =================
+  function hex(h) {
+    const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec((h || '').trim());
+    if (!m) return [128, 128, 128];
+    const s = m[1].length === 3 ? m[1].split('').map(c => c + c).join('') : m[1];
+    return [parseInt(s.slice(0, 2), 16), parseInt(s.slice(2, 4), 16), parseInt(s.slice(4, 6), 16)];
+  }
+  function rng(seed) {
+    let a = seed >>> 0;
+    return () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  function hashString(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return h >>> 0; }
+
+  // ================= Glass Folder art (liquid noise field) =================
+  const ART = {
+    aurora: { style: 'streak', colors: ['#f4efe9','#e9c2b8','#c2433f','#2a1e2a','#22395e','#6f97c2','#e5edf4'], scale: .7, warp: 1.4, angle: -.62, gloss: .18, veins: 0 },
+    ember:  { style: 'marble', colors: ['#07090c','#16252c','#3d5f68','#1a1416','#a3201a','#ef4a2b','#ff8a5c'], scale: .62, warp: 3.2, angle: -.5, gloss: .55, veins: .6 },
+    dusk:   { style: 'marble', colors: ['#120c18','#3e2850','#8f6c9c','#2b1a24','#b3502f','#eab08a','#fbe7d2'], scale: .75, warp: 3.6, angle: .8, gloss: .5, veins: .5 },
+  };
+  function makeFbm(seed) {
+    const r = rng(seed), perm = new Uint8Array(512), grad = new Float32Array(512), p = [];
+    for (let i = 0; i < 256; i++) p.push(i);
+    for (let i = 255; i > 0; i--) { const j = Math.floor(r() * (i + 1)); const t = p[i]; p[i] = p[j]; p[j] = t; }
+    for (let i = 0; i < 512; i++) perm[i] = p[i & 255];
+    for (let i = 0; i < 256; i++) { const a = r() * Math.PI * 2; grad[i*2] = Math.cos(a); grad[i*2+1] = Math.sin(a); }
+    const noise = (x, y) => {
+      const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, X = xi & 255, Y = yi & 255;
+      const h00 = perm[X + perm[Y]] * 2, h10 = perm[X + 1 + perm[Y]] * 2, h01 = perm[X + perm[Y + 1]] * 2, h11 = perm[X + 1 + perm[Y + 1]] * 2;
+      const d00 = grad[h00]*xf + grad[h00+1]*yf, d10 = grad[h10]*(xf-1) + grad[h10+1]*yf, d01 = grad[h01]*xf + grad[h01+1]*(yf-1), d11 = grad[h11]*(xf-1) + grad[h11+1]*(yf-1);
+      const u = xf*xf*xf*(xf*(xf*6-15)+10), v = yf*yf*yf*(yf*(yf*6-15)+10);
+      return d00 + u*(d10-d00) + v*(d01 - d00 + u*(d11 - d01 - d10 + d00));
+    };
+    return (x, y, oct) => { let sum = 0, amp = .5; for (let i = 0; i < oct; i++) { sum += amp * noise(x, y); const nx = 1.6*x + 1.2*y + 7.1; y = -1.2*x + 1.6*y + 3.3; x = nx; amp *= .5; } return sum; };
+  }
+  function createArtJob(width, height, recipe, seed) {
+    const w = Math.max(1, Math.round(width)), h = Math.max(1, Math.round(height));
+    const stops = recipe.colors.map((c, i) => ({ t: i / (recipe.colors.length - 1), c: hex(c) }));
+    const scale = recipe.scale ?? .7, warp = recipe.warp ?? 3, gloss = recipe.gloss ?? .4, veins = recipe.veins ?? 0, streak = recipe.style === 'streak';
+    const fbm = makeFbm(seed * 977 + 13), r = rng(seed + 1), ox = r() * 50, oy = r() * 50;
+    const angle = (recipe.angle ?? 0) + (r() - .5) * .5, ca = Math.cos(angle), sa = Math.sin(angle), m = Math.min(w, h);
+    const gw = Math.ceil(w / 2) + 3, gh = Math.ceil(h / 2) + 3;
+    const G = new Float32Array(gw * gh), GQ = new Float32Array(gw * gh), F = new Float32Array(w * h), Q = new Float32Array(w * h);
+    const pixels = new Uint8ClampedArray(w * h * 4);
+    let row = 0;
+    const field = gy => {
+      for (let gx = 0; gx < gw; gx++) {
+        const u = ((gx - 1) * 2 - w / 2) / m, v = ((gy - 1) * 2 - h / 2) / m;
+        let px = (u*ca - v*sa) * scale, py = (u*sa + v*ca) * scale;
+        if (streak) { px *= .14; py *= 2.2; }
+        px += ox; py += oy;
+        const qx = fbm(px, py, 3), qy = fbm(px + 5.2, py + 1.3, 3);
+        const rx = fbm(px + warp*qx + 1.7, py + warp*qy + 9.2, 3), ry = fbm(px + warp*qx + 8.3, py + warp*qy + 2.8, 3);
+        G[gy*gw + gx] = fbm(px + warp*rx, py + warp*ry, 4);
+        GQ[gy*gw + gx] = Math.sqrt(qx*qx + qy*qy);
+      }
+    };
+    const upsample = () => {
+      const cr = (a, b, c, d) => (-a + 9*b + 9*c - d) / 16, T = new Float32Array(w * gh);
+      for (let gy = 0; gy < gh; gy++) { const rr = gy * gw; for (let x = 0; x < w; x++) { const c = (x >> 1) + 1; T[gy*w + x] = x & 1 ? cr(G[rr+c-1], G[rr+c], G[rr+c+1], G[rr+c+2]) : G[rr+c]; } }
+      for (let y = 0; y < h; y++) { const c = (y >> 1) + 1; for (let x = 0; x < w; x++) {
+        F[y*w + x] = y & 1 ? cr(T[(c-1)*w+x], T[c*w+x], T[(c+1)*w+x], T[(c+2)*w+x]) : T[c*w+x];
+        const gx = (x >> 1) + 1, q0 = GQ[c*gw + gx], qx = x & 1 ? (q0 + GQ[c*gw + gx + 1]) / 2 : q0;
+        const q1 = y & 1 ? (x & 1 ? (GQ[(c+1)*gw+gx] + GQ[(c+1)*gw+gx+1]) / 2 : GQ[(c+1)*gw+gx]) : qx;
+        Q[y*w + x] = (qx + q1) / 2;
+      } }
+    };
+    const colorize = () => {
+      const sample = [], stride = Math.max(1, Math.floor(F.length / 4096));
+      for (let i = 0; i < F.length; i += stride) sample.push(F[i]);
+      sample.sort((a, b) => a - b);
+      const lo = sample[Math.floor(sample.length * .02)], hi = sample[Math.floor(sample.length * .98)], k = 1 / (hi - lo || 1);
+      const lx = -.55, ly = -.65, lz = .52, slope = k * m * .012;
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        const i = y*w + x; let t = (F[i] - lo) * k; t = t < 0 ? 0 : t > 1 ? 1 : t;
+        let j = 1; while (j < stops.length - 1 && stops[j].t < t) j++;
+        const a = stops[j-1], b = stops[j]; let f = (t - a.t) / (b.t - a.t || 1); f = f < 0 ? 0 : f > 1 ? 1 : f; f = f*f*(3 - 2*f);
+        const gx = (F[x < w-1 ? i+1 : i] - F[x > 0 ? i-1 : i]) * slope, gy = (F[y < h-1 ? i+w : i] - F[y > 0 ? i-w : i]) * slope;
+        const nd = (-gx*lx - gy*ly + lz) / Math.sqrt(gx*gx + gy*gy + 1), spec = Math.pow(nd > 0 ? nd : 0, 24) * gloss * 255;
+        const silk = 1 + .035 * Math.sin(t*150 + Q[i]*24), vein = veins * Math.max(0, 1 - Math.abs(Q[i] - .42) * 14) * .6, lit = (.82 + .28*nd) * silk * (1 - vein);
+        pixels[i*4] = (a.c[0] + (b.c[0]-a.c[0])*f) * lit + spec; pixels[i*4+1] = (a.c[1] + (b.c[1]-a.c[1])*f) * lit + spec;
+        pixels[i*4+2] = (a.c[2] + (b.c[2]-a.c[2])*f) * lit + spec; pixels[i*4+3] = 255;
+      }
+    };
+    const step = rows => { if (row >= gh) return true; const end = Math.min(gh, row + Math.max(1, rows)); while (row < end) field(row++); if (row < gh) return false; upsample(); colorize(); return true; };
+    return { width: w, height: h, pixels, step };
+  }
+  // one shared painter: a few ms per frame so the page never janks
+  const queue = []; let pumping = false;
+  function pump() {
+    if (pumping) return; pumping = true;
+    const tick = () => {
+      const until = performance.now() + 7;
+      while (queue.length && performance.now() < until) {
+        const head = queue[0];
+        if (head.job.step(4)) {
+          queue.shift();
+          const c = el('canvas'); c.width = head.job.width; c.height = head.job.height;
+          c.getContext('2d').putImageData(new ImageData(head.job.pixels, c.width, c.height), 0, 0);
+          head.done(c);
+        }
+      }
+      if (queue.length) requestAnimationFrame(tick); else pumping = false;
+    };
+    requestAnimationFrame(tick);
+  }
+  function artCanvas(recipe, seed, w, h, density) {
+    const c = el('canvas', 'gf-art'); c.setAttribute('aria-hidden', 'true');
+    c.style.width = w + 'px'; c.style.height = h + 'px';
+    const pw = Math.round(w * density), ph = Math.round(h * density);
+    queue.push({ job: createArtJob(pw, ph, recipe, seed), done: src => { c.width = src.width; c.height = src.height; c.getContext('2d').drawImage(src, 0, 0); c.dataset.ready = ''; } });
+    pump();
+    return c;
+  }
+
+  // ================= Glass Folder =================
+  const W = 340, H = 272, HEADROOM = 54, FRONT_H = 198;
+  const BACK_PATH = 'M0 56A22 22 0 0 1 22 34L146 34C170 34 172 0 198 0L318 0A22 22 0 0 1 340 22L340 250A22 22 0 0 1 318 272L22 272A22 22 0 0 1 0 250Z';
+  const FRONT_PATH = 'M0 22A22 22 0 0 1 22 0L118 0C144 0 146 32 172 32L318 32A22 22 0 0 1 340 54L340 ' + (FRONT_H - 22) + 'A22 22 0 0 1 318 ' + FRONT_H + 'L22 ' + FRONT_H + 'A22 22 0 0 1 0 ' + (FRONT_H - 22) + 'Z';
+  const fanSlot = (i, n) => n <= 1 ? 0 : (i / (n - 1)) * 2 - 1;
+
+  const FOLDERS = [
+    { label: 'Marca', meta: '2 builds · Bruno Lenses', art: 'dusk', seed: 7, files: [
+      { name: 'Bruno Lenses', meta: 'CH.01', image: 'shots/brunolenses.jpg', href: '#ch01' },
+      { name: 'Lenses Mag · 18+', meta: 'CH.06', image: 'shots/lensesmag.jpg', href: '#ch06' } ] },
+    { label: 'Produtos', meta: '3 builds · meus', art: 'ember', seed: 11, files: [
+      { name: 'Canônicas de Deus', meta: 'CH.02', image: 'shots/canonicas.jpg', href: '#ch02' },
+      { name: 'Studio Lenses', meta: 'CH.03', image: 'shots/studiolenses.jpg', href: '#ch03' },
+      { name: 'RADDAR', meta: 'CH.05', image: 'shots/raddar.jpg', href: '#ch05' } ] },
+    { label: 'Clientes', meta: '3 builds · entregues', art: 'aurora', seed: 3, files: [
+      { name: 'KRNM Skins', meta: 'CH.04', image: 'shots/krnm.jpg', href: '#ch04' },
+      { name: 'Protocolos Premium', meta: 'CH.07', image: 'shots/marilia.jpg', href: '#ch07' },
+      { name: 'SENAJ Leilões', meta: 'CH.08', image: 'shots/senaj.jpg', href: '#ch08' } ] },
+  ];
+
+  function buildFolder(slot, o, i) {
+    const width = Math.min(340, Math.floor(slot.clientWidth || 340));
+    const k = width / W;
+    const density = Math.min(1.5, Math.max(1, devicePixelRatio || 1)) * k;
+    const root = el('div', 'gf-root');
+    root.style.width = width + 'px'; root.style.height = ((H + HEADROOM) * k) + 'px';
+    const stage = el('div', 'gf-stage'); stage.style.transform = `translateY(${HEADROOM * k}px) scale(${k})`;
+    const tilt = el('div', 'gf-tilt');
+    const shadow = el('div', 'gf-shadow'); shadow.setAttribute('aria-hidden', 'true');
+    const back = el('div', 'gf-back'); back.setAttribute('aria-hidden', 'true'); back.style.clipPath = `path('${BACK_PATH}')`;
+    back.append(artCanvas(ART[o.art], o.seed, W + 24, H + 24, density), el('div', 'gf-back-sheen'));
+    tilt.append(shadow, back);
+    tilt.insertAdjacentHTML('beforeend', `<svg class="gf-rim gf-back-rim" viewBox="0 0 ${W} ${H}" aria-hidden="true"><path d="${BACK_PATH}"/></svg>`);
+
+    const files = el('div', 'gf-files'); files.setAttribute('role', 'list'); files.setAttribute('aria-label', o.label + ', conteúdo');
+    o.files.forEach((f, v) => {
+      const jit = rng(hashString(f.name) + v);
+      const a = el('a', 'gf-sheet'); a.href = f.href; a.setAttribute('role', 'listitem');
+      a.style.setProperty('--gf-slot', fanSlot(v, o.files.length));
+      a.style.setProperty('--gf-depth', o.files.length - 1 - v);
+      a.style.setProperty('--gf-jx', ((jit() - .5) * 10).toFixed(2) + 'px');
+      a.style.setProperty('--gf-jr', ((jit() - .5) * 3.2).toFixed(2) + 'deg');
+      a.style.zIndex = v + 1;
+      a.innerHTML = `<img class="gf-sheet-art" src="${f.image}" alt="" width="272" height="184" draggable="false"><span class="gf-sheet-head"><span class="gf-sheet-name">${f.name}</span><span class="gf-sheet-meta">${f.meta}</span></span>`;
+      a.addEventListener('click', () => setOpen(false));
+      files.append(a);
+    });
+    files.setAttribute('inert', '');
+
+    const front = el('div', 'gf-front'); front.style.clipPath = `path('${FRONT_PATH}')`;
+    front.innerHTML = `<div class="gf-tint" aria-hidden="true"></div><div class="gf-spec" aria-hidden="true"></div>
+      <svg class="gf-rim gf-front-rim" viewBox="0 0 ${W} ${FRONT_H}" aria-hidden="true"><defs><linearGradient id="gfr-${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset=".35" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity=".12"/></linearGradient></defs><path d="${FRONT_PATH}" stroke="url(#gfr-${i})"/></svg>
+      <button type="button" class="gf-hit" aria-expanded="false" aria-label="Abrir a pasta ${o.label}, ${o.files.length} builds"></button>
+      <div class="gf-label"><span class="gf-title">${o.label}</span><span class="gf-meta">${o.meta}</span></div>`;
+    tilt.append(front, files);
+    stage.append(tilt); root.append(stage); slot.append(root);
+
+    const hit = front.querySelector('.gf-hit');
+    function setOpen(open) {
+      root.toggleAttribute('data-open', open);
+      hit.setAttribute('aria-expanded', open);
+      hit.setAttribute('aria-label', (open ? 'Fechar' : 'Abrir') + ` a pasta ${o.label}, ${o.files.length} builds`);
+      files.toggleAttribute('inert', !open);
+    }
+    hit.addEventListener('click', () => setOpen(!root.hasAttribute('data-open')));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && root.hasAttribute('data-open')) { setOpen(false); hit.focus(); } });
+    document.addEventListener('pointerdown', e => { if (root.hasAttribute('data-open') && !root.contains(e.target)) setOpen(false); });
+
+    // light and parallax follow the cursor
+    let raf = 0, px = 0, py = 0;
+    const write = () => { raf = 0; root.style.setProperty('--gf-px', px.toFixed(3)); root.style.setProperty('--gf-py', py.toFixed(3)); };
+    root.addEventListener('pointermove', e => { if (e.pointerType === 'touch') return; const r = root.getBoundingClientRect(); px = ((e.clientX - r.left) / r.width) * 2 - 1; py = ((e.clientY - r.top) / r.height) * 2 - 1; if (!raf) raf = requestAnimationFrame(write); });
+    root.addEventListener('pointerleave', () => { px = 0; py = 0; if (!raf) raf = requestAnimationFrame(write); });
+    // assemble on load, staggered (never waits on scrolling)
+    setTimeout(() => root.setAttribute('data-entered', ''), reduce ? 0 : 150 + i * 140);
+  }
+  document.querySelectorAll('[data-folder]').forEach(slot => { const i = +slot.dataset.folder; buildFolder(slot, FOLDERS[i], i); });
+
+  // ================= Halftone wordmark =================
+  function halftone(root, o) {
+    const canvas = root.querySelector('canvas'), ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const ink = hex(o.ink), warm = hex(o.warm);
+    const img = new Image();
+    let w = 0, h = 0, dpr = 1, px = -1e5, py = -1e5, raf = 0, visible = true, awake = true;
+    let ring = { x: 0, y: 0, t: -1 }, dots = new Float32Array(0), count = 0, grainTile = null;
+
+    function layout() {
+      const r = root.getBoundingClientRect();
+      w = Math.max(1, Math.round(r.width)); h = Math.max(1, Math.round(r.height));
+      dpr = Math.min(devicePixelRatio || 1, 2);
+      canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+      if (!img.naturalWidth) return;
+      const mask = el('canvas'); mask.width = w; mask.height = h;
+      const m = mask.getContext('2d', { willReadFrequently: true });
+      const ar = img.naturalWidth / img.naturalHeight;
+      let lw, lh, lx, ly;
+      if (o.mode === 'crop') { lw = w * o.fit; lh = lw / ar; lx = (w - lw) / 2; ly = h - lh * (1 - o.crop); }
+      else { lw = Math.min(w * o.fit, h * .94 * ar); lh = lw / ar; lx = (w - lw) / 2; ly = (h - lh) / 2; }
+      m.drawImage(img, lx, ly, lw, lh);
+      let data;
+      try { data = m.getImageData(0, 0, w, h).data; } catch (err) { return; }
+      const gap = o.gap(w), cols = Math.ceil(w / gap), rows = Math.ceil(h / gap), tmp = [];
+      for (let gy = 0; gy < rows; gy++) for (let gx = 0; gx < cols; gx++) {
+        let sum = 0;
+        for (let sy = 0; sy < 3; sy++) for (let sx = 0; sx < 3; sx++) {
+          const x = Math.min(w - 1, Math.floor(gx * gap + ((sx + .5) * gap) / 3)), y = Math.min(h - 1, Math.floor(gy * gap + ((sy + .5) * gap) / 3));
+          sum += data[(y * w + x) * 4 + 3];
+        }
+        const cov = sum / (9 * 255);
+        if (cov < .06) continue;
+        const hx = gx * gap + gap / 2, hy = gy * gap + gap / 2;
+        tmp.push(hx, hy, 0, 0, hx, hy, Math.sqrt(cov) * gap * .56);
+      }
+      dots = new Float32Array(tmp); count = tmp.length / 7;
+      if (o.grain > 0 && !grainTile) {
+        grainTile = el('canvas'); grainTile.width = grainTile.height = 256;
+        const g = grainTile.getContext('2d'), id = g.createImageData(256, 256);
+        for (let i = 0; i < id.data.length; i += 4) { const v = Math.random() * 255; id.data[i] = id.data[i+1] = id.data[i+2] = v; id.data[i+3] = Math.random() < .5 ? 0 : 255; }
+        g.putImageData(id, 0, 0);
+      }
+      awake = true;
+    }
+    function draw(now) {
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (o.bg === 'transparent') ctx.clearRect(0, 0, w, h); else { ctx.fillStyle = o.bg; ctx.fillRect(0, 0, w, h); }
+      const r = reduce ? 0 : o.radius, ringAge = ring.t < 0 ? 1e9 : now - ring.t, ringR = ringAge * .9;
+      let moving = false;
+      for (let i = 0; i < count; i++) {
+        const j = i * 7; let x = dots[j], y = dots[j+1], vx = dots[j+2], vy = dots[j+3]; const hx = dots[j+4], hy = dots[j+5];
+        if (!reduce) {
+          if (ringAge < 900) {
+            const dx = hx - ring.x, dy = hy - ring.y, d = Math.sqrt(dx*dx + dy*dy) + .001, band = 1 - Math.min(1, Math.abs(d - ringR) / 26);
+            if (band > 0) { const f = band * 3.2 * (1 - ringAge / 900); vx += (dx / d) * f; vy += (dy / d) * f; }
+          }
+          const ddx = x - px, ddy = y - py, d2 = ddx*ddx + ddy*ddy;
+          if (r > 0 && d2 < r*r) { const d = Math.sqrt(d2) + .001, f = (1 - d / r) * 2.6; vx += (ddx / d) * f; vy += (ddy / d) * f; }
+          vx = (vx + (hx - x) * .05) * .84; vy = (vy + (hy - y) * .05) * .84; x += vx; y += vy;
+          if (Math.abs(vx) + Math.abs(vy) > .02 || Math.abs(x - hx) + Math.abs(y - hy) > .05) moving = true;
+          else { x = hx; y = hy; vx = 0; vy = 0; }
+          dots[j] = x; dots[j+1] = y; dots[j+2] = vx; dots[j+3] = vy;
+        }
+        const kk = Math.min(1, Math.hypot(x - hx, y - hy) / 28);
+        ctx.fillStyle = kk > .02 ? `rgb(${Math.round(ink[0] + (warm[0]-ink[0])*kk)},${Math.round(ink[1] + (warm[1]-ink[1])*kk)},${Math.round(ink[2] + (warm[2]-ink[2])*kk)})` : o.ink;
+        ctx.beginPath(); ctx.arc(x, y, dots[j+6], 0, 6.2832); ctx.fill();
+      }
+      if (grainTile && o.grain > 0) {
+        ctx.globalAlpha = Math.min(1, o.grain) * .09; ctx.globalCompositeOperation = 'overlay';
+        const pat = ctx.createPattern(grainTile, 'repeat'); if (pat) { ctx.fillStyle = pat; ctx.fillRect(0, 0, w, h); }
+        ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+      }
+      awake = moving || ringAge < 900 || px > -1e4;
+    }
+    const loop = now => { raf = 0; if (!visible) return; draw(now); if (awake) raf = requestAnimationFrame(loop); };
+    const wake = () => { awake = true; if (!raf && visible) raf = requestAnimationFrame(loop); };
+    const local = e => { const b = canvas.getBoundingClientRect(); return [e.clientX - b.left, e.clientY - b.top]; };
+    root.addEventListener('pointermove', e => { if (e.pointerType === 'touch') return; [px, py] = local(e); wake(); });
+    root.addEventListener('pointerleave', () => { px = py = -1e5; wake(); });
+    root.addEventListener('pointerdown', e => { if (reduce || e.target.closest('a,button')) return; const [x, y] = local(e); ring = { x, y, t: performance.now() }; wake(); });
+    new ResizeObserver(() => { layout(); wake(); }).observe(root);
+    new IntersectionObserver(en => { visible = en[0] ? en[0].isIntersecting : true; if (visible) wake(); }).observe(root);
+    img.onload = () => { layout(); draw(performance.now()); wake(); };
+    img.src = o.src;
+  }
+  halftone(document.getElementById('ht-hero'), {
+    src: 'brand/lc-stacked-black.svg', mode: 'fit', fit: .86, bg: 'transparent', ink: '#eaf9ff', warm: '#ff3b2f',
+    grain: 0, radius: 80, gap: w => clamp(Math.round(w / 210), 3, 6) });
+  halftone(document.getElementById('contato'), {
+    src: 'brand/lc-stacked-black.svg', mode: 'crop', fit: .96, crop: .22, bg: 'transparent', ink: '#eaf9ff', warm: '#ff3b2f',
+    grain: 0, radius: 90, gap: w => clamp(Math.round(w / 190), 4, 7) });
+
+  // ================= Spotlight frames: follow the pointer =================
+  const glows = [...document.querySelectorAll('.glow')];
+  let gx = -1e5, gy = -1e5;
+  function paintGlows() {
+    const xp = (gx / innerWidth).toFixed(3);
+    for (const g of glows) {
+      const r = g.getBoundingClientRect();
+      if (r.bottom < -200 || r.top > innerHeight + 200) continue;
+      g.style.setProperty('--x', (gx - r.left).toFixed(1));
+      g.style.setProperty('--y', (gy - r.top).toFixed(1));
+      g.style.setProperty('--xp', xp);
+    }
+  }
+  if (fine) {
+    addEventListener('pointermove', e => { gx = e.clientX; gy = e.clientY; paintGlows(); }, { passive: true });
+    addEventListener('scroll', paintGlows, { passive: true });
+  }
+
+  // ================= Liquid-glass loupe =================
+  const ZOOM = 2.5, LS = 168, R = LS / 2;
+  const safari = /Safari/.test(navigator.userAgent) && !/Chrome|Chromium|Edg|OPR/.test(navigator.userAgent);
+  function sdBox(px, py, hw, hh, r) { const qx = Math.abs(px) - hw + r, qy = Math.abs(py) - hh + r; return Math.min(Math.max(qx, qy), 0) + Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) - r; }
+  function bend(x) { const u = 1 - clamp(x, 0, 1), den = (1 - u ** 4) ** .75; if (den < 1e-6) return 0; const ti = Math.atan(Math.min(u ** 3 / den, 8)), st = Math.sin(ti) / 1.5; return st >= 1 ? Math.sin(ti) : Math.sin(ti - Math.asin(st)); }
+  async function liquidFilter(id, size, bevelDepth, scale, aberration, frost) {
+    const dpr = Math.min(devicePixelRatio || 1, 2), Wd = Math.round(size * dpr), Hd = Wd, hw = Wd / 2, hh = Hd / 2, r = hw, bev = Math.max(1, bevelDepth * dpr);
+    const n = Math.ceil(bev), phi = new Float32Array(n + 1);
+    for (let d = 1; d <= n; d++) phi[d] = phi[d - 1] + bend(d / n);
+    const sample = dep => { if (dep <= 0) return 0; if (dep >= n) return phi[n]; const i = Math.floor(dep), f = dep - i; return phi[i] * (1 - f) + phi[i + 1] * f; };
+    const field = new Float32Array(Wd * Hd);
+    for (let y = 0; y < Hd; y++) for (let x = 0; x < Wd; x++) { const d = sdBox(x - hw + .5, y - hh + .5, hw, hh, r); field[y * Wd + x] = d > 0 ? 0 : sample(Math.min(bev, -d)); }
+    const data = new Uint8ClampedArray(Wd * Hd * 4);
+    for (let y = 0; y < Hd; y++) for (let x = 0; x < Wd; x++) {
+      const i = (y * Wd + x) * 4, d = sdBox(x - hw + .5, y - hh + .5, hw, hh, r);
+      if (d > 0) { data[i] = data[i+1] = data[i+2] = 128; data[i+3] = 0; continue; }
+      const x0 = Math.max(0, x - 1), x1 = Math.min(Wd - 1, x + 1), y0 = Math.max(0, y - 1), y1 = Math.min(Hd - 1, y + 1);
+      const dx = clamp((field[y*Wd + x1] - field[y*Wd + x0]) / (x1 - x0 || 1) * 1.35, -1, 1), dy = clamp((field[y1*Wd + x] - field[y0*Wd + x]) / (y1 - y0 || 1) * 1.35, -1, 1);
+      data[i] = 128 + dx * 127; data[i+1] = 128 + dy * 127; data[i+2] = 0; data[i+3] = 255;
+    }
+    const c = el('canvas'); c.width = Wd; c.height = Hd; c.getContext('2d').putImageData(new ImageData(data, Wd, Hd), 0, 0);
+    const blob = await new Promise(res => c.toBlob(res, 'image/png'));
+    const url = URL.createObjectURL(blob);
+    await new Promise(res => { const im = new Image(); im.onload = im.onerror = res; im.src = url; });
+    const pad = Math.ceil(scale + aberration + 4), p = (pad / size * 100).toFixed(3);
+    const disp = (s, out) => `<feDisplacementMap in="SourceGraphic" in2="map" scale="${s}" xChannelSelector="R" yChannelSelector="G" result="${out}"/>`;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="0" height="0" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+      <filter id="${id}" color-interpolation-filters="sRGB" x="-${p}%" y="-${p}%" width="${100 + 2 * p}%" height="${100 + 2 * p}%">
+        <feImage href="${url}" xlink:href="${url}" x="0" y="0" width="${size}" height="${size}" result="map" preserveAspectRatio="none"/>
+        ${disp(scale + aberration, 'dR')}<feColorMatrix in="dR" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="red"/>
+        ${disp(scale, 'dG')}<feColorMatrix in="dG" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="green"/>
+        ${disp(Math.max(0, scale - aberration), 'dB')}<feColorMatrix in="dB" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="blue"/>
+        <feBlend in="red" in2="green" mode="screen" result="rg"/><feBlend in="rg" in2="blue" mode="screen" result="rgb"/>
+        <feGaussianBlur in="rgb" stdDeviation="${frost}"/>
+      </filter></svg>`;
+    document.body.insertAdjacentHTML('beforeend', svg);
+    return `url(#${id})`;
+  }
+  const loupeFilter = (!fine || safari) ? Promise.resolve(null) : liquidFilter('lg-loupe', LS, 30, 40, 10, .3).catch(() => null);
+
+  // ================= chapters: tilt, focus, glare, loupe =================
+  const chapters = [...document.querySelectorAll('.ch')].map(ch => {
+    const shot = ch.querySelector('[data-lens]'), glow = shot.querySelector('.glow'), box = shot.querySelector('.img'), img = box.querySelector('img');
+    const glare = el('div', 'glare'); box.append(glare);
+    const s = { ch, shot, box, img, lens: shot.parentElement, ghost: ch.querySelector('[data-ghost]'), copy: ch.querySelector('.copy'),
+      side: shot.dataset.side === 'left' ? 1 : -1, mx: 0, my: 0, tmx: 0, tmy: 0 };
+    if (fine) {
+      const loupe = el('div', 'loupe'); loupe.setAttribute('aria-hidden', 'true');
+      loupe.innerHTML = `<div class="loupe-img"></div><div class="loupe-shine"></div><div class="loupe-dot"></div><span>${ZOOM}×</span>`;
+      glow.append(loupe);
+      const lens = loupe.querySelector('.loupe-img');
+      loupeFilter.then(f => { if (f) lens.style.filter = f; });
+      box.addEventListener('pointermove', e => {
+        const r = box.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+        s.tmx = clamp(x / r.width * 2 - 1, -1, 1); s.tmy = clamp(y / r.height * 2 - 1, -1, 1);
+        const ir = img.getBoundingClientRect(), nw = img.naturalWidth || 800, nh = img.naturalHeight || 500;
+        const k = Math.max(ir.width / nw, ir.height / nh), rw = nw * k, rh = nh * k, ox = (ir.width - rw) / 2;
+        const pX = e.clientX - ir.left - ox, pY = e.clientY - ir.top;
+        loupe.style.left = (box.offsetLeft + x) + 'px'; loupe.style.top = (box.offsetTop + y) + 'px';
+        lens.style.backgroundImage = `url("${img.currentSrc || img.src}")`;
+        lens.style.backgroundSize = `${rw * ZOOM}px ${rh * ZOOM}px`;
+        lens.style.backgroundPosition = `${-(pX * ZOOM - R)}px ${-(pY * ZOOM - R)}px`;
+        loupe.classList.add('on');
+        glare.style.setProperty('--gx', (x / r.width * 100).toFixed(1) + '%'); glare.style.setProperty('--gy', (y / r.height * 100).toFixed(1) + '%'); glare.style.setProperty('--go', '1');
+      });
+      box.addEventListener('pointerleave', () => { s.tmx = 0; s.tmy = 0; loupe.classList.remove('on'); glare.style.setProperty('--go', '0'); });
+    }
+    return s;
+  });
+
+  if (reduce) return;
+
+  // ================= motion loop =================
+  const ap = document.querySelector('.aperture');
+  let hx = 0, hy = 0, thx = 0, thy = 0;
+  if (fine) addEventListener('pointermove', e => { thx = e.clientX / innerWidth * 2 - 1; thy = e.clientY / innerHeight * 2 - 1; }, { passive: true });
+  function tick(t) {
+    const vh = innerHeight;
+    hx = lerp(hx, thx, .06); hy = lerp(hy, thy, .06);
+    if (ap) { ap.style.setProperty('--ax', (hx * 30).toFixed(2) + 'px'); ap.style.setProperty('--ay', (hy * 22).toFixed(2) + 'px'); ap.style.setProperty('--rot', (scrollY * .06 + t * .004).toFixed(2) + 'deg'); }
+    for (const s of chapters) {
+      const cr = s.ch.getBoundingClientRect();
+      if (cr.bottom < -300 || cr.top > vh + 300) continue;
+      const lr = s.lens.getBoundingClientRect(), p = clamp((lr.top + lr.height / 2 - vh / 2) / vh, -1, 1), a = Math.abs(p);
+      s.mx = lerp(s.mx, s.tmx, .1); s.my = lerp(s.my, s.tmy, .1);
+      const st = s.shot.style;
+      st.setProperty('--rx', (p * 14 - s.my * 9).toFixed(2) + 'deg');
+      st.setProperty('--ry', (s.side * a * 16 + s.mx * 12).toFixed(2) + 'deg');
+      st.setProperty('--ty', (p * 40).toFixed(1) + 'px');
+      st.setProperty('--s', (1 - a * .07).toFixed(3));
+      st.setProperty('--blur', (Math.max(0, a - .15) * 8).toFixed(2) + 'px');
+      st.setProperty('--iy', (p * -5).toFixed(2) + '%');
+      if (s.ghost) s.ghost.style.transform = `translate3d(${(s.mx * -28).toFixed(1)}px, ${(p * -220 + s.my * -18).toFixed(1)}px, 0)`;
+      if (s.copy) s.copy.style.transform = `translate3d(0, ${(p * -26).toFixed(1)}px, 0)`;
+    }
+    if (fine && gx > -1e4) paintGlows();
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+</script>
+
+</body></html>
