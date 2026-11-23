@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="./style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="KRNM Skins — proteção premium e identidade para câmeras, lentes e acessórios. Skins sob medida, produzidas no Brasil.">
+    <meta name="robots" content="index,follow">
+    <title>KRNM SKINS — proteção premium para câmeras</title>
+  </head>
+  <body>
+    <!-- Hero: a fita 3D guiada pela rolagem -->
+    <section class="hero" id="hero">
+      <div class="hero-sticky">
+        <canvas class="noise" aria-hidden="true"></canvas>
+        <div class="glow" aria-hidden="true"></div>
+        <!-- .brandmark (caveira) e .conveyor são injetados pelo script -->
+        <div class="belt" id="belt" role="region" aria-label="Fita de texturas KRNM — role para explorar"></div>
+        <div class="wordmark" aria-hidden="true">
+          <svg viewBox="0 0 1888 377" xmlns="http://www.w3.org/2000/svg">
+            <text x="944" y="250" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="200" font-size="300" letter-spacing="38" fill="#ffffff">KRNM</text>
+            <text x="944" y="334" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="400" font-size="58" letter-spacing="62" fill="#b7a47a">SKINS</text>
+          </svg>
+        </div>
+        <div class="bottom-shade" aria-hidden="true"></div>
+
+        <div class="agency">
+          <p>skins premium para câmeras e acessórios</p>
+          <p class="since">proteção · estilo · identidade</p>
+        </div>
+        <nav class="socials" aria-label="Links KRNM Skins">
+          <a href="https://instagram.com/krnmskins" target="_blank" rel="noopener noreferrer">instagram</a><span>/</span>
+          <a href="https://wa.me/5511914962846" target="_blank" rel="noopener noreferrer">whatsapp</a>
+        </nav>
+
+        <div class="scroll-cue" aria-hidden="true">
+          <span>role para explorar as 10 texturas</span>
+          <span class="chev">⌄</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Catálogo: cada câmera em detalhe, de duas em duas -->
+    <section class="catalog" id="catalog">
+      <header class="section-intro">
+        <p class="eyebrow">A coleção</p>
+        <h2>Dez acabamentos.<br>Uma identidade para cada setup.</h2>
+        <p class="lead">Skins premium sob medida para câmeras, lentes e acessórios. Escolha a textura e transforme o seu equipamento.</p>
+      </header>
+      <div class="grid" id="catalog-grid"></div>
+    </section>
+
+    <!-- Depoimento / UGC -->
+    <section class="ugc" id="depoimento">
+      <div class="ugc-inner">
+        <div class="ugc-text">
+          <p class="eyebrow">Na prática</p>
+          <h2>Quem usa,<br>sente a diferença.</h2>
+          <p class="lead">Um relato real de quem transformou o próprio setup com uma skin KRNM. Dê o play.</p>
+        </div>
+        <div class="ugc-video">
+          <video controls playsinline preload="metadata" poster="assets/video/ugc-poster.jpg">
+            <source src="assets/video/ugc.mp4" type="video/mp4">
+            Seu navegador não suporta a reprodução deste vídeo.
+          </video>
+        </div>
+      </div>
+    </section>
+
+    <!-- Como funciona -->
+    <section class="how" id="how">
+      <p class="eyebrow">Como funciona</p>
+      <h2>Do seu modelo à skin sob medida.</h2>
+      <ol class="steps">
+        <li><span class="step-n">01</span><h3>Envie o modelo</h3><p>Nos diga qual é a sua câmera, lente ou acessório.</p></li>
+        <li><span class="step-n">02</span><h3>Escolha a textura</h3><p>Dez acabamentos da coleção — ou uma edição especial.</p></li>
+        <li><span class="step-n">03</span><h3>Produção sob medida</h3><p>Cortamos e produzimos a skin exclusiva para o seu setup.</p></li>
+      </ol>
+      <a class="btn" href="https://wa.me/5511914962846?text=Ol%C3%A1!%20Quero%20personalizar%20o%20meu%20setup%20com%20uma%20skin%20KRNM." target="_blank" rel="noopener noreferrer">Personalize o seu setup &nbsp;→</a>
+    </section>
+
+    <footer class="site-foot">
+      <div class="foot-mark" aria-hidden="true">
+        <svg viewBox="0 0 1888 377" xmlns="http://www.w3.org/2000/svg">
+          <text x="944" y="250" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="200" font-size="300" letter-spacing="38" fill="#ffffff">KRNM</text>
+          <text x="944" y="334" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="400" font-size="58" letter-spacing="62" fill="#b7a47a">SKINS</text>
+        </svg>
+      </div>
+      <p class="foot-tag">Personalize. Proteja. Expresse quem você é.</p>
+      <nav class="foot-links" aria-label="Contato KRNM">
+        <a href="https://instagram.com/krnmskins" target="_blank" rel="noopener noreferrer">@krnmskins</a>
+        <a href="https://wa.me/5511914962846" target="_blank" rel="noopener noreferrer">WhatsApp +55 11 91496-2846</a>
+      </nav>
+      <p class="foot-copy">KRNM Skins · Produção sob medida 🇧🇷</p>
+    </footer>
+
+    <a class="wa-fab" href="https://wa.me/5511914962846?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20KRNM%20Skins." target="_blank" rel="noopener noreferrer" aria-label="Falar no WhatsApp">
+      <span class="wa-dot" aria-hidden="true"></span> WhatsApp
+    </a>
+
+    <p class="status" role="status" hidden></p>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
