@@ -1,0 +1,51 @@
+[
+ {
+  "link": "portfolio",
+  "url": "https://www.brunolenses.com/lensescode/portfolio/",
+  "capa": "capas/portfolio.jpg",
+  "nome": "Anel de fotos",
+  "texto": "As fotos flutuam num anel 3D por cima de uma paisagem, com névoa e pétalas. A frase do topo acende cada grupo (movimento, simetria, linhas), arrastar gira o anel e o clique abre a foto grande. A página \"Agendar\" monta o pedido de ensaio e manda pro WhatsApp."
+ },
+ {
+  "link": "boteco",
+  "url": "https://www.brunolenses.com/lensescode/boteco/",
+  "capa": "capas/boteco.jpg",
+  "nome": "Esteira de boteco",
+  "texto": "Os pratos passam numa esteira oval que gira sozinha. Passar o mouse para, arrastar faz girar e clicar abre o prato grandão com preço e detalhes. Tudo vai pra uma comanda que manda o pedido pronto no WhatsApp. Tem cardápio por categoria, horários e reservas."
+ },
+ {
+  "link": "arara",
+  "url": "https://www.brunolenses.com/lensescode/arara/",
+  "capa": "capas/arara.jpg",
+  "nome": "Loja da arara",
+  "texto": "Loja de roupa com arara 3D. As peças ficam de lado, viram de frente quando o mouse passa e abrem a página do produto com tamanho e sacola."
+ },
+ {
+  "link": "retrato",
+  "url": "https://www.brunolenses.com/lensescode/retrato/",
+  "capa": "capas/retrato.jpg",
+  "nome": "Retrato que gira",
+  "texto": "Portfólio em que uma cabeça 3D vira e muda de lado conforme a página rola, olhando sempre pro texto. O mouse puxa o olhar e o texto entra a cada seção."
+ },
+ {
+  "link": "objetiva",
+  "url": "https://www.brunolenses.com/lensescode/objetiva/",
+  "capa": "capas/objetiva.jpg",
+  "nome": "Objetiva · Aposentei as lentes",
+  "texto": "Uma objetiva 3D feita só com código. Na rolagem, o diafragma abre de ƒ/16 a ƒ/1.4, a lente desmonta em camadas (cada vidro é uma habilidade) e, no fim, seus sites aparecem do outro lado do vidro."
+ },
+ {
+  "link": "portal",
+  "url": "https://www.brunolenses.com/lensescode/portal/",
+  "capa": "capas/portal.jpg",
+  "nome": "Portal",
+  "texto": "Um portal de folhas e flores se abre para um céu de pôr do sol. A rolagem atravessa o portal e, do outro lado, os rituais e ocasiões giram num arco de cartões coloridos que dá pra arrastar. Clicar num cartão abre o WhatsApp."
+ },
+ {
+  "link": "copa",
+  "url": "https://www.brunolenses.com/lensescode/copa/",
+  "capa": "capas/copa.jpg",
+  "nome": "Copa",
+  "texto": "Abertura em 3D: a arara entra voando do fundo da mata, passa pelo título e segue circulando entre as folhas. A câmera acompanha o mouse e a rolagem."
+ }
+]
