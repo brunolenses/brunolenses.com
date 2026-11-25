@@ -61,14 +61,14 @@ img,video{display:block;max-width:100%}
 .palco{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;perspective:var(--persp,900px);perspective-origin:50% 46%;background:radial-gradient(120% 80% at 50% 45%,#1d1c22 0%,var(--grafite) 70%)}
 .mundo{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d;will-change:transform}
 .mundo>*{position:absolute;transform-style:preserve-3d;backface-visibility:hidden}
-.parede{left:calc(var(--prof) / -2);top:calc(var(--alt) / -2);width:var(--prof);height:var(--alt);background:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.35)),url(cena/parede.webp) 0 0 / auto 100% repeat-x #1b1b1c}
+.parede{left:calc(var(--prof) / -2);top:calc(var(--alt) / -2);width:var(--prof);height:var(--alt);background:radial-gradient(130px 62% at 50% 0%,rgba(246,243,238,.13),transparent) 0 0 / 1500px 100% repeat-x,linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.38)),url(cena/parede.webp) 0 0 / 900px 900px repeat #1b1b1c}
 .parede.esq{transform:translate3d(calc(var(--larg) / -2),0,calc(var(--prof) / -2)) rotateY(90deg)}
 .parede.dir{transform:translate3d(calc(var(--larg) / 2),0,calc(var(--prof) / -2)) rotateY(-90deg)}
 .chao,.teto{left:calc(var(--larg) / -2);top:calc(var(--prof) / -2);width:var(--larg);height:var(--prof)}
 .chao{transform:translate3d(0,calc(var(--alt) / 2),calc(var(--prof) / -2)) rotateX(90deg);background:linear-gradient(180deg,rgba(10,10,12,.25),rgba(10,10,12,.62) 70%,rgba(10,10,12,.75)),url(cena/piso.webp) 50% 0 / var(--placa) var(--placa) repeat #2a2a2a}
 .chao::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(168,141,255,.16),rgba(246,243,238,.06) 6%,transparent 22%),radial-gradient(40% 8% at 50% 0%,rgba(246,243,238,.12),transparent);pointer-events:none}
-.teto{transform:translate3d(0,calc(var(--alt) / -2),calc(var(--prof) / -2)) rotateX(-90deg);background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),url(cena/parede.webp) 0 0 / 1400px auto repeat #111}
-.fundo{left:calc(var(--larg) / -2);top:calc(var(--alt) / -2);width:var(--larg);height:var(--alt);background:linear-gradient(rgba(255,255,255,.1),rgba(0,0,0,.15)),url(cena/parede.webp) 50% 0 / auto 100% repeat-x #2b2b2c;transform:translateZ(calc(var(--prof) * -1))}
+.teto{transform:translate3d(0,calc(var(--alt) / -2),calc(var(--prof) / -2)) rotateX(-90deg);background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),url(cena/parede.webp) 0 0 / 900px 900px repeat #111}
+.fundo{left:calc(var(--larg) / -2);top:calc(var(--alt) / -2);width:var(--larg);height:var(--alt);background:linear-gradient(rgba(255,255,255,.1),rgba(0,0,0,.15)),url(cena/parede.webp) 50% 0 / 900px 900px repeat #2b2b2c;transform:translateZ(calc(var(--prof) * -1))}
 /* a porta clássica: moldura parada, folha que abre, luz violeta atrás */
 .porta{width:var(--pw);height:var(--ph);left:calc(var(--pw) / -2);top:calc(var(--ph) / -2);transform:translate3d(0,calc(var(--alt) / 2 - var(--ph) / 2),calc(var(--prof) * -1 + 3px))}
 .porta>*{position:absolute}
