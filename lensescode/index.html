@@ -61,29 +61,30 @@ img,video{display:block;max-width:100%}
 .palco{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;perspective:var(--persp,900px);perspective-origin:50% 46%;background:radial-gradient(120% 80% at 50% 45%,#1d1c22 0%,var(--grafite) 70%)}
 .mundo{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d;will-change:transform}
 .mundo>*{position:absolute;transform-style:preserve-3d;backface-visibility:hidden}
-.parede{left:calc(var(--prof) / -2);top:calc(var(--alt) / -2);width:var(--prof);height:var(--alt);background:
-  repeating-linear-gradient(90deg,rgba(246,243,238,.07) 0 1px,transparent 1px 640px),
-  linear-gradient(180deg,#19181c,#121214 60%,#0e0e10)}
+.parede{left:calc(var(--prof) / -2);top:calc(var(--alt) / -2);width:var(--prof);height:var(--alt);background:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.35)),url(cena/parede.webp) 0 0 / auto 100% repeat-x #1b1b1c}
 .parede.esq{transform:translate3d(calc(var(--larg) / -2),0,calc(var(--prof) / -2)) rotateY(90deg)}
 .parede.dir{transform:translate3d(calc(var(--larg) / 2),0,calc(var(--prof) / -2)) rotateY(-90deg)}
 .chao,.teto{left:calc(var(--larg) / -2);top:calc(var(--prof) / -2);width:var(--larg);height:var(--prof)}
-.chao{transform:translate3d(0,calc(var(--alt) / 2),calc(var(--prof) / -2)) rotateX(90deg);background:
-  repeating-linear-gradient(0deg,rgba(246,243,238,.06) 0 1px,transparent 1px 640px),
-  repeating-linear-gradient(90deg,rgba(246,243,238,.05) 0 1px,transparent 1px 200px),#111113}
-.teto{transform:translate3d(0,calc(var(--alt) / -2),calc(var(--prof) / -2)) rotateX(-90deg);background:repeating-linear-gradient(0deg,rgba(246,243,238,.05) 0 1px,transparent 1px 640px),#0f0f11}
-/* o caminho de luz do símbolo, no chão, indo até a porta */
-.luz{position:absolute;inset:0;background:linear-gradient(0deg,rgba(246,243,238,0) 0%,rgba(246,243,238,.06) 20%,rgba(246,243,238,.22) 85%,rgba(246,243,238,.5) 100%);clip-path:polygon(0% 100%,30% 100%,var(--px2) 0%,var(--px1) 0%)}
-.fundo{left:calc(var(--larg) / -2);top:calc(var(--alt) / -2);width:var(--larg);height:var(--alt);background:#0c0c0e;transform:translateZ(calc(var(--prof) * -1))}
-.porta{width:var(--pw);height:var(--ph);left:calc(var(--pw) / -2);top:calc(var(--ph) / -2);transform:translate3d(var(--px),calc(var(--alt) / 2 - var(--ph) / 2),calc(var(--prof) * -1 + 2px))}
-.porta .moldura{position:absolute;inset:-14px -14px 0;border:6px solid var(--porcelana);border-bottom:0}
-.porta .folha{position:absolute;inset:0;background:var(--violeta);display:flex;flex-direction:column;justify-content:space-between;padding:22px 20px 24px;box-shadow:0 0 120px 30px rgba(74,22,254,.35)}
-.porta .folha h2{font-size:30px;line-height:1.02;font-weight:850;letter-spacing:-.01em;color:#fff}
-.porta .folha p{font-size:11.5px;line-height:1.45;color:var(--lavanda)}
-.porta .acoes{display:flex;flex-direction:column;gap:8px}
-.porta .acoes a{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700;padding:9px 12px;border-radius:999px;background:var(--porcelana);color:var(--grafite)}
-.porta .acoes a.linha{background:transparent;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.55)}
-.porta .mono{font-size:7.5px;color:var(--lilas)}
-
+.chao{transform:translate3d(0,calc(var(--alt) / 2),calc(var(--prof) / -2)) rotateX(90deg);background:linear-gradient(180deg,rgba(10,10,12,.25),rgba(10,10,12,.62) 70%,rgba(10,10,12,.75)),url(cena/piso.webp) 50% 0 / var(--placa) var(--placa) repeat #2a2a2a}
+.chao::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(168,141,255,.16),rgba(246,243,238,.06) 6%,transparent 22%),radial-gradient(40% 8% at 50% 0%,rgba(246,243,238,.12),transparent);pointer-events:none}
+.teto{transform:translate3d(0,calc(var(--alt) / -2),calc(var(--prof) / -2)) rotateX(-90deg);background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),url(cena/parede.webp) 0 0 / 1400px auto repeat #111}
+.fundo{left:calc(var(--larg) / -2);top:calc(var(--alt) / -2);width:var(--larg);height:var(--alt);background:linear-gradient(rgba(255,255,255,.1),rgba(0,0,0,.15)),url(cena/parede.webp) 50% 0 / auto 100% repeat-x #2b2b2c;transform:translateZ(calc(var(--prof) * -1))}
+/* a porta clássica: moldura parada, folha que abre, luz violeta atrás */
+.porta{width:var(--pw);height:var(--ph);left:calc(var(--pw) / -2);top:calc(var(--ph) / -2);transform:translate3d(0,calc(var(--alt) / 2 - var(--ph) / 2),calc(var(--prof) * -1 + 3px))}
+.porta>*{position:absolute}
+.porta .vao{left:10.88%;top:8.15%;width:76.45%;height:91.85%;background:radial-gradient(60% 45% at 50% 55%,#fff 0%,#D9CCFF 18%,var(--lilas) 40%,var(--violeta) 85%);box-shadow:0 0 calc(var(--pw) * .5) calc(var(--pw) * .12) rgba(74,22,254,.0);transition:box-shadow .2s}
+.porta .moldura{inset:0;width:100%;height:100%;filter:drop-shadow(0 30px 40px rgba(0,0,0,.6))}
+.porta .folha{left:10.88%;top:8.15%;width:76.45%;height:91.85%;transform-origin:0 50%;transform-style:preserve-3d}
+.porta .folha img{width:100%;height:100%;display:block;filter:drop-shadow(12px 0 18px rgba(0,0,0,.45))}
+.porta .sombra{left:-30%;right:-30%;bottom:-2%;height:10%;background:radial-gradient(50% 50% at 50% 50%,rgba(0,0,0,.6),transparent);transform:translateZ(1px)}
+/* chegada: a luz da porta invade a tela e o contato aparece */
+.chegada{position:absolute;inset:0;z-index:7;display:grid;place-items:center;text-align:center;padding:24px;opacity:0;visibility:hidden;background:radial-gradient(45% 55% at 50% 52%,rgba(74,22,254,.55),rgba(21,21,21,.0) 75%)}
+.chegada.on{visibility:visible}
+.chegada .cx{max-width:560px;display:grid;justify-items:center;gap:18px}
+.chegada h2{font-size:clamp(40px,6vw,82px);line-height:.95;font-weight:900;letter-spacing:-.02em;text-shadow:0 6px 40px rgba(21,8,80,.6)}
+.chegada p{font-size:clamp(15px,1.3vw,18px);line-height:1.5;color:#fff;max-width:40ch;text-shadow:0 2px 20px rgba(21,8,80,.8)}
+.chegada .acoes{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+.chegada .mono{color:#fff;opacity:.85}
 .quadro{width:var(--fw);left:calc(var(--fw) / -2);top:0;transition:opacity .6s}
 .quadro .tela{display:block;position:relative;aspect-ratio:16/10;border-radius:10px;overflow:hidden;background:#000;box-shadow:0 40px 90px -30px rgba(0,0,0,.9),0 0 0 1px rgba(246,243,238,.12)}
 .quadro .tela video,.quadro .tela img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -174,6 +175,14 @@ img,video{display:block;max-width:100%}
       </div>
     </div>
     <nav class="progresso" id="progresso" aria-label="Sites no corredor"></nav>
+    <div class="chegada" id="chegada" aria-live="polite">
+      <div class="cx">
+        <span class="mono">Fim do corredor</span>
+        <h2>O próximo site é o seu.</h2>
+        <p>Me conte o que você faz. Eu desenho, construo e coloco no ar, com direção do começo ao fim.</p>
+        <div class="acoes"><a class="botao claro" href="https://wa.me/5515997730671?text=Oi%20Bruno!%20Vi%20a%20Lenses%20Code%20e%20quero%20um%20site%20com%20dire%C3%A7%C3%A3o." target="_blank" rel="noopener">Falar no WhatsApp ↗</a><a class="botao" href="mailto:brunolenses@gmail.com">Mandar e-mail</a></div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -231,21 +240,18 @@ img,video{display:block;max-width:100%}
     const alt = cel ? vh * 2.1 : Math.max(vh * 1.7, 1300);
     const gap = cel ? 1500 : 1900, ini = cel ? 1500 : 1900;
     const prof = ini + gap * N + (cel ? 1400 : 1800);
-    const pw = 300, ph = 520, px = larg * .26;
+    const ph = alt * (cel ? .5 : .6), pw = ph * 671 / 1338, px = 0;
     G = { vw, vh, cel, persp, fw, larg, alt, gap, ini, prof, pw, ph, px };
     const s = palco.style;
     s.setProperty("--persp", persp + "px"); s.setProperty("--fw", fw + "px"); s.setProperty("--larg", larg + "px");
     s.setProperty("--alt", alt + "px"); s.setProperty("--prof", prof + "px"); s.setProperty("--pw", pw + "px"); s.setProperty("--ph", ph + "px"); s.setProperty("--px", px + "px");
-    // luz no chão: sai larga da esquerda e afina até a porta
-    const p1 = (larg / 2 + px - pw / 2) / larg * 100, p2 = (larg / 2 + px - pw / 2 + 24) / larg * 100;
-    s.setProperty("--px1", p1 + "%"); s.setProperty("--px2", p2 + "%");
+    s.setProperty("--placa", (cel ? 520 : 760) + "px");
   }
   medidas();
   // monta o corredor
-  mundo.innerHTML = `<div class="parede esq"></div><div class="parede dir"></div><div class="chao"><div class="luz"></div></div><div class="teto"></div><div class="fundo"></div>
-  <div class="porta"><div class="moldura"></div><div class="folha"><div><span class="mono">Fim do corredor</span><h2>O próximo site é o seu.</h2></div>
-  <div><p>Me conte o que você faz. Eu desenho, construo e coloco no ar, com direção do começo ao fim.</p></div>
-  <div class="acoes"><a href="${WA}" target="_blank" rel="noopener">WhatsApp <span>↗</span></a><a class="linha" href="mailto:brunolenses@gmail.com">E-mail <span>↗</span></a></div></div></div>`;
+  mundo.innerHTML = `<div class="parede esq"></div><div class="parede dir"></div><div class="chao"></div><div class="teto"></div><div class="fundo"></div>
+  <div class="porta"><div class="sombra"></div><div class="vao"></div><img class="moldura" src="cena/moldura.webp" alt="" width="671" height="1338"><div class="folha"><img src="cena/folha.webp" alt="" width="513" height="1228"></div></div>`;
+  const vao = mundo.querySelector(".vao"), folha = mundo.querySelector(".folha"), chegada = document.getElementById("chegada");
   const quadros = SITES.map((s, i) => {
     const el = document.createElement("article"); el.className = "quadro";
     el.innerHTML = `<a class="tela" href="${s.url}" aria-label="Abrir o site ${s.nome}"><img src="${s.poster}" alt="" loading="${i < 2 ? "eager" : "lazy"}" width="960" height="600">${s.video ? `<video muted loop playsinline preload="none" poster="${s.poster}"><source src="${s.video}" type="video/mp4"></video>` : ""}</a>
@@ -269,7 +275,7 @@ img,video{display:block;max-width:100%}
   const dist = s => G.persp / s - G.persp;
   const vista = () => dist(G.vw * (G.cel ? .86 : .56) / G.fw);
   const parada = k => G.ini + G.gap * k - vista();
-  const camFinal = () => G.prof - 2 - dist(Math.min(G.vw * .8, G.vh * .78 * G.pw / G.ph) / G.pw);
+  const camFinal = () => G.prof - 2 - dist(Math.min(G.vw * .8 / G.pw, G.vh * .8 / G.ph));
   const S = N + 1;
   function lerRolagem() {
     const r = corredor.getBoundingClientRect(), total = corredor.offsetHeight - innerHeight;
@@ -302,6 +308,10 @@ img,video{display:block;max-width:100%}
     const fimK = suave(Math.max(0, Math.min(1, u - N))); cx = cx * (1 - fimK) + G.px * fimK;
     const cy = (G.alt / 2 - G.ph / 2) * fimK;
     mundo.style.transform = `rotateX(${smy * -2.2 * (1 - fimK)}deg) rotateY(${smx * 3.2 * (1 - fimK)}deg) translate3d(${-cx}px, ${-cy}px, ${z}px)`;
+    const abre = suave(Math.max(0, Math.min(1, (u - N - .62) / .3))), cta = Math.max(0, Math.min(1, (u - N - .8) / .18));
+    folha.style.transform = `rotateY(${-abre * 112}deg)`;
+    vao.style.boxShadow = `0 0 ${G.pw * .6}px ${G.pw * .2 * abre}px rgba(74,22,254,${.7 * abre})`;
+    chegada.style.opacity = cta; chegada.classList.toggle("on", cta > .02);
     abertura.style.opacity = Math.max(0, 1 - u * 1.8);
     abertura.style.transform = `translateY(${-cam * 600}px)`;
     let perto = -1, melhor = 1e9;
