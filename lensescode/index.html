@@ -28,6 +28,14 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"ProfessionalService","name":"Lenses Code","alternateName":"Lenses Code by Bruno Lenses","description":"Estúdio de design e desenvolvimento de sites.","slogan":"Sites com direção.","url":"https://brunolenses.com/lensescode/","logo":"https://brunolenses.com/lensescode/marca/simbolo.svg","image":"https://brunolenses.com/lensescode/og.jpg","email":"brunolenses@gmail.com","telephone":"+55 15 99773-0671","areaServed":"BR","address":{"@type":"PostalAddress","addressLocality":"Sorocaba","addressRegion":"SP","addressCountry":"BR"},"founder":{"@type":"Person","name":"Bruno Lopes","alternateName":"Bruno Lenses","url":"https://brunolenses.com/"},"sameAs":["https://www.instagram.com/brunolenses/"]}
 </script>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.183.2/build/three.module.min.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.183.2/examples/jsm/"
+  }
+}
+</script>
 <style>
 @font-face{font-family:"Nunito Sans";src:url(fontes/nunito-sans.woff2) format("woff2");font-weight:200 1000;font-stretch:75% 125%;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:"Nunito Sans";src:url(fontes/nunito-sans-ext.woff2) format("woff2");font-weight:200 1000;font-stretch:75% 125%;font-display:swap;unicode-range:U+0100-02AF,U+1E00-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
@@ -96,6 +104,19 @@ img,video{display:block;max-width:100%}
 .quadro .ir{grid-row:1 / span 2;grid-column:3;align-self:center}
 .rotulo{white-space:nowrap;font-family:var(--mono);font-size:22px;letter-spacing:.3em;color:rgba(246,243,238,.32)}
 
+/* Galeria WebGL e links HTML sobre o quadro em foco */
+.corredor:has(.com-galeria){height:calc(var(--n,7) * 96vh + 218vh)}
+.galeria-3d,.galeria-interface{position:absolute;inset:0}
+.galeria-3d canvas{display:block;width:100%;height:100%}
+.galeria-interface{z-index:5;pointer-events:none}
+.galeria-interface .quadro{position:absolute;left:var(--quadro-x);top:var(--quadro-y);width:var(--quadro-w);transform:translateX(-50%)}
+.galeria-interface .tela{height:var(--quadro-h);aspect-ratio:auto;background:transparent;box-shadow:none;border-radius:4px;pointer-events:auto}
+.galeria-interface .tela::after{content:none}
+.galeria-interface .leg{padding-top:16px;text-shadow:0 2px 18px #141312,0 1px 4px #141312}
+.galeria-interface .leg p{color:#eeebe5}
+.galeria-interface .ir{pointer-events:auto;text-shadow:none}
+.com-galeria .vinheta{background:radial-gradient(ellipse at 54% 46%,transparent 41%,rgba(12,11,10,.18) 100%),linear-gradient(transparent 54%,rgba(12,11,10,.24) 100%)}
+
 /* abertura por cima do corredor */
 .abertura{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;justify-content:flex-end;padding:0 clamp(18px,4vw,48px) clamp(34px,6vh,64px);pointer-events:none}
 .abertura h1{font-size:clamp(52px,9.4vw,168px);line-height:.9;font-weight:900;letter-spacing:-.025em;max-width:11ch}
@@ -143,9 +164,16 @@ img,video{display:block;max-width:100%}
   .progresso{display:none}
   .rotulo{font-size:16px}
 }
+@media (max-height:580px) and (min-aspect-ratio:6/5){
+  .galeria-interface .leg{width:min(520px,86vw);margin-left:50%;transform:translateX(-50%);grid-template-columns:minmax(0,1fr) auto;gap:4px 18px;padding-top:10px}
+  .galeria-interface .num{display:none}
+  .galeria-interface h3{font-size:21px}
+  .galeria-interface .leg p{grid-column:1;font-size:12px;line-height:1.35}
+  .galeria-interface .ir{grid-column:2;grid-row:1 / span 2;margin-top:0;padding:8px 14px;font-size:13px}
+}
 @media (prefers-reduced-motion:reduce){
-  .corredor{height:auto}.palco{position:relative;height:auto;perspective:none;background:var(--grafite)}
-  .mundo,.vinheta,.progresso{display:none}.abertura{position:relative;min-height:88vh}
+  .corredor,.corredor:has(.com-galeria){height:auto}.palco{position:relative;height:auto;perspective:none;background:var(--grafite)}
+  .mundo,.vinheta,.progresso,.galeria-3d,.chegada{display:none}.abertura{position:relative;min-height:88vh}
   .abertura .role i{animation:none}
 }
 </style>
@@ -221,7 +249,7 @@ img,video{display:block;max-width:100%}
 <script>
 (() => {
   const SITES = JSON.parse(document.getElementById("dados").textContent);
-  const reduz = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduz = matchMedia("(prefers-reduced-motion: reduce)");
   const palco = document.getElementById("palco"), mundo = document.getElementById("mundo"), corredor = document.getElementById("corredor");
   const abertura = document.getElementById("abertura"), progresso = document.getElementById("progresso");
   const N = SITES.length; corredor.style.setProperty("--n", N);
@@ -229,105 +257,117 @@ img,video{display:block;max-width:100%}
   const topo = document.querySelector(".topo"), todos = document.getElementById("todos");
   const corTopo = () => { const r = todos.getBoundingClientRect(); topo.classList.toggle("claro", r.top < 50 && r.bottom > 50); };
   addEventListener("scroll", corTopo, { passive: true }); corTopo();
-  if (reduz) return;
-  const WA = "https://wa.me/5515997730671?text=Oi%20Bruno!%20Vi%20a%20Lenses%20Code%20e%20quero%20um%20site%20com%20dire%C3%A7%C3%A3o.";
-  let G = {};
-  function medidas() {
-    const vw = innerWidth, vh = innerHeight, cel = vw < 760;
-    const persp = cel ? 620 : 900;
-    const fw = cel ? Math.min(vw * .84, 440) : Math.min(780, vw * .5);
-    const larg = cel ? Math.max(vw * 2.2, 900) : Math.max(vw * 1.9, 2300);
-    const alt = cel ? vh * 2.1 : Math.max(vh * 1.7, 1300);
-    const gap = cel ? 1500 : 1900, ini = cel ? 1500 : 1900;
-    const prof = ini + gap * N + (cel ? 1400 : 1800);
-    const ph = alt * (cel ? .5 : .6), pw = ph * 671 / 1338, px = 0;
-    G = { vw, vh, cel, persp, fw, larg, alt, gap, ini, prof, pw, ph, px };
-    const s = palco.style;
-    s.setProperty("--persp", persp + "px"); s.setProperty("--fw", fw + "px"); s.setProperty("--larg", larg + "px");
-    s.setProperty("--alt", alt + "px"); s.setProperty("--prof", prof + "px"); s.setProperty("--pw", pw + "px"); s.setProperty("--ph", ph + "px"); s.setProperty("--px", px + "px");
-    s.setProperty("--placa", (cel ? 520 : 760) + "px");
+  const chegada = document.getElementById("chegada");
+  function iniciar() {
+    if (reduz.matches) return;
+    reduz.removeEventListener("change", iniciar);
+    import("./cena/corredor-3d.js").then(({ iniciarGaleria }) => iniciarGaleria({
+      sites: SITES, palco, corredor, abertura, progresso, chegada, reduz, alternativa: corredorCSS,
+    })).catch(corredorCSS);
   }
-  medidas();
-  // monta o corredor
-  mundo.innerHTML = `<div class="parede esq"></div><div class="parede dir"></div><div class="chao"></div><div class="teto"></div><div class="fundo"></div>
-  <div class="porta"><div class="sombra"></div><div class="vao"></div><img class="moldura" src="cena/moldura.webp" alt="" width="671" height="1338"><div class="folha"><img src="cena/folha.webp" alt="" width="513" height="1228"></div></div>`;
-  const vao = mundo.querySelector(".vao"), folha = mundo.querySelector(".folha"), chegada = document.getElementById("chegada");
-  const quadros = SITES.map((s, i) => {
-    const el = document.createElement("article"); el.className = "quadro";
-    el.innerHTML = `<a class="tela" href="${s.url}" aria-label="Abrir o site ${s.nome}"><img src="${s.poster}" alt="" loading="${i < 2 ? "eager" : "lazy"}" width="960" height="600">${s.video ? `<video muted loop playsinline preload="none" poster="${s.poster}"><source src="${s.video}" type="video/mp4"></video>` : ""}</a>
-      <div class="leg"><span class="num">${String(i + 1).padStart(2, "0")} / ${String(N).padStart(2, "0")}</span><h3>${s.nome}</h3><p>${s.curto}</p><a class="botao ir" href="${s.url}">Abrir site ↗</a></div>`;
-    mundo.append(el);
-    const nav = document.createElement("a"); nav.href = s.url; nav.innerHTML = `<span>${s.nome}</span><b></b>`; nav.setAttribute("aria-label", s.nome);
-    nav.addEventListener("click", e => { e.preventDefault(); irPara(i); }); progresso.append(nav);
-    return { el, video: el.querySelector("video"), nav, tocando: false };
-  });
-  function posiciona() {
-    quadros.forEach((q, i) => {
-      const lado = G.cel ? 0 : (i % 2 ? 1 : -1) * G.larg * .15;
-      const z = -(G.ini + G.gap * i);
-      q.x = lado; q.z = z;
-      q.el.style.transform = `translate3d(${lado}px, ${-G.fw * .38}px, ${z}px) rotateY(${G.cel ? 0 : (i % 2 ? -12 : 12)}deg)`;
+  reduz.addEventListener("change", iniciar);
+  iniciar();
+
+  function corredorCSS() {
+    let G = {};
+    function medidas() {
+      const vw = innerWidth, vh = innerHeight, cel = vw < 760;
+      const persp = cel ? 620 : 900;
+      const fw = cel ? Math.min(vw * .84, 440) : Math.min(780, vw * .5);
+      const larg = cel ? Math.max(vw * 2.2, 900) : Math.max(vw * 1.9, 2300);
+      const alt = cel ? vh * 2.1 : Math.max(vh * 1.7, 1300);
+      const gap = cel ? 1500 : 1900, ini = cel ? 1500 : 1900;
+      const prof = ini + gap * N + (cel ? 1400 : 1800);
+      const ph = alt * (cel ? .5 : .6), pw = ph * 671 / 1338, px = 0;
+      G = { vw, vh, cel, persp, fw, larg, alt, gap, ini, prof, pw, ph, px };
+      const s = palco.style;
+      s.setProperty("--persp", persp + "px"); s.setProperty("--fw", fw + "px"); s.setProperty("--larg", larg + "px");
+      s.setProperty("--alt", alt + "px"); s.setProperty("--prof", prof + "px"); s.setProperty("--pw", pw + "px"); s.setProperty("--ph", ph + "px"); s.setProperty("--px", px + "px");
+      s.setProperty("--placa", (cel ? 520 : 760) + "px");
+    }
+    medidas();
+    // monta o corredor
+    mundo.innerHTML = `<div class="parede esq"></div><div class="parede dir"></div><div class="chao"></div><div class="teto"></div><div class="fundo"></div>
+    <div class="porta"><div class="sombra"></div><div class="vao"></div><img class="moldura" src="cena/moldura.webp" alt="" width="671" height="1338"><div class="folha"><img src="cena/folha.webp" alt="" width="513" height="1228"></div></div>`;
+    const vao = mundo.querySelector(".vao"), folha = mundo.querySelector(".folha");
+    const quadros = SITES.map((s, i) => {
+      const el = document.createElement("article"); el.className = "quadro";
+      el.innerHTML = `<a class="tela" href="${s.url}" aria-label="Abrir o site ${s.nome}"><img src="${s.poster}" alt="" loading="${i < 2 ? "eager" : "lazy"}" width="960" height="600">${s.video ? `<video muted loop playsinline preload="none" poster="${s.poster}"><source src="${s.video}" type="video/mp4"></video>` : ""}</a>
+        <div class="leg"><span class="num">${String(i + 1).padStart(2, "0")} / ${String(N).padStart(2, "0")}</span><h3>${s.nome}</h3><p>${s.curto}</p><a class="botao ir" href="${s.url}">Abrir site ↗</a></div>`;
+      mundo.append(el);
+      const nav = document.createElement("a"); nav.href = s.url; nav.innerHTML = `<span>${s.nome}</span><b></b>`; nav.setAttribute("aria-label", s.nome);
+      nav.addEventListener("click", e => { e.preventDefault(); irPara(i); }); progresso.append(nav);
+      return { el, video: el.querySelector("video"), nav, tocando: false };
     });
+    function posiciona() {
+      quadros.forEach((q, i) => {
+        const lado = G.cel ? 0 : (i % 2 ? 1 : -1) * G.larg * .15;
+        const z = -(G.ini + G.gap * i);
+        q.x = lado; q.z = z;
+        q.el.style.transform = `translate3d(${lado}px, ${-G.fw * .38}px, ${z}px) rotateY(${G.cel ? 0 : (i % 2 ? -12 : 12)}deg)`;
+      });
+    }
+    posiciona();
+    // câmera: rolar = andar pelo corredor, parando diante de cada site
+    let alvo = 0, cam = 0, mx = 0, my = 0, smx = 0, smy = 0;
+    const dist = s => G.persp / s - G.persp;
+    const vista = () => dist(G.vw * (G.cel ? .86 : .56) / G.fw);
+    const parada = k => G.ini + G.gap * k - vista();
+    const camFinal = () => G.prof - 2 - dist(Math.min(G.vw * .8 / G.pw, G.vh * .8 / G.ph));
+    const S = N + 1;
+    function lerRolagem() {
+      const r = corredor.getBoundingClientRect(), total = corredor.offsetHeight - innerHeight;
+      alvo = Math.min(1, Math.max(0, -r.top / total));
+    }
+    const suave = f => f < .5 ? 4 * f * f * f : 1 - Math.pow(-2 * f + 2, 3) / 2;
+    function camPara(p) {
+      const u = Math.min(S - 1e-6, p * S), i = Math.floor(u), f = suave(u - i);
+      const de = i === 0 ? 0 : parada(i - 1), ate = i < N ? parada(i) : camFinal();
+      return de + (ate - de) * f;
+    }
+    function irPara(i) {
+      const total = corredor.offsetHeight - innerHeight;
+      scrollTo({ top: corredor.offsetTop + total * ((i + 1) / S), behavior: "smooth" });
+    }
+    addEventListener("scroll", lerRolagem, { passive: true });
+    addEventListener("resize", () => { medidas(); posiciona(); lerRolagem(); });
+    addEventListener("pointermove", e => { if (e.pointerType === "mouse") { mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; } }, { passive: true });
+    lerRolagem();
+    cam = alvo;
+    let ativo = -1, antes = performance.now();
+    const lerp = (k, dt) => 1 - Math.pow(1 - k, dt * 60);
+    (function quadro(agora) {
+      requestAnimationFrame(quadro);
+      const dt = Math.min(.25, ((agora || performance.now()) - antes) / 1000); antes = agora || performance.now();
+      cam += (alvo - cam) * lerp(.075, dt); smx += (mx - smx) * lerp(.06, dt); smy += (my - smy) * lerp(.06, dt);
+      const z = camPara(cam), u = cam * S, V = vista();
+      // a câmera desliza de leve para o quadro da vez; no fim, centra na porta
+      let cx = 0;
+      quadros.forEach(q => { const d = Math.abs(-q.z - z - V); cx += q.x * Math.max(0, 1 - d / (G.gap * .8)) * .9; });
+      const fimK = suave(Math.max(0, Math.min(1, u - N))); cx = cx * (1 - fimK) + G.px * fimK;
+      const cy = (G.alt / 2 - G.ph / 2) * fimK;
+      mundo.style.transform = `rotateX(${smy * -2.2 * (1 - fimK)}deg) rotateY(${smx * 3.2 * (1 - fimK)}deg) translate3d(${-cx}px, ${-cy}px, ${z}px)`;
+      const abre = suave(Math.max(0, Math.min(1, (u - N - .62) / .3))), cta = Math.max(0, Math.min(1, (u - N - .8) / .18));
+      folha.style.transform = `rotateY(${-abre * 112}deg)`;
+      vao.style.boxShadow = `0 0 ${G.pw * .6}px ${G.pw * .2 * abre}px rgba(74,22,254,${.7 * abre})`;
+      chegada.style.opacity = cta; chegada.classList.toggle("on", cta > .02);
+      abertura.style.opacity = Math.max(0, 1 - u * 1.8);
+      abertura.style.transform = `translateY(${-cam * 600}px)`;
+      let perto = -1, melhor = 1e9;
+      quadros.forEach((q, i) => {
+        const dist = -q.z - z; // distância até a câmera
+        const vis = dist > V - 400 && dist < G.gap * 2.4;
+        const fi = G.cel ? 30 : 140, fl = G.cel ? 150 : 260;
+        q.el.style.opacity = dist < V - fi ? Math.max(0, 1 - (V - fi - dist) / fl) : 1;
+        q.el.style.visibility = dist < V - fi - fl ? "hidden" : "";
+        if (!q.video) {} else if (vis && !q.tocando) { q.video.preload = "auto"; q.video.play().catch(() => {}); q.tocando = true; }
+        else if (!vis && q.tocando) { q.video.pause(); q.tocando = false; }
+        const d = Math.abs(dist - V); if (d < melhor) { melhor = d; perto = i; }
+      });
+      if (melhor > G.gap * .5 || fimK > .3) perto = -1;
+      if (perto !== ativo) { quadros.forEach((q, i) => q.nav.classList.toggle("ativo", i === perto)); ativo = perto; }
+    })();
   }
-  posiciona();
-  // câmera: rolar = andar pelo corredor, parando diante de cada site
-  let alvo = 0, cam = 0, mx = 0, my = 0, smx = 0, smy = 0;
-  const dist = s => G.persp / s - G.persp;
-  const vista = () => dist(G.vw * (G.cel ? .86 : .56) / G.fw);
-  const parada = k => G.ini + G.gap * k - vista();
-  const camFinal = () => G.prof - 2 - dist(Math.min(G.vw * .8 / G.pw, G.vh * .8 / G.ph));
-  const S = N + 1;
-  function lerRolagem() {
-    const r = corredor.getBoundingClientRect(), total = corredor.offsetHeight - innerHeight;
-    alvo = Math.min(1, Math.max(0, -r.top / total));
-  }
-  const suave = f => f < .5 ? 4 * f * f * f : 1 - Math.pow(-2 * f + 2, 3) / 2;
-  function camPara(p) {
-    const u = Math.min(S - 1e-6, p * S), i = Math.floor(u), f = suave(u - i);
-    const de = i === 0 ? 0 : parada(i - 1), ate = i < N ? parada(i) : camFinal();
-    return de + (ate - de) * f;
-  }
-  function irPara(i) {
-    const total = corredor.offsetHeight - innerHeight;
-    scrollTo({ top: corredor.offsetTop + total * ((i + 1) / S), behavior: "smooth" });
-  }
-  addEventListener("scroll", lerRolagem, { passive: true });
-  addEventListener("resize", () => { medidas(); posiciona(); lerRolagem(); });
-  addEventListener("pointermove", e => { if (e.pointerType === "mouse") { mx = e.clientX / innerWidth - .5; my = e.clientY / innerHeight - .5; } }, { passive: true });
-  lerRolagem();
-  let ativo = -1, antes = performance.now();
-  const lerp = (k, dt) => 1 - Math.pow(1 - k, dt * 60);
-  (function quadro(agora) {
-    requestAnimationFrame(quadro);
-    const dt = Math.min(.25, ((agora || performance.now()) - antes) / 1000); antes = agora || performance.now();
-    cam += (alvo - cam) * lerp(.075, dt); smx += (mx - smx) * lerp(.06, dt); smy += (my - smy) * lerp(.06, dt);
-    const z = camPara(cam), u = cam * S, V = vista();
-    // a câmera desliza de leve para o quadro da vez; no fim, centra na porta
-    let cx = 0;
-    quadros.forEach(q => { const d = Math.abs(-q.z - z - V); cx += q.x * Math.max(0, 1 - d / (G.gap * .8)) * .9; });
-    const fimK = suave(Math.max(0, Math.min(1, u - N))); cx = cx * (1 - fimK) + G.px * fimK;
-    const cy = (G.alt / 2 - G.ph / 2) * fimK;
-    mundo.style.transform = `rotateX(${smy * -2.2 * (1 - fimK)}deg) rotateY(${smx * 3.2 * (1 - fimK)}deg) translate3d(${-cx}px, ${-cy}px, ${z}px)`;
-    const abre = suave(Math.max(0, Math.min(1, (u - N - .62) / .3))), cta = Math.max(0, Math.min(1, (u - N - .8) / .18));
-    folha.style.transform = `rotateY(${-abre * 112}deg)`;
-    vao.style.boxShadow = `0 0 ${G.pw * .6}px ${G.pw * .2 * abre}px rgba(74,22,254,${.7 * abre})`;
-    chegada.style.opacity = cta; chegada.classList.toggle("on", cta > .02);
-    abertura.style.opacity = Math.max(0, 1 - u * 1.8);
-    abertura.style.transform = `translateY(${-cam * 600}px)`;
-    let perto = -1, melhor = 1e9;
-    quadros.forEach((q, i) => {
-      const dist = -q.z - z; // distância até a câmera
-      const vis = dist > V - 400 && dist < G.gap * 2.4;
-      const fi = G.cel ? 30 : 140, fl = G.cel ? 150 : 260;
-      q.el.style.opacity = dist < V - fi ? Math.max(0, 1 - (V - fi - dist) / fl) : 1;
-      q.el.style.visibility = dist < V - fi - fl ? "hidden" : "";
-      if (!q.video) {} else if (vis && !q.tocando) { q.video.preload = "auto"; q.video.play().catch(() => {}); q.tocando = true; }
-      else if (!vis && q.tocando) { q.video.pause(); q.tocando = false; }
-      const d = Math.abs(dist - V); if (d < melhor) { melhor = d; perto = i; }
-    });
-    if (melhor > G.gap * .5 || fimK > .3) perto = -1;
-    if (perto !== ativo) { quadros.forEach((q, i) => q.nav.classList.toggle("ativo", i === perto)); ativo = perto; }
-  })();
 })();
 </script>
 </body>
