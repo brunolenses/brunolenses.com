@@ -105,7 +105,7 @@ img,video{display:block;max-width:100%}
 .rotulo{white-space:nowrap;font-family:var(--mono);font-size:22px;letter-spacing:.3em;color:rgba(246,243,238,.32)}
 
 /* Galeria WebGL e links HTML sobre o quadro em foco */
-.corredor:has(.com-galeria){height:calc(var(--n,7) * 96vh + 218vh)}
+.corredor:has(.com-galeria){height:calc(var(--n,7) * 101vh + 330vh)}
 .galeria-3d,.galeria-interface{position:absolute;inset:0}
 .galeria-3d canvas{display:block;width:100%;height:100%}
 .galeria-interface{z-index:5;pointer-events:none}
@@ -116,6 +116,39 @@ img,video{display:block;max-width:100%}
 .galeria-interface .leg p{color:#eeebe5}
 .galeria-interface .ir{pointer-events:auto;text-shadow:none}
 .com-galeria .vinheta{background:radial-gradient(ellipse at 54% 46%,transparent 41%,rgba(12,11,10,.18) 100%),linear-gradient(transparent 54%,rgba(12,11,10,.24) 100%)}
+
+/* Controles e links da sala de projetos sobre a cena 3D */
+.sala-interface{position:absolute;inset:0;z-index:6;pointer-events:none}
+.sala-interface[hidden],.sala-interface [hidden]{display:none}
+.sala-obras{position:absolute;inset:0}
+.sala-obra{position:absolute;pointer-events:auto;border-radius:2px}
+.sala-obra:focus-visible,.sala-obra:hover{outline:1px solid rgba(246,243,238,.65);outline-offset:3px}
+.sala-obra span{position:absolute;left:0;bottom:0;max-width:100%;padding:5px 8px;background:rgba(21,18,17,.88);border-radius:0 5px 0 0;font-size:clamp(11px,1.25vw,16px);line-height:1.15;color:var(--porcelana);opacity:0;transform:translateY(3px);transition:opacity .23s,transform .23s}
+.sala-obra:focus-visible span,.sala-obra:hover span{opacity:1;transform:none}
+.sala-barra{position:absolute;left:50%;bottom:clamp(20px,6.2vh,56px);transform:translateX(-50%);display:flex;align-items:center;gap:10px;width:max-content;max-width:calc(100% - 24px);padding:6px;border:1px solid rgba(246,243,238,.20);border-radius:18px;background:rgba(24,21,19,.8);backdrop-filter:blur(14px);box-shadow:0 8px 26px rgba(0,0,0,.25);pointer-events:auto}
+.sala-navega{display:flex;align-items:center;gap:2px;min-width:0}
+.sala-navega button,.sala-navega select{color:var(--porcelana);border:0;background:transparent;font-family:var(--sans);cursor:pointer}
+.sala-navega button{width:36px;height:40px;flex:0 0 36px;border-radius:11px;font-size:24px;line-height:1}
+.sala-navega button:hover,.sala-navega button:focus-visible{background:rgba(246,243,238,.13)}
+.sala-navega select{height:40px;max-width:min(42vw,235px);padding:0 4px;font-size:clamp(12px,1.8vw,15px);color-scheme:dark}
+.sala-lista,.sala-abrir{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 13px;border-radius:11px;background:rgba(246,243,238,.13);color:var(--porcelana);font-size:clamp(12px,1.65vw,14px);font-weight:750;white-space:nowrap}
+.sala-lista:hover,.sala-abrir:hover{background:rgba(246,243,238,.22)}
+.sala-abrir{background:var(--violeta)}
+.sala-abrir:hover{background:#6235ff}
+.na-sala .progresso{visibility:hidden}
+.palco.com-galeria.na-sala .vinheta{background:linear-gradient(rgba(12,10,9,.42),transparent 15%,transparent 76%,rgba(12,10,9,.22))}
+.com-galeria .chegada{background:rgba(13,11,10,.28);pointer-events:none}
+.com-galeria .chegada.on{pointer-events:auto}
+.com-galeria .chegada .mono{display:none}
+.com-galeria .chegada .cx{width:min(100%,650px);max-width:none;padding:clamp(26px,5vw,68px) clamp(20px,5vw,58px);border:1px solid rgba(246,243,238,.22);border-radius:20px;background:rgba(25,21,22,.72);backdrop-filter:blur(16px);box-shadow:0 22px 72px rgba(9,6,10,.44);transform:translateY(calc((1 - var(--convite,0)) * 28px))}
+.com-galeria .chegada h2{font-size:clamp(36px,5.5vw,74px);text-shadow:0 4px 22px rgba(0,0,0,.4)}
+.com-galeria .chegada p{text-shadow:none}
+.com-galeria .chegada .acoes{justify-content:center}
+@media (max-height:530px) and (min-aspect-ratio:6/5){
+  .sala-barra{bottom:12px}
+  .com-galeria .chegada .cx{gap:10px;padding:20px 34px}
+  .com-galeria .chegada h2{font-size:clamp(32px,5vw,52px)}
+}
 
 /* abertura por cima do corredor */
 .abertura{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;justify-content:flex-end;padding:0 clamp(18px,4vw,48px) clamp(34px,6vh,64px);pointer-events:none}
